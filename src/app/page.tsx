@@ -3,16 +3,16 @@
 import { Fragment, useEffect, useState, type CSSProperties, type FormEvent } from "react";
 import PackageConfigurator from "@/components/PackageConfigurator";
 import { useSettings } from "@/components/SettingsProvider";
-import { BASE_PATH } from "@/lib/config";
+import { BASE_PATH, WHATSAPP_NUMBER } from "@/lib/config";
 import { languages, type Lang } from "@/lib/i18n";
 
 const programImages = [
-  "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1544717305-2782549b5136?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1523240795612-9a054b0db644?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1434030216411-0b793f4b4173?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1516321318423-f06f85e504b3?auto=format&fit=crop&w=600&q=80",
-  "https://images.unsplash.com/photo-1522202176988-66273c2fd55f?auto=format&fit=crop&w=600&q=80",
+  "https://images.pexels.com/photos/5866468/pexels-photo-5866468.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/18471533/pexels-photo-18471533/free-photo-of-a-laboratory-with-computers-and-monitors-on-the-desk.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/18471530/pexels-photo-18471530/free-photo-of-a-laboratory-with-several-computers-and-desks.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/19893586/pexels-photo-19893586/free-photo-of-interior-design-in-modern-office.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/29735561/pexels-photo-29735561/free-photo-of-modern-skyline-of-casablanca-with-moroccan-flags.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/38209616/pexels-photo-38209616/free-photo-of-modern-architecture-in-casablanca-morocco.jpeg?auto=compress&cs=tinysrgb&w=600",
 ];
 
 const PROGRAMS_PER_PAGE = 3;
@@ -75,7 +75,7 @@ export default function Home() {
   useEffect(() => {
     const targets = Array.from(
       document.querySelectorAll<HTMLElement>(
-        ".benefit-strip, .obstacle-section, .mid-cta, .programs-section, .why-section, .reviews-section, .career-section, .faq-section, .contact-section, .package-section",
+        ".benefit-strip, .obstacle-section, .mid-cta, .programs-section, .why-section, .getting-started-section, .career-section, .faq-section, .contact-section, .package-section",
       ),
     );
     const revealAll = () => targets.forEach((target) => target.classList.add("is-visible"));
@@ -108,14 +108,17 @@ export default function Home() {
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
     const inbox = process.env.NEXT_PUBLIC_NEXUS_INQUIRY_EMAIL;
-    if (!inbox) {
-      setFormMessage(t.contact.noInbox);
-      return;
-    }
     const values = new FormData(event.currentTarget);
     const body = Array.from(values.entries())
       .map(([key, value]) => `${key}: ${value}`)
       .join("\n");
+    if (!inbox) {
+      const message = `${t.contact.whatsappIntro}\n\n${body}`;
+      const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
+      window.open(whatsappHref, "_blank", "noopener,noreferrer");
+      setFormMessage(t.contact.whatsappOpened);
+      return;
+    }
     const subject = requestType === "application" ? t.contact.subjectApplication : t.contact.subjectConsultation;
     window.location.href = `mailto:${inbox}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
     setFormMessage(t.contact.opened);
@@ -135,7 +138,7 @@ export default function Home() {
     { href: "#programmes", label: t.nav.courses },
     { href: "#carrieres", label: t.nav.careers },
     { href: "#faq", label: t.nav.faqs },
-    { href: "#avis", label: t.nav.archives },
+    { href: "#steps", label: t.nav.howItWorks },
   ];
 
   return (
@@ -186,8 +189,8 @@ export default function Home() {
               <MoonIcon />
               <SunIcon />
             </button>
-            <a className="button button-small button-primary header-cta" href="#contact">
-              {t.nav.contact} <Arrow />
+            <a className="button button-small button-primary header-cta" href="#forfaits">
+              {t.nav.packCta} <Arrow />
             </a>
           </div>
           <details className="mobile-nav">
@@ -201,7 +204,8 @@ export default function Home() {
                   {link.label}
                 </a>
               ))}
-              <a href="#contact">{t.nav.contact}</a>
+                <a href="#forfaits">{t.nav.packCta}</a>
+                <a href="#contact">{t.nav.contact}</a>
             </nav>
           </details>
         </div>
@@ -233,6 +237,7 @@ export default function Home() {
               {h.programs}
             </a>
           </div>
+          <p className="hero-price-note">{h.priceNote}</p>
           <div className="hero-levels">
             <span>{h.levelsLabel}</span>
             <div className="level-track" role="group" aria-label={a.levelGroup}>
@@ -257,28 +262,6 @@ export default function Home() {
           <div className="hero-visual-wash"></div>
           <div className="visual-label">
             <i></i> {h.visualLabel}
-          </div>
-          <div className="learning-window">
-            <div className="learning-window-top">
-              <span>{h.classroom}</span>
-              <span className="window-dots">
-                <i></i>
-                <i></i>
-                <i></i>
-              </span>
-            </div>
-            <div className="learning-window-content">
-              <span className="window-kicker">{h.sessionKicker}</span>
-              <strong className="floating-confidence">
-                <Lines lines={h.confidence} />
-              </strong>
-              <div className="avatar-row">
-                <span>AM</span>
-                <span>SK</span>
-                <span>+4</span>
-                <small>{h.groupMeta}</small>
-              </div>
-            </div>
           </div>
           <div className="visual-caption">
             <span>{h.caption1}</span>
@@ -415,7 +398,7 @@ export default function Home() {
                 <img
                   className="w-full h-full object-cover object-[50%_25%] transition-transform duration-500 hover:scale-105"
                   src={programImages[program.index]}
-                  alt={a.courseImage(program.title)}
+                  alt=""
                   loading="lazy"
                 />
                 <span>{program.tag}</span>
@@ -504,42 +487,28 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="reviews-section section-shell" id="avis">
-        <div className="reviews-heading">
-          <p className="section-tag">{t.reviews.tag}</p>
+      <section className="getting-started-section section-shell" id="steps">
+        <div className="getting-started-heading">
+          <p className="section-tag">{t.gettingStarted.tag}</p>
           <h2>
-            {t.reviews.title[0]}
+            {t.gettingStarted.title[0]}
             <br />
-            <span>{t.reviews.title[1]}</span>
+            <span>{t.gettingStarted.title[1]}</span>
           </h2>
-          <p>{t.reviews.intro}</p>
+          <p>{t.gettingStarted.intro}</p>
+          <a className="button button-primary" href="#forfaits">
+            {t.gettingStarted.cta} <Arrow />
+          </a>
         </div>
-        <div className="reviews-content">
-          <aside className="google-rating">
-            <span className="google-wordmark">
-              <b>G</b> Google
-            </span>
-            <strong>{t.reviews.ratingTitle}</strong>
-            <p>{t.reviews.ratingText}</p>
-            <span className="google-stars" aria-label={t.reviews.ratingAria}>
-              ☆ ☆ ☆ ☆ ☆
-            </span>
-            <small>{t.reviews.ratingNote}</small>
-          </aside>
-          <div className="review-grid">
-            {t.reviews.cards.map((card, index) => (
-              <article className="review-card" key={card.title}>
-                <div className="review-card-top">
-                  <span className={`review-avatar ${index === 0 ? "avatar-lilac" : "avatar-orange"}`}>N</span>
-                  <span className="google-g">G</span>
-                </div>
-                <strong>{card.title}</strong>
-                <p>{card.text}</p>
-                <span className="review-placeholder">{t.reviews.placeholder}</span>
-              </article>
-            ))}
-          </div>
-        </div>
+        <ol className="getting-started-steps">
+          {t.gettingStarted.steps.map((step, index) => (
+            <li className="getting-started-step" key={step.title}>
+              <span className="step-number">{String(index + 1).padStart(2, "0")}</span>
+              <h3>{step.title}</h3>
+              <p>{step.text}</p>
+            </li>
+          ))}
+        </ol>
       </section>
 
       <section className="career-section section-shell" id="carrieres">

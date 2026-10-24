@@ -79,14 +79,14 @@ body { background: var(--bg); color: var(--text); }
 .nexus-page .section-heading h2,
 .nexus-page .obstacle-copy h2,
 .nexus-page .why-copy h2,
-.nexus-page .reviews-heading h2,
+.nexus-page .getting-started-heading h2,
 .nexus-page .career-copy h2,
 .nexus-page .faq-layout h2,
 .nexus-page .package-heading h2 { color: var(--heading); }
 .nexus-page .section-heading h2 span,
 .nexus-page .obstacle-copy h2 span,
 .nexus-page .why-copy h2 span,
-.nexus-page .reviews-heading h2 span,
+.nexus-page .getting-started-heading h2 span,
 .nexus-page .faq-layout h2 span { color: var(--accent); }
 .nexus-page .contact-copy h2 { color: #fff; }
 .nexus-page .package-eyebrow, .nexus-page .step-kicker { color: var(--accent); }
@@ -125,6 +125,7 @@ body { background: var(--bg); color: var(--text); }
 	background-image: linear-gradient(var(--hero-wash), var(--hero-wash)), var(--hero-image, none), radial-gradient(circle at center, transparent 0 30%, var(--ring) 30.2% 30.6%, transparent 30.8% 48%, var(--ring) 48.2% 48.6%, transparent 48.8% 66%, var(--ring) 66.2% 66.6%, transparent 66.8%);
 }
 .nexus-page .hero-description { color: var(--text-2); }
+.nexus-page .hero-price-note { color: var(--muted); }
 .hero-benefits { color: var(--text-2); }
 .hero-benefits li > span { background: var(--green-soft); color: var(--green-ink); }
 .nexus-page .hero-levels { color: var(--muted); }
@@ -179,17 +180,11 @@ body { background: var(--bg); color: var(--text); }
 .carousel-controls > span button { border: 0; background: var(--border); }
 .carousel-controls > span button.is-current { background: var(--accent); }
 
-/* ---------- Reviews, careers, FAQ ---------- */
-.nexus-page .reviews-heading > p:last-child { color: var(--muted); }
-.nexus-page .google-rating { border-color: var(--border); background: var(--surface-2); }
-.nexus-page .google-wordmark { color: var(--text-2); }
-.nexus-page .google-rating > strong { color: var(--heading); }
-.nexus-page .google-rating p, .nexus-page .google-rating small { color: var(--muted); }
-.nexus-page .google-stars { color: var(--muted); }
-.nexus-page .review-card { border-color: var(--border); background: var(--surface); }
-.nexus-page .review-card > strong { color: var(--heading); }
-.nexus-page .review-card > p, .nexus-page .review-placeholder { color: var(--muted); }
-.nexus-page .review-placeholder { border-color: var(--border); }
+/* ---------- Getting started, careers, FAQ ---------- */
+.nexus-page .getting-started-heading > p { color: var(--muted); }
+.nexus-page .getting-started-step { border-color: var(--border); background: var(--surface); }
+.nexus-page .getting-started-step h3 { color: var(--heading); }
+.nexus-page .getting-started-step p { color: var(--muted); }
 .nexus-page .avatar-lilac { background: var(--accent-soft); color: var(--accent); }
 .nexus-page .avatar-orange { background: var(--amber-soft); color: var(--amber-ink); }
 .nexus-page .career-banner { background: var(--tint); }
@@ -275,7 +270,7 @@ body { background: var(--bg); color: var(--text); }
 [dir="rtl"] .nexus-page .wordmark { direction: ltr; }
 [dir="rtl"] .nexus-page .button:hover > span.arrow { transform: translateX(-4px) scaleX(-1); }
 [dir="rtl"] .nexus-page .visual-label { right: 20px; left: auto; }
-[dir="rtl"] .nexus-page .reserved-badge { right: auto; left: -18px; }
+[dir="rtl"] .nexus-page .reserved-badge { right: auto; left: 12px; }
 [dir="rtl"] .nexus-page .hero-spark { right: auto; left: 34px; }
 [dir="rtl"] .nexus-page .program-photo > span { right: auto; left: 12px; }
 [dir="rtl"] .nexus-page .path-line { right: auto; left: 10%; transform: scaleX(-1) rotate(-16deg); }
@@ -288,7 +283,7 @@ body { background: var(--bg); color: var(--text); }
 [dir="rtl"] .nexus-page .career-copy { padding: 45px 50px 45px 10px; }
 [dir="rtl"] .nexus-page .mobile-nav nav { right: auto; left: -8px; }
 @media (max-width: 680px) {
-	[dir="rtl"] .nexus-page .reserved-badge { right: auto; left: -7px; transform-origin: left bottom; }
+	[dir="rtl"] .nexus-page .reserved-badge { right: auto; left: 8px; transform-origin: left bottom; }
 	[dir="rtl"] .nexus-page .hero-spark { right: auto; left: 23px; }
 	[dir="rtl"] .nexus-page .why-photo { right: 11%; left: 9%; }
 	[dir="rtl"] .nexus-page .why-bubble { right: auto; left: 1%; }
