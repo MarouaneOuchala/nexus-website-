@@ -2,7 +2,8 @@
 
 import { useState, type CSSProperties } from "react";
 import { useSettings } from "@/components/SettingsProvider";
-import { WHATSAPP_NUMBER } from "@/lib/config";
+import { useEnquiry } from "@/components/EnquiryProvider";
+import { enquiryCopy } from "@/lib/enquiries";
 import { DEFAULT_SESSIONS, MAX_SESSIONS, MIN_SESSIONS, SESSION_BUNDLES, SESSION_STEP, getRegularTotal, getTotal } from "@/lib/pricing";
 
 // Arabic uses comma grouping here because "2.699" would read as a decimal.
@@ -10,6 +11,7 @@ const locales = { en: "en-US", fr: "fr-FR", ar: "en-US" } as const;
 
 export default function PackageConfigurator() {
   const { t, lang } = useSettings();
+  const openEnquiry = useEnquiry();
   const c = t.calculator;
   const [sessions, setSessions] = useState(DEFAULT_SESSIONS);
 
@@ -18,9 +20,6 @@ export default function PackageConfigurator() {
   const totalText = new Intl.NumberFormat(locale).format(total);
   const regularTotalText = new Intl.NumberFormat(locale).format(getRegularTotal(sessions));
   const fill = `${((sessions - MIN_SESSIONS) / (MAX_SESSIONS - MIN_SESSIONS)) * 100}%`;
-
-  const message = c.whatsappMessage(sessions, totalText);
-  const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 
   return (
     <section className="package-section" id="forfaits" aria-labelledby="package-title">
@@ -83,18 +82,10 @@ export default function PackageConfigurator() {
             <p className="calc-total" key={total}>
               {totalText} <span>{c.currency}</span>
             </p>
-            <dl className="calc-meta">
-              <div>
-                <dt>{c.sessionsLabel}</dt>
-                <dd>
-                  {sessions} {c.unit(sessions)}
-                </dd>
-              </div>
-            </dl>
-            <a className="button button-warm calc-cta" href={whatsappHref} target="_blank" rel="noopener noreferrer">
-              {c.cta} <span className="arrow" aria-hidden="true">↗</span>
-            </a>
-            <p className="summary-disclaimer">{c.note}</p>
+            <button className="button button-warm calc-cta" type="button" onClick={() => openEnquiry({ sessions })}>
+              {enquiryCopy[lang].open} <span className="arrow" aria-hidden="true">↗</span>
+            </button>
+            <p className="summary-disclaimer">{enquiryCopy[lang].disclaimer}</p>
           </aside>
         </div>
       </div>

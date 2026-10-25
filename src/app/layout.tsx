@@ -1,11 +1,13 @@
 import type { Metadata } from "next";
 import { Inter, Jost, Noto_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
+import { EnquiryProvider } from "@/components/EnquiryProvider";
 import "./globals.css";
 import "./theme.css";
 import "./redesign.css";
 import "./immersive.css";
 import "./cinematic.css";
+import "./enquiries.css";
 
 const dmSans = Inter({ subsets: ["latin"], variable: "--font-dm-sans" });
 const spaceGrotesk = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-space-grotesk" });
@@ -15,7 +17,7 @@ const cinema = Jost({ subsets: ["latin"], variable: "--font-cinema" });
 export const metadata: Metadata = {
   title: "NEXUS — Anglais pour cadres et dirigeants",
   description:
-    "Coaching d’anglais individuel en ligne pour cadres au Maroc. Réunions, présentations et négociations. Packs transparents et réservation sur WhatsApp.",
+    "Coaching d’anglais individuel en ligne pour cadres au Maroc. Réunions, présentations et négociations. Packs transparents et demande de rappel personnalisé.",
 };
 
 // Runs before first paint so the saved theme and language apply without a flash.
@@ -28,7 +30,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: initScript }} />
       </head>
       <body className={`${dmSans.variable} ${spaceGrotesk.variable} ${arabic.variable} ${cinema.variable}`}>
-        <SettingsProvider>{children}</SettingsProvider>
+        <SettingsProvider><EnquiryProvider>{children}</EnquiryProvider></SettingsProvider>
       </body>
     </html>
   );

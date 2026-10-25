@@ -7,6 +7,13 @@ Jost provides vintage geometric lettering alongside Georgia display typography
 and Noto Sans Arabic. Original Three.js scenery adds a pastel miniature executive
 classroom, matching windows, curtains, a ticking wall clock and warm matte props.
 Stepped study-note motion evokes handcrafted stop-motion; no film artwork is used.
+Curtains open on arrival, flashcards bob in the air, notebook pages turn and the
+camera gently drifts even without pointer input. A floating set label, rotating
+ribbon arrows and sequential agenda highlights carry motion beyond the canvas.
+These additional effects only run when reduced motion is not requested.
+Dark mode uses a distinct burgundy-and-forest evening palette across the header,
+hero, coaching brief and lower sections. The room switches materials, blue window
+light and warm key lighting live; the static SVG shares the evening colors.
 English, French and Arabic content centres on meetings, presentations,
 negotiations and leadership rather than university learning.
 
@@ -22,8 +29,23 @@ WebGL2 initialization failure or context loss also uses that fallback with a
 console warning. All decorative effects are hidden from assistive technology.
 The header retains scroll progress, without a pause button or scroll hijacking.
 
-Pricing, the four session bundles, individual-only lessons, EN/FR/AR, theme
-switching, and WhatsApp booking remain unchanged.
+Pricing, the four session bundles, individual-only lessons, EN/FR/AR and theme
+switching remain unchanged. In design 5, consultation/contact and package booking
+now open a matching enquiry popup instead of sending visitors to WhatsApp.
+The selected bundle follows the request; the team calls to finalize the offer.
+
+## Client enquiries and private dashboard
+
+`/admin/` provides password sign-in, an allowlisted-admin enquiry inbox, search,
+status filters, callback scheduling and private notes, in EN/FR/AR and both themes.
+The popup requires a callback phone and consent; it confirms submission only after
+Supabase saves the record. Missing configuration and network failures are explicit.
+
+Follow the [Supabase Free setup guide](supabase/README.md) to create a project,
+apply the migration, provision an admin and configure the two public connection
+values in an ignored `.env.local`. **The backend is not connected automatically.**
+Never put service-role keys or admin passwords in browser code.
+Run `npm run test:enquiries` for local Postgres permission/validation tests.
 
 Run `npm run dev -- --port 3006` to preview this branch independently.
 `design-1` through `design-4` preserve the other directions. No deployment is

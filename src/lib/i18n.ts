@@ -15,7 +15,7 @@ const en = {
   meta: {
     title: "NEXUS — English for executives",
     description:
-      "Private online English coaching for executives in Morocco. Practise meetings, presentations and negotiations. Transparent session packs and WhatsApp booking.",
+      "Private online English coaching for executives in Morocco. Practise meetings, presentations and negotiations. Transparent session packs and personal callback requests.",
   },
   a11y: {
     home: "NEXUS, home",
@@ -147,7 +147,7 @@ const en = {
     intro: "Choose a pack that suits you. We’ll confirm availability and details with you before anything is booked.",
     steps: [
       { title: "Choose your pack", text: "Set the number of sessions and see the total price before you get in touch." },
-      { title: "Message us on WhatsApp", text: "Share your goal and preferred schedule. We’ll confirm availability and your next step." },
+      { title: "Request a callback", text: "Share your goal, phone number and preferred time. Our team will call you to confirm availability and your next step." },
       { title: "Confirm, then learn", text: "Once the details are agreed, get started with live English practice." },
     ],
     cta: "Choose my pack",
@@ -168,7 +168,7 @@ const en = {
       {
         question: "How do I request a first consultation?",
         answer:
-          "Choose “Request a consultation” in the form and tell us your goals. The NEXUS team will get back to you to arrange the next step. Online requests are not sent until the inbox address is configured.",
+          "Open the callback form, share your details and goals, then send your request. A confirmation appears once it is saved. The NEXUS team will call you to arrange the next step.",
       },
       {
         question: "Are lessons individual?",
@@ -178,7 +178,7 @@ const en = {
       {
         question: "How much does a session pack cost?",
         answer:
-          "There is no subscription. Choose an 8, 16, 24 or 32-session pack. The 16-session pack costs 2,699 MAD (about 169 MAD per session). The final amount is confirmed when you book on WhatsApp.",
+          "There is no subscription. Choose an 8, 16, 24 or 32-session pack. The 16-session pack costs 2,699 MAD (about 169 MAD per session). Our team will confirm your offer by phone before you book.",
       },
       {
         question: "Can I change my schedule?",
@@ -240,7 +240,7 @@ const fr: Dictionary = {
   meta: {
     title: "NEXUS — Anglais pour cadres et dirigeants",
     description:
-      "Coaching d’anglais individuel en ligne pour cadres au Maroc. Réunions, présentations et négociations. Packs transparents et réservation sur WhatsApp.",
+      "Coaching d’anglais individuel en ligne pour cadres au Maroc. Réunions, présentations et négociations. Packs transparents et demande de rappel personnalisé.",
   },
   a11y: {
     home: "NEXUS, accueil",
@@ -376,7 +376,7 @@ const fr: Dictionary = {
     intro: "Choisissez le pack qui vous convient. Nous confirmerons avec vous les disponibilités et les détails avant toute réservation.",
     steps: [
       { title: "Choisissez votre pack", text: "Définissez le nombre de séances et consultez le prix total avant de nous contacter." },
-      { title: "Écrivez-nous sur WhatsApp", text: "Indiquez votre objectif et vos disponibilités. Nous confirmerons les créneaux et la suite." },
+      { title: "Demandez un rappel", text: "Indiquez votre objectif, votre téléphone et le moment souhaité. Notre équipe vous appellera pour confirmer les créneaux et la suite." },
       { title: "Confirmez, puis apprenez", text: "Une fois les modalités convenues, commencez à pratiquer l’anglais en direct." },
     ],
     cta: "Choisir mon pack",
@@ -397,7 +397,7 @@ const fr: Dictionary = {
       {
         question: "Comment demander une première consultation ?",
         answer:
-          "Choisissez « Demander une consultation » dans le formulaire et indiquez vos objectifs. L’équipe NEXUS vous recontactera pour convenir de la suite. Les demandes en ligne ne sont pas encore transmises tant que l’adresse de réception n’est pas configurée.",
+          "Ouvrez le formulaire de rappel, indiquez vos coordonnées et vos objectifs, puis envoyez votre demande. Une confirmation apparaît après son enregistrement. L’équipe NEXUS vous appellera pour convenir de la suite.",
       },
       {
         question: "Les cours sont-ils individuels ?",
@@ -407,7 +407,7 @@ const fr: Dictionary = {
       {
         question: "Combien coûte un pack de séances ?",
         answer:
-          "Il n’y a pas d’abonnement. Choisissez un pack de 8, 16, 24 ou 32 séances. Le pack de 16 séances coûte 2 699 MAD (environ 169 MAD la séance). Le montant final est confirmé lors de la réservation sur WhatsApp.",
+          "Il n’y a pas d’abonnement. Choisissez un pack de 8, 16, 24 ou 32 séances. Le pack de 16 séances coûte 2 699 MAD (environ 169 MAD la séance). Notre équipe confirmera l’offre par téléphone avant votre réservation.",
       },
       {
         question: "Puis-je changer mon planning ?",
@@ -467,7 +467,7 @@ const ar: Dictionary = {
   meta: {
     title: "NEXUS — الإنجليزية للمديرين والمسؤولين",
     description:
-      "تدريب إنجليزية فردي عبر الإنترنت للمديرين في المغرب. اجتماعات وعروض ومفاوضات. باقات واضحة وحجز عبر واتساب.",
+      "تدريب إنجليزية فردي عبر الإنترنت للمديرين في المغرب. اجتماعات وعروض ومفاوضات. باقات واضحة وطلب اتصال شخصي.",
   },
   a11y: {
     home: "NEXUS، الصفحة الرئيسية",
@@ -598,7 +598,7 @@ const ar: Dictionary = {
     intro: "اختر الباقة المناسبة لك. سنؤكد معك المواعيد والتفاصيل قبل إتمام أي حجز.",
     steps: [
       { title: "اختر باقتك", text: "حدّد عدد الحصص واطّلع على السعر الإجمالي قبل التواصل معنا." },
-      { title: "راسلنا عبر واتساب", text: "أخبرنا بهدفك والأوقات المناسبة لك. سنؤكد المواعيد المتاحة والخطوة التالية." },
+      { title: "اطلب اتصالاً", text: "أخبرنا بهدفك ورقم هاتفك والوقت المناسب. سيتصل بك فريقنا لتأكيد المواعيد والخطوة التالية." },
       { title: "أكّد ثم تعلّم", text: "بعد الاتفاق على التفاصيل، ابدأ ممارسة الإنجليزية في دروس مباشرة." },
     ],
     cta: "اختر باقتي",
@@ -619,7 +619,7 @@ const ar: Dictionary = {
       {
         question: "كيف أطلب استشارة أولى؟",
         answer:
-          "اختر «طلب استشارة» في النموذج وحدّثنا عن أهدافك. سيتواصل معك فريق NEXUS لتحديد الخطوة التالية. لا تُرسَل الطلبات عبر الإنترنت قبل ضبط عنوان البريد المستقبِل.",
+          "افتح نموذج طلب الاتصال وأدخل بياناتك وأهدافك ثم أرسل الطلب. يظهر تأكيد بعد حفظه. سيتصل بك فريق NEXUS لتحديد الخطوة التالية.",
       },
       {
         question: "هل الدروس فردية؟",
@@ -628,7 +628,7 @@ const ar: Dictionary = {
       {
         question: "كم تبلغ تكلفة باقة الحصص؟",
         answer:
-          "لا يوجد اشتراك. اختر باقة من 8 أو 16 أو 24 أو 32 حصة. تبلغ تكلفة باقة 16 حصة 2,699 درهمًا (حوالي 169 درهمًا للحصة). يُؤكَّد المبلغ النهائي عند الحجز عبر واتساب.",
+          "لا يوجد اشتراك. اختر باقة من 8 أو 16 أو 24 أو 32 حصة. تبلغ تكلفة باقة 16 حصة 2,699 درهمًا (حوالي 169 درهمًا للحصة). سيؤكد فريقنا العرض هاتفياً قبل الحجز.",
       },
       {
         question: "هل يمكنني تغيير جدولي؟",

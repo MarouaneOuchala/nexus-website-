@@ -92,6 +92,7 @@ export default function InteractiveScene() {
         const paper = material(0xffefce);
         const screen = material(0x30564e);
         const blue = material(0xaecabc, true);
+        const windowGlass = material(0xaecabc, true);
         function box(parent: InstanceType<typeof THREE.Group>, size: [number, number, number], position: [number, number, number], surface: InstanceType<typeof THREE.Material>) {
           const geometry = new THREE.BoxGeometry(...size);
           geometries.push(geometry);
@@ -106,7 +107,7 @@ export default function InteractiveScene() {
         box(workspace, [5.2, 3.5, 0.12], [0, 0.8, -1.7], wall);
         box(workspace, [5.3, 0.15, 0.24], [0, 2.58, -1.6], lime);
         for (const x of [-2.2, 2.2]) {
-          box(workspace, [0.65, 2.9, 0.12], [x, 0.95, -1.55], screen);
+          box(workspace, [0.65, 2.9, 0.12], [x, 0.95, -1.55], windowGlass);
           box(workspace, [0.72, 0.09, 0.23], [x, 2.42, -1.45], paper);
           box(workspace, [0.04, 2.8, 0.06], [x, 0.95, -1.44], paper);
           box(workspace, [0.65, 0.04, 0.06], [x, 0.95, -1.43], paper);
@@ -180,6 +181,13 @@ export default function InteractiveScene() {
         for (let row = 0; row < 4; row++) {
           box(notebook, [0.28, 0.01, 0.016], [0.03, 0.03, -0.18 + row * 0.1], dark);
         }
+        const turningPage = new THREE.Group();
+        turningPage.position.set(-0.18, 0.045, 0);
+        notebook.add(turningPage);
+        box(turningPage, [0.42, 0.008, 0.6], [0.21, 0, 0], paper);
+        for (let row = 0; row < 4; row++) {
+          box(turningPage, [0.26, 0.01, 0.014], [0.21, 0.01, -0.18 + row * 0.1], dark);
+        }
         const notes = new THREE.Group();
         notes.position.set(-2.05, 1.15, -0.15);
         notes.rotation.set(0, 0.2, -0.12);
@@ -188,7 +196,14 @@ export default function InteractiveScene() {
         for (let row = 0; row < 4; row++) {
           box(notes, [0.36, 0.025, 0.02], [0, 0.22 - row * 0.14, 0.04], row === 0 ? violet : dark);
         }
-        scene.add(new THREE.AmbientLight(0xffefd7, 2.4));
+        const flashcards = new THREE.Group();
+        workspace.add(flashcards);
+        box(flashcards, [0.55, 0.4, 0.035], [0.08, -0.07, -0.06], violet);
+        box(flashcards, [0.55, 0.4, 0.035], [0, 0, 0], paper);
+        box(flashcards, [0.32, 0.025, 0.02], [0, 0.06, 0.03], dark);
+        box(flashcards, [0.23, 0.025, 0.02], [0, -0.06, 0.03], violet);
+        const ambient = new THREE.AmbientLight(0xffefd7, 2.4);
+        scene.add(ambient);
         const key = new THREE.PointLight(0xffedd0, 45);
         key.position.set(3, 3, 4);
         const rim = new THREE.PointLight(0xffd6c2, 25);
@@ -198,21 +213,55 @@ export default function InteractiveScene() {
         let frame = 0;
         let previousTime = 0;
         let elapsed = 0;
+        function syncTheme() {
+          const night = document.documentElement.dataset.theme === "dark";
+          for (const [surface, day, evening] of [
+            [violet, 0xc98288, 0xa26273],
+            [dark, 0x4f6a61, 0x30453e],
+            [wall, 0xe9bea9, 0x384b49],
+            [curtainMaterial, 0xb6636c, 0x633a50],
+            [screen, 0x30564e, 0x132e2b],
+            [windowGlass, 0xaecabc, 0x304c70],
+          ] as const) {
+            surface.color.setHex(night ? evening : day);
+          }
+          windowGlass.emissive.setHex(night ? 0x517db3 : 0xaecabc);
+          windowGlass.emissiveIntensity = night ? 0.5 : 0.12;
+          ambient.color.setHex(night ? 0xb6c9e3 : 0xffefd7);
+          ambient.intensity = night ? 1.1 : 2.4;
+          key.intensity = night ? 32 : 45;
+          rim.color.setHex(night ? 0x93b8ee : 0xffd6c2);
+          rim.intensity = night ? 16 : 25;
+          renderer.render(scene, camera);
+        }
+        const themeObserver = new MutationObserver(syncTheme);
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ["data-theme"] });
+        syncTheme();
         function render(time: number) {
           frame = 0;
           const delta = previousTime ? Math.min((time - previousTime) / 1000, 0.05) : 0;
           previousTime = time;
           elapsed += delta;
-          workspace.rotation.y += (pointer.x * 0.12 - workspace.rotation.y) * 0.06;
-          workspace.rotation.x += (pointer.y * 0.06 - workspace.rotation.x) * 0.06;
+          workspace.rotation.y += (pointer.x * 0.16 + Math.sin(elapsed * 0.35) * 0.055 - workspace.rotation.y) * 0.06;
+          workspace.rotation.x += (pointer.y * 0.07 + Math.sin(elapsed * 0.45) * 0.018 - workspace.rotation.x) * 0.06;
+          workspace.position.y = Math.sin(elapsed * 0.6) * 0.045;
           const theatreTime = Math.floor(elapsed * 12) / 12;
-          notes.position.y = 1.15 + Math.sin(theatreTime * 1.2) * 0.07;
-          notes.rotation.z = -0.12 + Math.sin(theatreTime * 0.7) * 0.025;
-          curtains.forEach((curtain, index) => { curtain.rotation.y = Math.sin(theatreTime * 0.65) * (index ? -0.06 : 0.06); });
+          notes.position.y = 1.15 + Math.sin(theatreTime * 1.4) * 0.2;
+          notes.rotation.z = -0.12 + Math.sin(theatreTime * 0.9) * 0.12;
+          flashcards.position.set(2.05 + Math.sin(theatreTime * 0.8) * 0.13, 1.05 + Math.sin(theatreTime * 1.3 + 2) * 0.24, -0.1);
+          flashcards.rotation.set(0.08, Math.sin(theatreTime * 0.7) * 0.3, Math.sin(theatreTime * 0.9) * 0.16);
+          const opening = 1 - Math.pow(1 - Math.min(elapsed / 2.4, 1), 3);
+          curtains.forEach((curtain, index) => {
+            const side = index ? 1 : -1;
+            curtain.position.x = side * (1.25 + opening * 1.3);
+            curtain.rotation.y = Math.sin(theatreTime * 0.9) * side * 0.16;
+          });
+          const pageCycle = theatreTime % 7;
+          turningPage.rotation.z = pageCycle < 2.5 ? -Math.sin(pageCycle / 2.5 * Math.PI) * 2.6 : 0;
           clockHand.rotation.z = -Math.floor(elapsed) * Math.PI / 30;
-          laptops.forEach((lid, index) => { lid.rotation.x = -0.15 + Math.sin(elapsed * 0.6 + index) * 0.06; });
+          laptops.forEach((lid, index) => { lid.rotation.x = -0.25 + Math.sin(theatreTime * 0.8 + index) * 0.18; });
           chart.forEach(({ bar, height }, index) => {
-            const scale = 0.65 + Math.sin(elapsed * 1.1 + index * 0.55) * 0.2;
+            const scale = 0.65 + Math.sin(theatreTime * 1.5 + index * 0.8) * 0.33;
             bar.scale.y = scale;
             bar.position.y = -0.65 + height * scale / 2;
           });
@@ -253,6 +302,7 @@ export default function InteractiveScene() {
           cancelAnimationFrame(frame);
           resize.disconnect();
           observer.disconnect();
+          themeObserver.disconnect();
           document.removeEventListener("visibilitychange", syncPlayback);
           canvas.removeEventListener("webglcontextlost", onContextLost);
           geometries.forEach(geometry => geometry.dispose());

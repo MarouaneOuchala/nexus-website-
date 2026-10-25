@@ -1,10 +1,11 @@
 "use client";
 
-import { Fragment, useEffect, useState, type FormEvent } from "react";
+import { Fragment, useEffect, useState } from "react";
+import Link from "next/link";
 import PackageConfigurator from "@/components/PackageConfigurator";
 import InteractiveScene from "@/components/InteractiveScene";
 import { useSettings } from "@/components/SettingsProvider";
-import { WHATSAPP_NUMBER } from "@/lib/config";
+import { enquiryCopy } from "@/lib/enquiries";
 import { languages, type Lang } from "@/lib/i18n";
 
 const programImages = [
@@ -67,8 +68,6 @@ function GlobeIcon() {
 
 export default function Home() {
   const { t, lang, setLang, theme, toggleTheme, isRtl } = useSettings();
-  const [requestType, setRequestType] = useState("consultation");
-  const [formMessage, setFormMessage] = useState("");
   const [programPage, setProgramPage] = useState(0);
 
   useEffect(() => {
@@ -104,25 +103,6 @@ export default function Home() {
       observer.disconnect();
     };
   }, [lang, programPage]);
-
-  function handleSubmit(event: FormEvent<HTMLFormElement>) {
-    event.preventDefault();
-    const inbox = process.env.NEXT_PUBLIC_NEXUS_INQUIRY_EMAIL;
-    const values = new FormData(event.currentTarget);
-    const body = Array.from(values.entries())
-      .map(([key, value]) => `${key}: ${value}`)
-      .join("\n");
-    if (!inbox) {
-      const message = `${t.contact.whatsappIntro}\n\n${body}`;
-      const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
-      window.open(whatsappHref, "_blank", "noopener,noreferrer");
-      setFormMessage(t.contact.whatsappOpened);
-      return;
-    }
-    const subject = requestType === "application" ? t.contact.subjectApplication : t.contact.subjectConsultation;
-    window.location.href = `mailto:${inbox}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
-    setFormMessage(t.contact.opened);
-  }
 
   const a = t.a11y;
   const h = t.hero;
@@ -361,7 +341,7 @@ export default function Home() {
                 </div>
                 <h3>{program.title}</h3>
                 <p>{program.description}</p>
-                <a className="button button-warm program-cta" href="#contact" aria-label={a.programInfo(program.title)}>
+                <a className="button button-warm program-cta" href="#contact" data-enquiry-type="course-info" data-enquiry-goal={program.title} aria-label={a.programInfo(program.title)}>
                   {t.programs.cta} <Arrow />
                 </a>
               </div>
@@ -470,7 +450,7 @@ export default function Home() {
               <Lines lines={t.careers.title} />
             </h2>
             <p>{t.careers.text}</p>
-            <a className="button button-warm" href="#contact" onClick={() => setRequestType("application")}>
+            <a className="button button-warm" href="#contact" data-enquiry-type="application">
               {t.careers.cta} <Arrow />
             </a>
           </div>
@@ -525,57 +505,11 @@ export default function Home() {
               <span>{ct.aside}</span>
             </div>
           </div>
-          <form className="inquiry-form" onSubmit={handleSubmit}>
-            <label className="field-label" htmlFor="requestType">
-              {ct.iWant}
-            </label>
-            <select id="requestType" name={ct.iWant} value={requestType} onChange={(event) => setRequestType(event.target.value)}>
-              <option value="consultation">{ct.options.consultation}</option>
-              <option value="course-info">{ct.options.info}</option>
-              <option value="application">{ct.options.application}</option>
-            </select>
-            <div className="form-grid">
-              <label>
-                <span>{ct.name}</span>
-                <input name={ct.name} autoComplete="name" required placeholder={ct.namePh} />
-              </label>
-              <label>
-                <span>{ct.email}</span>
-                <input name={ct.email} type="email" autoComplete="email" required placeholder={ct.emailPh} />
-              </label>
-              <label>
-                <span>
-                  {ct.phone} <em>{ct.optional}</em>
-                </span>
-                <input name={ct.phone} type="tel" autoComplete="tel" placeholder={ct.phonePh} />
-              </label>
-              <label>
-                <span>{requestType === "application" ? ct.background : ct.goal}</span>
-                <input name={requestType === "application" ? ct.background : ct.goal} required placeholder={requestType === "application" ? ct.backgroundPh : ct.goalPh} />
-              </label>
-            </div>
-            {requestType === "application" && (
-              <>
-                <label className="field-label application-field" htmlFor="background">
-                  {ct.about}
-                </label>
-                <textarea id="background" name={ct.about} rows={3} placeholder={ct.aboutPh} required />
-              </>
-            )}
-            <label className="consent">
-              <input type="checkbox" required />
-              <span>{ct.consent}</span>
-            </label>
-            <button className="button button-primary submit-button" type="submit">
-              {ct.submit} <Arrow />
-            </button>
-            {formMessage && (
-              <p className="form-message" role="status">
-                {formMessage}
-              </p>
-            )}
-            <p className="form-disclaimer">{ct.disclaimer}</p>
-          </form>
+          <div className="contact-callback">
+            <p>{enquiryCopy[lang].intro}</p>
+            <a className="button button-primary" href="#contact">{enquiryCopy[lang].open} <Arrow /></a>
+            <p>{enquiryCopy[lang].disclaimer}</p>
+          </div>
         </div>
       </section>
 
@@ -603,6 +537,7 @@ export default function Home() {
         <div className="section-shell footer-bottom">
           <span>{t.footer.copyright}</span>
           <span>{t.footer.legal}</span>
+          <Link href="/admin/">{enquiryCopy[lang].admin}</Link>
           <a href="#accueil">{t.footer.top}</a>
         </div>
       </footer>
