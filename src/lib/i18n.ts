@@ -47,7 +47,7 @@ const en = {
   },
   hero: {
     eyebrow: "ENGLISH FOR EXECUTIVES · MOROCCO",
-    titleLead: "Your expertise.",
+    titleLead: "Lead with confidence.",
     titleHighlight: "In English.",
     description:
       "You know your business. Make sure your English reflects it. Private coaching for the meetings, presentations and conversations that matter.",
@@ -272,7 +272,7 @@ const fr: Dictionary = {
   },
   hero: {
     eyebrow: "ANGLAIS POUR CADRES ET DIRIGEANTS · MAROC",
-    titleLead: "Votre expertise.",
+    titleLead: "Dirigez avec assurance.",
     titleHighlight: "En anglais.",
     description:
       "Vous maîtrisez votre métier. Faites-le entendre en anglais. Un coaching individuel pour les réunions, présentations et conversations qui comptent.",
@@ -499,7 +499,7 @@ const ar: Dictionary = {
   },
   hero: {
     eyebrow: "الإنجليزية للمديرين والمسؤولين · المغرب",
-    titleLead: "خبرتك المهنية.",
+    titleLead: "قُد بثقة.",
     titleHighlight: "بالإنجليزية.",
     description:
       "أنت تتقن عملك. اجعل إنجليزيتك تعكس خبرتك. تدريب فردي للاجتماعات والعروض والنقاشات المهنية المهمة.",

@@ -72,31 +72,126 @@ export default function InteractiveScene() {
         renderer.setClearColor(0x000000, 0);
         const scene = new THREE.Scene();
         const camera = new THREE.PerspectiveCamera(40, 1, 0.1, 50);
-        camera.position.z = 7;
-        const sculpture = new THREE.Group();
-        scene.add(sculpture);
-        const geometry = new THREE.TorusKnotGeometry(1.05, 0.23, 180, 24, 2, 3);
-        const material = new THREE.MeshPhysicalMaterial({
-          color: 0x9868ff, metalness: 0.65, roughness: 0.24, clearcoat: 1,
+        camera.position.set(0, 3.5, 8.8);
+        camera.lookAt(0, 0.3, 0);
+        const workspace = new THREE.Group();
+        scene.add(workspace);
+        const geometries: InstanceType<typeof THREE.BufferGeometry>[] = [];
+        const materials: InstanceType<typeof THREE.Material>[] = [];
+        function material(color: number, emissive = false) {
+          const result = new THREE.MeshStandardMaterial({
+            color, roughness: 0.8, metalness: 0.05,
+            emissive: emissive ? color : 0x000000, emissiveIntensity: emissive ? 0.12 : 0,
+          });
+          materials.push(result);
+          return result;
+        }
+        const violet = material(0xc98288);
+        const dark = material(0x4f6a61);
+        const lime = material(0xe4b653, true);
+        const paper = material(0xffefce);
+        const screen = material(0x30564e);
+        const blue = material(0xaecabc, true);
+        function box(parent: InstanceType<typeof THREE.Group>, size: [number, number, number], position: [number, number, number], surface: InstanceType<typeof THREE.Material>) {
+          const geometry = new THREE.BoxGeometry(...size);
+          geometries.push(geometry);
+          const mesh = new THREE.Mesh(geometry, surface);
+          mesh.position.set(...position);
+          parent.add(mesh);
+          return mesh;
+        }
+        box(workspace, [4.8, 0.12, 3.6], [0, -0.85, 0], dark);
+        const wall = material(0xe9bea9);
+        const curtainMaterial = material(0xb6636c);
+        box(workspace, [5.2, 3.5, 0.12], [0, 0.8, -1.7], wall);
+        box(workspace, [5.3, 0.15, 0.24], [0, 2.58, -1.6], lime);
+        for (const x of [-2.2, 2.2]) {
+          box(workspace, [0.65, 2.9, 0.12], [x, 0.95, -1.55], screen);
+          box(workspace, [0.72, 0.09, 0.23], [x, 2.42, -1.45], paper);
+          box(workspace, [0.04, 2.8, 0.06], [x, 0.95, -1.44], paper);
+          box(workspace, [0.65, 0.04, 0.06], [x, 0.95, -1.43], paper);
+        }
+        const curtains = [-1, 1].map(side => {
+          const curtain = new THREE.Group();
+          curtain.position.set(side * 2.55, 0.95, -1.2);
+          workspace.add(curtain);
+          for (let fold = 0; fold < 4; fold++) {
+            box(curtain, [0.13, 3.1, 0.13], [side * fold * 0.1, 0, fold % 2 * 0.08], curtainMaterial);
+          }
+          return curtain;
         });
-        const knot = new THREE.Mesh(geometry, material);
-        sculpture.add(knot);
-        const ringGeometry = new THREE.TorusGeometry(1.9, 0.012, 8, 160);
-        const ringMaterial = new THREE.MeshBasicMaterial({ color: 0xb6ff72, transparent: true, opacity: 0.65 });
-        const rings = [new THREE.Mesh(ringGeometry, ringMaterial), new THREE.Mesh(ringGeometry, ringMaterial)];
-        rings[0].rotation.x = 1.1;
-        rings[1].rotation.y = 1.1;
-        rings.forEach(ring => sculpture.add(ring));
-        const positions = new Float32Array(240 * 3);
-        for (let i = 0; i < positions.length; i++) positions[i] = (Math.random() - 0.5) * 10;
-        const particlesGeometry = new THREE.BufferGeometry();
-        particlesGeometry.setAttribute("position", new THREE.BufferAttribute(positions, 3));
-        const particlesMaterial = new THREE.PointsMaterial({ color: 0x8deaff, size: 0.025, transparent: true, opacity: 0.65 });
-        const particles = new THREE.Points(particlesGeometry, particlesMaterial);
-        scene.add(particles, new THREE.AmbientLight(0xa4b8ff, 2));
-        const key = new THREE.PointLight(0xa8f5ff, 65);
+        box(workspace, [3.8, 0.18, 1.85], [0, -0.1, 0.25], violet);
+        for (const x of [-1.45, 1.45]) {
+          for (const z of [-0.35, 0.85]) box(workspace, [0.12, 0.7, 0.12], [x, -0.5, z], dark);
+        }
+        // Presentation screen faces the viewer; chart bars grow from a shared baseline.
+        const presentation = new THREE.Group();
+        presentation.position.set(0, 0.85, -1.4);
+        workspace.add(presentation);
+        box(presentation, [3.3, 1.9, 0.13], [0, 0, 0], violet);
+        box(presentation, [3.1, 1.7, 0.04], [0, 0, 0.09], screen);
+        box(presentation, [1.15, 0.06, 0.03], [-0.7, 0.56, 0.13], paper);
+        box(presentation, [0.7, 0.035, 0.03], [-0.92, 0.38, 0.13], blue);
+        box(presentation, [0.06, 0.65, 0.1], [0, -1.2, 0], dark);
+        const clockFaceGeometry = new THREE.CylinderGeometry(0.22, 0.22, 0.05, 32);
+        geometries.push(clockFaceGeometry);
+        const clockFace = new THREE.Mesh(clockFaceGeometry, paper);
+        clockFace.rotation.x = Math.PI / 2;
+        clockFace.position.set(0, 2.13, -1.52);
+        workspace.add(clockFace);
+        const clockHand = new THREE.Group();
+        clockHand.position.set(0, 2.13, -1.47);
+        workspace.add(clockHand);
+        box(clockHand, [0.018, 0.17, 0.018], [0, 0.065, 0], dark);
+        box(workspace, [0.12, 0.018, 0.018], [0.05, 2.13, -1.46], dark);
+        const chart = [0.38, 0.62, 0.85, 1.05].map((height, index) => {
+          const bar = box(presentation, [0.3, height, 0.04], [-0.85 + index * 0.55, -0.65 + height / 2, 0.14], index === 3 ? lime : blue);
+          return { bar, height };
+        });
+        const laptops: InstanceType<typeof THREE.Group>[] = [];
+        for (const x of [-1.05, 1.05]) {
+          const laptop = new THREE.Group();
+          laptop.position.set(x, 0.04, 0.5);
+          laptop.rotation.y = x < 0 ? 0.16 : -0.16;
+          workspace.add(laptop);
+          box(laptop, [0.9, 0.055, 0.65], [0, 0, 0], paper);
+          const lid = new THREE.Group();
+          lid.position.set(0, 0, -0.3);
+          laptop.add(lid);
+          box(lid, [0.9, 0.6, 0.045], [0, 0.3, 0], violet);
+          box(lid, [0.78, 0.47, 0.02], [0, 0.31, 0.035], screen);
+          for (let row = 0; row < 3; row++) {
+            box(lid, [0.45 - row * 0.08, 0.025, 0.015], [-0.08, 0.42 - row * 0.1, 0.052], row === 0 ? lime : blue);
+          }
+          laptops.push(lid);
+          const chair = new THREE.Group();
+          chair.position.set(x, -0.45, 1.45);
+          workspace.add(chair);
+          box(chair, [0.68, 0.1, 0.62], [0, 0, 0], dark);
+          box(chair, [0.68, 0.65, 0.1], [0, 0.3, 0.28], violet);
+          box(chair, [0.1, 0.4, 0.1], [0, -0.2, 0], dark);
+        }
+        const notebook = new THREE.Group();
+        notebook.position.set(0, 0.06, 0.65);
+        notebook.rotation.y = -0.12;
+        workspace.add(notebook);
+        box(notebook, [0.55, 0.045, 0.65], [0, 0, 0], paper);
+        box(notebook, [0.025, 0.015, 0.65], [-0.18, 0.03, 0], violet);
+        for (let row = 0; row < 4; row++) {
+          box(notebook, [0.28, 0.01, 0.016], [0.03, 0.03, -0.18 + row * 0.1], dark);
+        }
+        const notes = new THREE.Group();
+        notes.position.set(-2.05, 1.15, -0.15);
+        notes.rotation.set(0, 0.2, -0.12);
+        workspace.add(notes);
+        box(notes, [0.65, 0.8, 0.04], [0, 0, 0], paper);
+        for (let row = 0; row < 4; row++) {
+          box(notes, [0.36, 0.025, 0.02], [0, 0.22 - row * 0.14, 0.04], row === 0 ? violet : dark);
+        }
+        scene.add(new THREE.AmbientLight(0xffefd7, 2.4));
+        const key = new THREE.PointLight(0xffedd0, 45);
         key.position.set(3, 3, 4);
-        const rim = new THREE.PointLight(0xd0ff8a, 55);
+        const rim = new THREE.PointLight(0xffd6c2, 25);
         rim.position.set(-3, -1, 2);
         scene.add(key, rim);
         let visible = false;
@@ -108,14 +203,19 @@ export default function InteractiveScene() {
           const delta = previousTime ? Math.min((time - previousTime) / 1000, 0.05) : 0;
           previousTime = time;
           elapsed += delta;
-          knot.rotation.y = elapsed * 0.24;
-          knot.rotation.z = Math.sin(elapsed * 0.3) * 0.18;
-          sculpture.rotation.y += (pointer.x * 0.45 - sculpture.rotation.y) * 0.06;
-          sculpture.rotation.x += (pointer.y * 0.25 - sculpture.rotation.x) * 0.06;
-          sculpture.position.y = Math.sin(elapsed * 0.65) * 0.13;
-          rings[0].rotation.z = elapsed * 0.15;
-          rings[1].rotation.z = -elapsed * 0.12;
-          particles.rotation.y = elapsed * 0.025;
+          workspace.rotation.y += (pointer.x * 0.12 - workspace.rotation.y) * 0.06;
+          workspace.rotation.x += (pointer.y * 0.06 - workspace.rotation.x) * 0.06;
+          const theatreTime = Math.floor(elapsed * 12) / 12;
+          notes.position.y = 1.15 + Math.sin(theatreTime * 1.2) * 0.07;
+          notes.rotation.z = -0.12 + Math.sin(theatreTime * 0.7) * 0.025;
+          curtains.forEach((curtain, index) => { curtain.rotation.y = Math.sin(theatreTime * 0.65) * (index ? -0.06 : 0.06); });
+          clockHand.rotation.z = -Math.floor(elapsed) * Math.PI / 30;
+          laptops.forEach((lid, index) => { lid.rotation.x = -0.15 + Math.sin(elapsed * 0.6 + index) * 0.06; });
+          chart.forEach(({ bar, height }, index) => {
+            const scale = 0.65 + Math.sin(elapsed * 1.1 + index * 0.55) * 0.2;
+            bar.scale.y = scale;
+            bar.position.y = -0.65 + height * scale / 2;
+          });
           key.position.x = 3 + pointer.x * 2;
           renderer.render(scene, camera);
           frame = requestAnimationFrame(render);
@@ -133,6 +233,8 @@ export default function InteractiveScene() {
           if (!width || !height) return;
           renderer.setSize(width, height);
           camera.aspect = width / height;
+          camera.position.set(0, 3.5, 8.8).multiplyScalar(camera.aspect < 1.25 ? 1.22 : 1);
+          camera.lookAt(0, 0.3, 0);
           camera.updateProjectionMatrix();
           renderer.render(scene, camera);
         });
@@ -153,12 +255,8 @@ export default function InteractiveScene() {
           observer.disconnect();
           document.removeEventListener("visibilitychange", syncPlayback);
           canvas.removeEventListener("webglcontextlost", onContextLost);
-          geometry.dispose();
-          material.dispose();
-          ringGeometry.dispose();
-          ringMaterial.dispose();
-          particlesGeometry.dispose();
-          particlesMaterial.dispose();
+          geometries.forEach(geometry => geometry.dispose());
+          materials.forEach(surface => surface.dispose());
           renderer.dispose();
           canvas.remove();
           mount!.dataset.renderer = "fallback";

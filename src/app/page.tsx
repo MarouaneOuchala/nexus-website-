@@ -228,8 +228,22 @@ export default function Home() {
         <div className="executive-stage">
           <div className="hero-visual">
             <div className="scene-mount" aria-hidden="true">
-              <div className="scene-fallback"><span /><span /><span /></div>
-              <span className="scene-monogram">EN<span>.</span></span>
+              <svg className="scene-fallback" viewBox="0 0 600 360" fill="none">
+                <rect x="36" y="10" width="528" height="310" fill="#e9bea9" stroke="#b6636c" strokeWidth="8" />
+                <path d="M80 50h55v135H80Zm385 0h55v135h-55Z" fill="#aecabc" stroke="#fff0d0" strokeWidth="6" />
+                <circle cx="300" cy="32" r="15" fill="#fff0d0" stroke="#934e55" strokeWidth="2" />
+                <path d="M300 21v11h9" stroke="#49695c" strokeWidth="2" />
+                <rect x="170" y="60" width="260" height="135" fill="#30564e" stroke="#e4b653" strokeWidth="4" />
+                <path d="M195 85h100M195 103h65" stroke="#fff0d0" strokeWidth="5" />
+                <path d="M210 170v-30m45 30v-45m45 45v-60m45 60V100" stroke="#e4b653" strokeWidth="18" />
+                <path d="M105 250 290 185 510 260 325 335Z" fill="#c98288" stroke="#934e55" strokeWidth="3" />
+                <path d="M125 260v40m360-30v35m-160 10v30" stroke="#49695c" strokeWidth="9" />
+                <path d="m160 235 55-17 40 18-55 17Z" fill="#fff0d0" />
+                <path d="m160 235-6-48 58-17 3 48Z" fill="#30564e" stroke="#c98288" strokeWidth="3" />
+                <path d="m340 250 55-17 40 18-55 17Z" fill="#fff0d0" />
+                <path d="m340 250-6-48 58-17 3 48Z" fill="#30564e" stroke="#c98288" strokeWidth="3" />
+                <path d="m263 263 26-9 30 11-26 10Z" fill="#fff0d0" />
+              </svg>
             </div>
             <div className="visual-label">
               <i></i> NEXUS / LIVE ENGLISH

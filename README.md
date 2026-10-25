@@ -1,18 +1,23 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Immersive design (design-4)
+## Cinematic design (design-5)
 
-An interactive direction using near-black, violet and electric lime, a Three.js
-sculpture, a coaching brief, and communication-focused program cards.
+A cinematic, symmetrical direction with dusty rose, mint, mustard and cream.
+Jost provides vintage geometric lettering alongside Georgia display typography
+and Noto Sans Arabic. Original Three.js scenery adds a pastel miniature executive
+classroom, matching windows, curtains, a ticking wall clock and warm matte props.
+Stepped study-note motion evokes handcrafted stop-motion; no film artwork is used.
 English, French and Arabic content centres on meetings, presentations,
 negotiations and leadership rather than university learning.
 
-The lazy-loaded WebGL2 scene reacts to the pointer with eased rotation and
-lighting. Fine-pointer devices get a cursor halo, tilting cards and buttons, and
+The lazy-loaded WebGL2 scene depicts a meeting table, two laptops, a notebook,
+floating study notes and a presentation screen with animated chart bars. It
+reacts to the pointer with eased rotation and lighting. This is a professional
+practice setting, not an advertisement for group lessons. Fine-pointer devices get a cursor halo, tilting cards and buttons, and
 pointer-positioned hover glows without replacing the native cursor. Rendering
 pauses when the hero is offscreen or the tab is hidden. Pixel ratio is capped at
 1.5; GPU resources, observers and event listeners are disposed on unmount.
-Reduced-motion preferences disable animation and use the static CSS sculpture.
+Reduced-motion preferences disable animation and use a static SVG workspace.
 WebGL2 initialization failure or context loss also uses that fallback with a
 console warning. All decorative effects are hidden from assistive technology.
 The header retains scroll progress, without a pause button or scroll hijacking.
@@ -20,8 +25,8 @@ The header retains scroll progress, without a pause button or scroll hijacking.
 Pricing, the four session bundles, individual-only lessons, EN/FR/AR, theme
 switching, and WhatsApp booking remain unchanged.
 
-Run `npm run dev -- --port 3005` to preview this branch independently.
-`design-1`, `design-2`, and `design-3` preserve the other directions. No deployment is
+Run `npm run dev -- --port 3006` to preview this branch independently.
+`design-1` through `design-4` preserve the other directions. No deployment is
 performed when switching between these local branches.
 
 ## Getting Started

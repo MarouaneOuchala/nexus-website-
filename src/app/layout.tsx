@@ -1,14 +1,16 @@
 import type { Metadata } from "next";
-import { Inter, Noto_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
+import { Inter, Jost, Noto_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import "./globals.css";
 import "./theme.css";
 import "./redesign.css";
 import "./immersive.css";
+import "./cinematic.css";
 
 const dmSans = Inter({ subsets: ["latin"], variable: "--font-dm-sans" });
 const spaceGrotesk = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-space-grotesk" });
 const arabic = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--font-arabic", preload: false });
+const cinema = Jost({ subsets: ["latin"], variable: "--font-cinema" });
 
 export const metadata: Metadata = {
   title: "NEXUS — Anglais pour cadres et dirigeants",
@@ -25,7 +27,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       <head>
         <script dangerouslySetInnerHTML={{ __html: initScript }} />
       </head>
-      <body className={`${dmSans.variable} ${spaceGrotesk.variable} ${arabic.variable}`}>
+      <body className={`${dmSans.variable} ${spaceGrotesk.variable} ${arabic.variable} ${cinema.variable}`}>
         <SettingsProvider>{children}</SettingsProvider>
       </body>
     </html>
