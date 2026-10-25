@@ -1,22 +1,21 @@
 "use client";
 
-import { Fragment, useEffect, useState, type CSSProperties, type FormEvent } from "react";
+import { Fragment, useEffect, useState, type FormEvent } from "react";
 import PackageConfigurator from "@/components/PackageConfigurator";
 import { useSettings } from "@/components/SettingsProvider";
-import { BASE_PATH, WHATSAPP_NUMBER } from "@/lib/config";
+import { WHATSAPP_NUMBER } from "@/lib/config";
 import { languages, type Lang } from "@/lib/i18n";
 
 const programImages = [
   "https://images.pexels.com/photos/5866468/pexels-photo-5866468.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/18471533/pexels-photo-18471533/free-photo-of-a-laboratory-with-computers-and-monitors-on-the-desk.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/18471530/pexels-photo-18471530/free-photo-of-a-laboratory-with-several-computers-and-desks.jpeg?auto=compress&cs=tinysrgb&w=600",
   "https://images.pexels.com/photos/19893586/pexels-photo-19893586/free-photo-of-interior-design-in-modern-office.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/29735561/pexels-photo-29735561/free-photo-of-modern-skyline-of-casablanca-with-moroccan-flags.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/18471533/pexels-photo-18471533/free-photo-of-a-laboratory-with-computers-and-monitors-on-the-desk.jpeg?auto=compress&cs=tinysrgb&w=600",
   "https://images.pexels.com/photos/38209616/pexels-photo-38209616/free-photo-of-modern-architecture-in-casablanca-morocco.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/29735561/pexels-photo-29735561/free-photo-of-modern-skyline-of-casablanca-with-moroccan-flags.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/18471530/pexels-photo-18471530/free-photo-of-a-laboratory-with-several-computers-and-desks.jpeg?auto=compress&cs=tinysrgb&w=600",
 ];
 
 const PROGRAMS_PER_PAGE = 3;
-const levelCodes = ["A1", "A2", "B1", "B2", "C1"];
 
 function Arrow() {
   return (
@@ -70,12 +69,11 @@ export default function Home() {
   const [requestType, setRequestType] = useState("consultation");
   const [formMessage, setFormMessage] = useState("");
   const [programPage, setProgramPage] = useState(0);
-  const [activeHeroLevel, setActiveHeroLevel] = useState("A1");
 
   useEffect(() => {
     const targets = Array.from(
       document.querySelectorAll<HTMLElement>(
-        ".benefit-strip, .obstacle-section, .mid-cta, .programs-section, .why-section, .getting-started-section, .career-section, .faq-section, .contact-section, .package-section",
+        ".obstacle-section, .mid-cta, .programs-section, .why-section, .getting-started-section, .career-section, .faq-section, .contact-section, .package-section",
       ),
     );
     const revealAll = () => targets.forEach((target) => target.classList.add("is-visible"));
@@ -132,7 +130,6 @@ export default function Home() {
   const visiblePrograms = t.programs.items
     .map((item, index) => ({ ...item, index }))
     .slice(programPage * PROGRAMS_PER_PAGE, programPage * PROGRAMS_PER_PAGE + PROGRAMS_PER_PAGE);
-  const heroGoal = h.levels.find(({ level }) => level === activeHeroLevel)?.goal;
   const navLinks = [
     { href: "#accueil", label: t.nav.home },
     { href: "#programmes", label: t.nav.courses },
@@ -144,17 +141,6 @@ export default function Home() {
   return (
     <main className="nexus-page">
       <header className="sticky-header">
-        <div className="announcement">
-          <span className="announcement-offer">
-            <span aria-hidden="true">⚡</span> {t.announcement.offer}
-          </span>
-          <span className="announcement-deal">
-            {t.announcement.deal} <strong>{t.announcement.dealStrong}</strong>
-          </span>
-          <span className="announcement-availability">
-            <i></i> {t.announcement.availability}
-          </span>
-        </div>
         <div className="site-header">
           <a className="wordmark" href="#accueil" aria-label={a.home}>
             <span className="wordmark-icon" aria-hidden="true">
@@ -211,7 +197,7 @@ export default function Home() {
         </div>
       </header>
 
-      <section className="hero section-shell" id="accueil" style={{ "--hero-image": `url("${BASE_PATH}/assets/hero-bg.jpg")` } as CSSProperties}>
+      <section className="hero section-shell" id="accueil">
         <div className="hero-copy">
           <p className="eyebrow">
             <span className="eyebrow-line"></span> {h.eyebrow}
@@ -238,25 +224,6 @@ export default function Home() {
             </a>
           </div>
           <p className="hero-price-note">{h.priceNote}</p>
-          <div className="hero-levels">
-            <span>{h.levelsLabel}</span>
-            <div className="level-track" role="group" aria-label={a.levelGroup}>
-              {levelCodes.map((level) => (
-                <button
-                  className={`level-chip ${activeHeroLevel === level ? "is-active" : ""}`}
-                  key={level}
-                  type="button"
-                  onClick={() => setActiveHeroLevel(level)}
-                  aria-pressed={activeHeroLevel === level}
-                >
-                  {level}
-                </button>
-              ))}
-            </div>
-            <span className="level-goal" aria-live="polite">
-              {heroGoal}
-            </span>
-          </div>
         </div>
         <div className="hero-visual" role="img" aria-label={a.heroVisual}>
           <div className="hero-visual-wash"></div>
@@ -281,53 +248,12 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="benefit-strip section-shell reveal-on-scroll">
-        {t.benefits.map((benefit, index) => (
-          <article className="benefit-card" key={benefit.title}>
-            <span className="benefit-icon" aria-hidden="true">
-              {["◉", "✦", "◷"][index]}
-            </span>
-            <div>
-              <h3>{benefit.title}</h3>
-              <p>{benefit.text}</p>
-            </div>
-          </article>
-        ))}
-      </section>
-
       <PackageConfigurator />
 
       <section className="obstacle-section section-shell" id="methode">
-        <div className="obstacle-visual">
-          <div className="obstacle-halo"></div>
-          <div className="dashboard-card">
-            <div className="dashboard-head">
-              <span>{t.obstacle.dashboardHead}</span>
-              <span className="dashboard-menu">•••</span>
-            </div>
-            <div className="dashboard-body">
-              <span className="dashboard-label">{t.obstacle.dashboardLabel}</span>
-              <strong>
-                <Lines lines={t.obstacle.dashboardTitle} />
-              </strong>
-              <div className="progress-track">
-                <i></i>
-              </div>
-              <div className="dashboard-footer">
-                <span>
-                  <b>12</b>
-                  <small>{t.obstacle.sessionsDone}</small>
-                </span>
-                <span className="dashboard-sticker">
-                  <Lines lines={t.obstacle.sticker} />
-                </span>
-              </div>
-            </div>
-          </div>
-          <span className="path-line" aria-hidden="true"></span>
-          <span className="obstacle-star" aria-hidden="true">
-            ✳
-          </span>
+        <div className="obstacle-visual" role="img" aria-label={a.workspaceVisual}>
+          <span className="obstacle-photo-index">{t.obstacle.photoIndex}</span>
+          <span className="obstacle-photo-caption">{t.obstacle.photoCaption}</span>
         </div>
         <div className="obstacle-copy">
           <p className="section-tag">{t.obstacle.tag}</p>
@@ -363,11 +289,6 @@ export default function Home() {
           <a className="button button-warm" href="#programmes">
             {t.midCta.cta} <Arrow />
           </a>
-          <div className="mid-levels">
-            {levelCodes.map((level) => (
-              <span key={level}>{level}</span>
-            ))}
-          </div>
         </div>
         <span className="mid-cta-shape mid-cta-shape-one"></span>
         <span className="mid-cta-shape mid-cta-shape-two"></span>
@@ -523,25 +444,8 @@ export default function Home() {
               {t.careers.cta} <Arrow />
             </a>
           </div>
-          <div className="career-art" aria-hidden="true">
-            <span className="career-sun"></span>
-            <div className="studio-chair">
-              <i></i>
-              <b></b>
-              <span></span>
-            </div>
-            <div className="megaphone">
-              <i></i>
-              <b></b>
-            </div>
-            <span className="career-spark">✳</span>
-            <span className="career-art-label">
-              MAKE
-              <br />
-              SOME
-              <br />
-              <b>NOISE</b>
-            </span>
+          <div className="career-art" role="img" aria-label={a.whyVisual}>
+            <span>{t.footer.location}</span>
           </div>
         </div>
       </section>

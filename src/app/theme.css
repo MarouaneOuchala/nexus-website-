@@ -128,10 +128,6 @@ body { background: var(--bg); color: var(--text); }
 .nexus-page .hero-price-note { color: var(--muted); }
 .hero-benefits { color: var(--text-2); }
 .hero-benefits li > span { background: var(--green-soft); color: var(--green-ink); }
-.nexus-page .hero-levels { color: var(--muted); }
-.nexus-page .level-chip { border-color: var(--border); background: var(--surface); color: var(--accent); }
-.nexus-page .level-chip.is-active { border-color: #6d28d9; background: #6d28d9; color: #fff; }
-.nexus-page .level-goal { color: var(--text-2); }
 .nexus-page .button-outline { border-color: var(--border); background: var(--surface); color: var(--accent); }
 .nexus-page .button-outline:hover { background: var(--accent-soft); }
 .nexus-page .visual-label { background: var(--surface); color: var(--heading); }
@@ -144,14 +140,6 @@ body { background: var(--bg); color: var(--text); }
 .nexus-page .reserved-badge { background: var(--surface); color: var(--text-2); }
 .nexus-page .reserved-badge strong, .nexus-page .reserved-orbit { color: var(--heading); }
 .nexus-page .reserved-orbit { border-right-color: var(--border); }
-
-/* ---------- Feature cards ---------- */
-.nexus-page .benefit-card { border-color: var(--border); background: var(--surface); box-shadow: var(--card-shadow); }
-.nexus-page .benefit-card h3 { color: var(--heading); }
-.nexus-page .benefit-card p { color: var(--muted); }
-.nexus-page .benefit-icon { background: var(--accent-soft); color: var(--accent); }
-.nexus-page .benefit-card:nth-child(2) .benefit-icon { background: var(--amber-soft); color: var(--amber-ink); }
-.nexus-page .benefit-card:nth-child(3) .benefit-icon { background: var(--green-soft); color: var(--green-ink); }
 
 /* ---------- Problem / why sections ---------- */
 .nexus-page .check-list li > span { background: var(--green-soft); color: var(--green-ink); }
@@ -223,12 +211,6 @@ body { background: var(--bg); color: var(--text); }
 .calc-range:focus-visible { outline: 3px solid #f59e0b; outline-offset: 6px; }
 .calc-scale { display: flex; justify-content: space-between; color: var(--muted); font-size: 11px; font-weight: 700; }
 .calc-label { margin: 26px 0 10px; color: var(--muted); font-size: 11px; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; }
-.calc-tiers { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 10px; margin: 0; padding: 0; list-style: none; }
-.calc-tier { display: grid; gap: 3px; padding: 12px 8px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); text-align: center; transition: background .25s ease, border-color .25s ease, transform .25s ease; }
-.calc-tier strong { color: var(--heading); font-size: 15px; }
-.calc-tier span { color: var(--muted); font-size: 11px; font-weight: 600; }
-.calc-tier.is-active { border-color: #6d28d9; background: #6d28d9; transform: translateY(-2px); }
-.calc-tier.is-active strong, .calc-tier.is-active span { color: #fff; }
 .calc-includes { display: grid; gap: 10px; margin: 0; padding: 0; list-style: none; }
 .calc-includes li { display: flex; align-items: center; gap: 10px; color: var(--text-2); font-size: 13px; font-weight: 600; }
 .calc-includes li > span { display: grid; width: 20px; height: 20px; flex: 0 0 auto; place-items: center; border-radius: 50%; background: var(--green-soft); color: var(--green-ink); font-size: 11px; }
@@ -237,7 +219,6 @@ body { background: var(--bg); color: var(--text); }
 .calc-total-label { margin: 0 0 4px; color: #ddd6fe; font-size: 12px; }
 .calc-total { margin: 0; font: 800 clamp(38px, 5vw, 52px)/1.05 var(--font-space-grotesk), sans-serif; font-variant-numeric: tabular-nums; animation: price-pop .28s ease; }
 .calc-total span { font-size: 18px; font-weight: 700; }
-.calc-summary .summary-savings { align-self: flex-start; margin: 14px 0 0; font-size: 11px; font-weight: 800; text-transform: none; }
 .calc-meta { display: grid; gap: 12px; margin: 22px 0; padding: 16px 0; border-block: 1px solid rgb(255 255 255 / 22%); }
 .calc-meta div { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
 .calc-meta dt { color: #ddd6fe; font-size: 12px; }
@@ -256,7 +237,6 @@ body { background: var(--bg); color: var(--text); }
 	.theme-toggle { width: 38px; height: 38px; }
 	.calc-panel, .calc-summary { padding: 20px 16px; border-radius: 17px; }
 	.calc-slider-value { font-size: 38px; }
-	.calc-tier { padding: 10px 4px; }
 	.nexus-page .faq-list details > p { margin-inline: 14px 16px; }
 	.nexus-page .faq-heading, .nexus-page .package-heading { text-align: start; }
 }

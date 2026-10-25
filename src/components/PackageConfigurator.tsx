@@ -3,7 +3,7 @@
 import { useState, type CSSProperties } from "react";
 import { useSettings } from "@/components/SettingsProvider";
 import { WHATSAPP_NUMBER } from "@/lib/config";
-import { BASE_RATE, DEFAULT_SESSIONS, MAX_SESSIONS, MIN_SESSIONS, getTierIndex, getTotal, tiers } from "@/lib/pricing";
+import { DEFAULT_SESSIONS, MAX_SESSIONS, MIN_SESSIONS, SESSION_BUNDLES, SESSION_STEP, getRegularTotal, getTotal } from "@/lib/pricing";
 
 // Arabic uses comma grouping here because "2.699" would read as a decimal.
 const locales = { en: "en-US", fr: "fr-FR", ar: "en-US" } as const;
@@ -15,13 +15,9 @@ export default function PackageConfigurator() {
 
   const locale = locales[lang];
   const total = getTotal(sessions);
-  const perSession = total / sessions;
-  const savings = sessions * BASE_RATE - total;
   const totalText = new Intl.NumberFormat(locale).format(total);
-  const perSessionText = new Intl.NumberFormat(locale, { minimumFractionDigits: 1, maximumFractionDigits: 1 }).format(perSession);
-  const savingsText = new Intl.NumberFormat(locale).format(savings);
+  const regularTotalText = new Intl.NumberFormat(locale).format(getRegularTotal(sessions));
   const fill = `${((sessions - MIN_SESSIONS) / (MAX_SESSIONS - MIN_SESSIONS)) * 100}%`;
-  const activeTier = getTierIndex(sessions);
 
   const message = c.whatsappMessage(sessions, totalText);
   const whatsappHref = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
@@ -52,28 +48,19 @@ export default function PackageConfigurator() {
               type="range"
               min={MIN_SESSIONS}
               max={MAX_SESSIONS}
-              step={1}
+              step={SESSION_STEP}
               value={sessions}
               onChange={(event) => setSessions(Number(event.target.value))}
               aria-valuetext={`${sessions} ${c.unit(sessions)}`}
               style={{ "--fill": fill } as CSSProperties}
             />
             <div className="calc-scale" aria-hidden="true">
-              <span>{MIN_SESSIONS}</span>
-              <span>{MAX_SESSIONS}</span>
-            </div>
-
-            <p className="calc-label">{c.tiersLabel}</p>
-            <ul className="calc-tiers">
-              {tiers.map((tier, index) => (
-                <li className={`calc-tier ${activeTier === index ? "is-active" : ""}`} key={tier.from}>
-                  <strong>
-                    {tier.from}–{tier.to}
-                  </strong>
-                  <span>{c.tierRate(new Intl.NumberFormat(locale).format(tier.rate))}</span>
-                </li>
+              {SESSION_BUNDLES.map((bundle, index) => (
+                <span className={`calc-scale-mark calc-scale-mark-${index + 1}`} key={bundle}>
+                  {bundle}
+                </span>
               ))}
-            </ul>
+            </div>
 
             <p className="calc-label">{c.includesTitle}</p>
             <ul className="calc-includes">
@@ -89,21 +76,18 @@ export default function PackageConfigurator() {
           <aside className="calc-summary">
             <p className="summary-kicker">{c.summaryKicker}</p>
             <p className="calc-total-label">{c.totalLabel}</p>
+            <p className="calc-original-price">
+              <span className="sr-only">{c.regularPriceLabel}: </span>
+              <del>{regularTotalText} {c.currency}</del>
+            </p>
             <p className="calc-total" key={total}>
               {totalText} <span>{c.currency}</span>
             </p>
-            {savings > 0 && <span className="summary-savings">{c.savings(savingsText)}</span>}
             <dl className="calc-meta">
               <div>
                 <dt>{c.sessionsLabel}</dt>
                 <dd>
                   {sessions} {c.unit(sessions)}
-                </dd>
-              </div>
-              <div>
-                <dt>{c.perSessionLabel}</dt>
-                <dd>
-                  {perSessionText} {c.currency}
                 </dd>
               </div>
             </dl>

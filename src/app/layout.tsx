@@ -3,6 +3,7 @@ import { Inter, Noto_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import "./globals.css";
 import "./theme.css";
+import "./redesign.css";
 
 const dmSans = Inter({ subsets: ["latin"], variable: "--font-dm-sans" });
 const spaceGrotesk = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-space-grotesk" });
