@@ -1,5 +1,17 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Editorial design (design-1)
+
+The warm editorial design includes staggered serif headlines, a gently moving
+Casablanca photograph, a rotating saffron ornament, a continuous typography
+ribbon, individual scroll reveals, and animated card/link interactions.
+The header pause control stops motion and reveals all content. System
+reduced-motion preferences disable animations entirely. Scroll-linked accents
+are progressive enhancements; normal scrolling is never intercepted.
+
+Pricing, the four session bundles, individual-only lessons, EN/FR/AR, theme
+switching, and WhatsApp booking remain unchanged.
+
 ## Getting Started
 
 First, run the development server:

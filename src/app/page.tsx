@@ -69,11 +69,12 @@ export default function Home() {
   const [requestType, setRequestType] = useState("consultation");
   const [formMessage, setFormMessage] = useState("");
   const [programPage, setProgramPage] = useState(0);
+  const [motionPaused, setMotionPaused] = useState(false);
 
   useEffect(() => {
     const targets = Array.from(
       document.querySelectorAll<HTMLElement>(
-        ".obstacle-section, .mid-cta, .programs-section, .why-section, .getting-started-section, .career-section, .faq-section, .contact-section, .package-section",
+        ".package-heading, .calc-card, .obstacle-visual, .obstacle-copy, .mid-cta-inner, .section-heading, .program-item, .why-visual, .why-copy, .getting-started-heading, .getting-started-step, .career-banner, .faq-heading, .faq-list details, .contact-copy, .inquiry-form",
       ),
     );
     const revealAll = () => targets.forEach((target) => target.classList.add("is-visible"));
@@ -83,7 +84,6 @@ export default function Home() {
       return;
     }
 
-    document.documentElement.classList.add("has-scroll-reveal");
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
@@ -93,15 +93,17 @@ export default function Home() {
           }
         });
       },
-      { threshold: 0.12 },
+      { threshold: 0, rootMargin: "0px 0px -32px 0px" },
     );
-    targets.forEach((target) => observer.observe(target));
+    targets.forEach((target) => {
+      target.classList.add("editorial-reveal");
+      observer.observe(target);
+    });
 
     return () => {
       observer.disconnect();
-      document.documentElement.classList.remove("has-scroll-reveal");
     };
-  }, []);
+  }, [lang, programPage]);
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -139,8 +141,9 @@ export default function Home() {
   ];
 
   return (
-    <main className="nexus-page">
+    <main className="nexus-page" data-motion={motionPaused ? "paused" : "running"}>
       <header className="sticky-header">
+        <div className="editorial-progress" aria-hidden="true" />
         <div className="site-header">
           <a className="wordmark" href="#accueil" aria-label={a.home}>
             <span className="wordmark-icon" aria-hidden="true">
@@ -161,6 +164,9 @@ export default function Home() {
             ))}
           </nav>
           <div className="header-actions">
+            <button className="motion-toggle" type="button" onClick={() => setMotionPaused((paused) => !paused)} aria-label={motionPaused ? a.resumeMotion : a.pauseMotion} aria-pressed={motionPaused}>
+              <span aria-hidden="true">{motionPaused ? "▶" : "Ⅱ"}</span>
+            </button>
             <div className="lang-switch">
               <GlobeIcon />
               <select aria-label={a.language} value={lang} onChange={(event) => setLang(event.target.value as Lang)}>
@@ -203,9 +209,8 @@ export default function Home() {
             <span className="eyebrow-line"></span> {h.eyebrow}
           </p>
           <h1>
-            {h.titleLead}
-            <br />
-            <span>{h.titleHighlight}</span>
+            <span className="editorial-title-line"><span>{h.titleLead}</span></span>
+            <span className="editorial-title-line editorial-title-accent"><span>{h.titleHighlight}</span></span>
           </h1>
           <p className="hero-description">{h.description}</p>
           <ul className="hero-benefits">
@@ -226,6 +231,7 @@ export default function Home() {
           <p className="hero-price-note">{h.priceNote}</p>
         </div>
         <div className="hero-visual" role="img" aria-label={a.heroVisual}>
+          <div className="editorial-photo-frame" aria-hidden="true"><div className="editorial-photo" /></div>
           <div className="hero-visual-wash"></div>
           <div className="visual-label">
             <i></i> {h.visualLabel}
@@ -247,6 +253,18 @@ export default function Home() {
           </span>
         </div>
       </section>
+
+      <div className="editorial-ribbon" aria-hidden="true">
+        <div className="editorial-ribbon-track">
+          {[0, 1].map((copy) => (
+            <div className="editorial-ribbon-sequence" key={copy}>
+              <span>{h.titleLead}</span><i>✳</i>
+              <span>{h.caption1}</span><i>✳</i>
+              <span>{h.titleHighlight}</span><i>✳</i>
+            </div>
+          ))}
+        </div>
+      </div>
 
       <PackageConfigurator />
 
