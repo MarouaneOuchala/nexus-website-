@@ -2,6 +2,7 @@
 
 import { Fragment, useEffect, useState, type FormEvent } from "react";
 import PackageConfigurator from "@/components/PackageConfigurator";
+import InteractiveScene from "@/components/InteractiveScene";
 import { useSettings } from "@/components/SettingsProvider";
 import { WHATSAPP_NUMBER } from "@/lib/config";
 import { languages, type Lang } from "@/lib/i18n";
@@ -69,7 +70,6 @@ export default function Home() {
   const [requestType, setRequestType] = useState("consultation");
   const [formMessage, setFormMessage] = useState("");
   const [programPage, setProgramPage] = useState(0);
-  const [motionPaused, setMotionPaused] = useState(false);
 
   useEffect(() => {
     const targets = Array.from(
@@ -141,7 +141,8 @@ export default function Home() {
   ];
 
   return (
-    <main className="nexus-page" data-motion={motionPaused ? "paused" : "running"}>
+    <main className="nexus-page">
+      <InteractiveScene />
       <header className="sticky-header">
         <div className="editorial-progress" aria-hidden="true" />
         <div className="site-header">
@@ -164,9 +165,6 @@ export default function Home() {
             ))}
           </nav>
           <div className="header-actions">
-            <button className="motion-toggle" type="button" onClick={() => setMotionPaused((paused) => !paused)} aria-label={motionPaused ? a.resumeMotion : a.pauseMotion} aria-pressed={motionPaused}>
-              <span aria-hidden="true">{motionPaused ? "▶" : "Ⅱ"}</span>
-            </button>
             <div className="lang-switch">
               <GlobeIcon />
               <select aria-label={a.language} value={lang} onChange={(event) => setLang(event.target.value as Lang)}>
@@ -228,11 +226,13 @@ export default function Home() {
           </div>
         </div>
         <div className="executive-stage">
-          <div className="hero-visual" role="img" aria-label={a.heroVisual}>
-            <div className="editorial-photo-frame" aria-hidden="true"><div className="editorial-photo" /></div>
-            <div className="hero-visual-wash"></div>
+          <div className="hero-visual">
+            <div className="scene-mount" aria-hidden="true">
+              <div className="scene-fallback"><span /><span /><span /></div>
+              <span className="scene-monogram">EN<span>.</span></span>
+            </div>
             <div className="visual-label">
-              <i></i> {h.visualLabel}
+              <i></i> NEXUS / LIVE ENGLISH
             </div>
             <div className="visual-caption">
               <span>{h.caption1}</span>
@@ -257,6 +257,12 @@ export default function Home() {
           ))}
         </ul>
       </section>
+
+      <div className="kinetic-strip" aria-hidden="true">
+        {[0, 1].map((copy) => (
+          <div key={copy}><span>{h.agendaItems[0]}</span><i>↗</i><span>{h.agendaItems[1]}</span><i>↗</i><span>{h.agendaItems[2]}</span><i>↗</i></div>
+        ))}
+      </div>
 
       <section className="obstacle-section section-shell" id="methode">
         <div className="obstacle-visual" role="img" aria-label={a.workspaceVisual}>

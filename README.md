@@ -1,23 +1,27 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Executive design (design-3)
+## Immersive design (design-4)
 
-An executive-focused direction using midnight navy, ivory and brass, an
-architectural hero with a coaching brief, and communication-focused program cards.
+An interactive direction using near-black, violet and electric lime, a Three.js
+sculpture, a coaching brief, and communication-focused program cards.
 English, French and Arabic content centres on meetings, presentations,
 negotiations and leadership rather than university learning.
 
-Motion is intentionally restrained: staggered serif headlines, gently moving
-Casablanca photography, individual scroll reveals and card/link interactions.
-The header pause control stops motion and reveals all content. System
-reduced-motion preferences disable animations entirely. Scroll-linked accents
-are progressive enhancements; normal scrolling is never intercepted.
+The lazy-loaded WebGL2 scene reacts to the pointer with eased rotation and
+lighting. Fine-pointer devices get a cursor halo, tilting cards and buttons, and
+pointer-positioned hover glows without replacing the native cursor. Rendering
+pauses when the hero is offscreen or the tab is hidden. Pixel ratio is capped at
+1.5; GPU resources, observers and event listeners are disposed on unmount.
+Reduced-motion preferences disable animation and use the static CSS sculpture.
+WebGL2 initialization failure or context loss also uses that fallback with a
+console warning. All decorative effects are hidden from assistive technology.
+The header retains scroll progress, without a pause button or scroll hijacking.
 
 Pricing, the four session bundles, individual-only lessons, EN/FR/AR, theme
 switching, and WhatsApp booking remain unchanged.
 
-Run `npm run dev -- --port 3004` to preview this branch independently.
-`design-1` and `design-2` preserve the other visual directions. No deployment is
+Run `npm run dev -- --port 3005` to preview this branch independently.
+`design-1`, `design-2`, and `design-3` preserve the other directions. No deployment is
 performed when switching between these local branches.
 
 ## Getting Started
