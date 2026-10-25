@@ -1,16 +1,24 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Editorial design (design-1)
+## Executive design (design-3)
 
-The warm editorial design includes staggered serif headlines, a gently moving
-Casablanca photograph, a rotating saffron ornament, a continuous typography
-ribbon, individual scroll reveals, and animated card/link interactions.
+An executive-focused direction using midnight navy, ivory and brass, an
+architectural hero with a coaching brief, and communication-focused program cards.
+English, French and Arabic content centres on meetings, presentations,
+negotiations and leadership rather than university learning.
+
+Motion is intentionally restrained: staggered serif headlines, gently moving
+Casablanca photography, individual scroll reveals and card/link interactions.
 The header pause control stops motion and reveals all content. System
 reduced-motion preferences disable animations entirely. Scroll-linked accents
 are progressive enhancements; normal scrolling is never intercepted.
 
 Pricing, the four session bundles, individual-only lessons, EN/FR/AR, theme
 switching, and WhatsApp booking remain unchanged.
+
+Run `npm run dev -- --port 3004` to preview this branch independently.
+`design-1` and `design-2` preserve the other visual directions. No deployment is
+performed when switching between these local branches.
 
 ## Getting Started
 

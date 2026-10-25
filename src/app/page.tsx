@@ -9,10 +9,10 @@ import { languages, type Lang } from "@/lib/i18n";
 const programImages = [
   "https://images.pexels.com/photos/5866468/pexels-photo-5866468.jpeg?auto=compress&cs=tinysrgb&w=600",
   "https://images.pexels.com/photos/19893586/pexels-photo-19893586/free-photo-of-interior-design-in-modern-office.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/18471533/pexels-photo-18471533/free-photo-of-a-laboratory-with-computers-and-monitors-on-the-desk.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/38209616/pexels-photo-38209616/free-photo-of-modern-architecture-in-casablanca-morocco.jpeg?auto=compress&cs=tinysrgb&w=600",
   "https://images.pexels.com/photos/38209616/pexels-photo-38209616/free-photo-of-modern-architecture-in-casablanca-morocco.jpeg?auto=compress&cs=tinysrgb&w=600",
   "https://images.pexels.com/photos/29735561/pexels-photo-29735561/free-photo-of-modern-skyline-of-casablanca-with-moroccan-flags.jpeg?auto=compress&cs=tinysrgb&w=600",
-  "https://images.pexels.com/photos/18471530/pexels-photo-18471530/free-photo-of-a-laboratory-with-several-computers-and-desks.jpeg?auto=compress&cs=tinysrgb&w=600",
+  "https://images.pexels.com/photos/19893586/pexels-photo-19893586/free-photo-of-interior-design-in-modern-office.jpeg?auto=compress&cs=tinysrgb&w=600",
 ];
 
 const PROGRAMS_PER_PAGE = 3;
@@ -204,69 +204,59 @@ export default function Home() {
       </header>
 
       <section className="hero section-shell" id="accueil">
-        <div className="hero-copy">
-          <p className="eyebrow">
-            <span className="eyebrow-line"></span> {h.eyebrow}
-          </p>
-          <h1>
-            <span className="editorial-title-line"><span>{h.titleLead}</span></span>
-            <span className="editorial-title-line editorial-title-accent"><span>{h.titleHighlight}</span></span>
-          </h1>
-          <p className="hero-description">{h.description}</p>
-          <ul className="hero-benefits">
-            {h.benefits.map((benefit) => (
-              <li key={benefit}>
-                <span aria-hidden="true">✓</span> {benefit}
-              </li>
-            ))}
-          </ul>
-          <div className="hero-actions">
-            <a className="button button-primary" href="#forfaits">
-              {h.start} <Arrow />
-            </a>
-            <a className="button button-outline" href="#programmes">
-              {h.programs}
-            </a>
+        <div className="executive-intro">
+          <div className="executive-title">
+            <p className="eyebrow">
+              <span className="eyebrow-line"></span> {h.eyebrow}
+            </p>
+            <h1>
+              <span className="editorial-title-line"><span>{h.titleLead}</span></span>{" "}
+              <span className="editorial-title-line editorial-title-accent"><span>{h.titleHighlight}</span></span>
+            </h1>
           </div>
-          <p className="hero-price-note">{h.priceNote}</p>
-        </div>
-        <div className="hero-visual" role="img" aria-label={a.heroVisual}>
-          <div className="editorial-photo-frame" aria-hidden="true"><div className="editorial-photo" /></div>
-          <div className="hero-visual-wash"></div>
-          <div className="visual-label">
-            <i></i> {h.visualLabel}
-          </div>
-          <div className="visual-caption">
-            <span>{h.caption1}</span>
-            <span>{h.caption2}</span>
-          </div>
-          <div className="reserved-badge">
-            <span className="reserved-orbit">{h.reservedValue}</span>
-            <span>
-              {h.reservedLabel[0]}
-              <br />
-              <strong>{h.reservedLabel[1]}</strong>
-            </span>
-          </div>
-          <span className="hero-spark" aria-hidden="true">
-            ✳
-          </span>
-        </div>
-      </section>
-
-      <div className="editorial-ribbon" aria-hidden="true">
-        <div className="editorial-ribbon-track">
-          {[0, 1].map((copy) => (
-            <div className="editorial-ribbon-sequence" key={copy}>
-              <span>{h.titleLead}</span><i>✳</i>
-              <span>{h.caption1}</span><i>✳</i>
-              <span>{h.titleHighlight}</span><i>✳</i>
+          <div className="hero-copy">
+            <p className="hero-description">{h.description}</p>
+            <div className="hero-actions">
+              <a className="button button-primary" href="#forfaits">
+                {h.start} <Arrow />
+              </a>
+              <a className="button button-outline" href="#programmes">
+                {h.programs}
+              </a>
             </div>
-          ))}
+            <p className="hero-price-note">{h.priceNote}</p>
+          </div>
         </div>
-      </div>
-
-      <PackageConfigurator />
+        <div className="executive-stage">
+          <div className="hero-visual" role="img" aria-label={a.heroVisual}>
+            <div className="editorial-photo-frame" aria-hidden="true"><div className="editorial-photo" /></div>
+            <div className="hero-visual-wash"></div>
+            <div className="visual-label">
+              <i></i> {h.visualLabel}
+            </div>
+            <div className="visual-caption">
+              <span>{h.caption1}</span>
+              <span>{h.caption2}</span>
+            </div>
+          </div>
+          <aside className="executive-brief">
+            <p className="brief-kicker">{h.agendaLabel}</p>
+            <h2>{h.agendaTitle}</h2>
+            <ol>
+              {h.agendaItems.map((item, index) => (
+                <li key={item}><span aria-hidden="true">0{index + 1}</span>{item}<Arrow /></li>
+              ))}
+            </ol>
+            <div className="brief-format"><strong>1:1</strong><span>{h.formatLabel}</span></div>
+            <a href="#contact">{h.consultation}<Arrow /></a>
+          </aside>
+        </div>
+        <ul className="hero-benefits">
+          {h.benefits.map((benefit) => (
+            <li key={benefit}><span aria-hidden="true">✓</span>{benefit}</li>
+          ))}
+        </ul>
+      </section>
 
       <section className="obstacle-section section-shell" id="methode">
         <div className="obstacle-visual" role="img" aria-label={a.workspaceVisual}>
@@ -384,6 +374,8 @@ export default function Home() {
           </button>
         </div>
       </section>
+
+      <PackageConfigurator />
 
       <section className="why-section">
         <div className="section-shell why-layout">

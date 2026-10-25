@@ -10,9 +10,9 @@ const spaceGrotesk = Plus_Jakarta_Sans({ subsets: ["latin"], variable: "--font-s
 const arabic = Noto_Sans_Arabic({ subsets: ["arabic"], variable: "--font-arabic", preload: false });
 
 export const metadata: Metadata = {
-  title: "NEXUS — Cours d’anglais en ligne pour professionnels et étudiants",
+  title: "NEXUS — Anglais pour cadres et dirigeants",
   description:
-    "Cours d’anglais en direct pour adultes, étudiants universitaires et professionnels. Composez votre pack de séances et réservez sur WhatsApp.",
+    "Coaching d’anglais individuel en ligne pour cadres au Maroc. Réunions, présentations et négociations. Packs transparents et réservation sur WhatsApp.",
 };
 
 // Runs before first paint so the saved theme and language apply without a flash.
