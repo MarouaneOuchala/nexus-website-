@@ -31,7 +31,11 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: initScript }} />
       </head>
       <body className={`${dmSans.variable} ${spaceGrotesk.variable} ${arabic.variable} ${cinema.variable}`}>
-        <SettingsProvider><EnquiryProvider>{children}<AnalyticsConsent /></EnquiryProvider></SettingsProvider>
+        <SettingsProvider>
+          {process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP === "1"
+            ? children
+            : <EnquiryProvider>{children}<AnalyticsConsent /></EnquiryProvider>}
+        </SettingsProvider>
       </body>
     </html>
   );

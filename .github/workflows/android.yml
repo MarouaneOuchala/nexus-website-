@@ -7,7 +7,14 @@ on:
     paths:
       - "android/**"
       - "src/**"
+      - "scripts/build-android.mjs"
+      - "tests/**"
+      - "supabase/functions/**"
+      - "supabase/migrations/**"
       - "package*.json"
+      - "next.config.ts"
+      - "tsconfig.json"
+      - "eslint.config.mjs"
       - "capacitor.config.ts"
       - ".github/workflows/android.yml"
 

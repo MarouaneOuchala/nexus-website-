@@ -6,7 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "android:sync": "npm run build && cap sync android",
+    "android:sync": "node scripts/build-android.mjs && node --test tests/android-export.test.mjs && cap sync android",
     "lint": "eslint",
     "test:enquiries": "node --test tests/enquiries.test.mjs tests/android-push.test.mjs"
   },

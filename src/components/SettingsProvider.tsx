@@ -88,7 +88,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.lang = lang;
     root.dir = isRtl ? "rtl" : "ltr";
-    document.title = t.meta.title;
+    document.title = process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP === "1" ? "NEXUS — Admin" : t.meta.title;
   }, [lang, isRtl, t]);
 
   useEffect(() => {

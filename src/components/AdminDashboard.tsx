@@ -245,13 +245,14 @@ export default function AdminDashboard() {
   }
 
   const query = search.toLocaleLowerCase();
+  const dashboardApp = process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP === "1";
   const filtered = rows.filter((row) => (status === "all" || row.status === status) &&
     [row.full_name, row.email, row.phone, row.goal].some((value) => value.toLocaleLowerCase().includes(query)));
   const current = rows.find((row) => row.id === selected);
   return (
     <main className="nexus-page admin-page">
       <header className="admin-header">
-        <Link className="wordmark" href="/">NEXUS.</Link>
+        {dashboardApp ? <div className="wordmark">NEXUS.</div> : <Link className="wordmark" href="/">NEXUS.</Link>}
         <span>{copy.admin}</span>
         <div className="admin-controls">
           <select aria-label={t.a11y.language} value={lang} onChange={(event) => setLang(event.target.value as Lang)}>
@@ -272,7 +273,7 @@ export default function AdminDashboard() {
             <label>{t.contact.email}<input name="email" type="email" autoComplete="username" required /></label>
             <label>{copy.password}<input name="password" type="password" autoComplete="current-password" required /></label>
             <button className="button button-primary" disabled={busy}>{busy ? copy.loading : copy.signIn}</button>
-            <Link href="/">{copy.back}</Link>
+            {!dashboardApp && <Link href="/">{copy.back}</Link>}
           </form>
         )}
         {access === "admin" && (

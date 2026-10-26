@@ -183,12 +183,19 @@ performed when switching between these local branches.
 ## Android dashboard
 
 The Capacitor Android app (`ma.nexusacademy.dashboard`) bundles the static
-dashboard and opens `/admin/`. It uses the same Supabase accounts, permissions,
+dashboard at its root URL. It uses the same Supabase accounts, permissions,
 enquiries and statistics. There is no hosted website URL embedded as a remote
 WebView source. An internet connection is required for private business data;
 sessions remain in session storage and may require sign-in after an app restart.
 
-`npm run android:sync` builds the web app and updates native assets. Android
+`npm run android:sync` sets `NEXT_PUBLIC_NEXUS_ANDROID_APP=1` only for the Android
+build, tests the exported root and admin pages, and updates native assets.
+The app root renders the dashboard directly: Capacitor serves root `index.html`
+for extensionless routes, so setting a start path alone does not select the
+exported admin HTML. The app has no public-homepage links, visitor analytics
+prompt or marketing enquiry dialog. A normal `npm run build` still exports the
+public website, unchanged; run it before deploying `out` as the public site.
+Android
 requires Java 21 and SDK 36. Alternatively run **Android dashboard APK** in
 GitHub Actions after configuring these non-secret repository variables:
 

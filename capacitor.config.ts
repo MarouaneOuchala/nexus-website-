@@ -5,7 +5,7 @@ const config: CapacitorConfig = {
   appName: "NEXUS Dashboard",
   webDir: "out",
   server: {
-    appStartPath: "/admin/",
+    appStartPath: "/",
     androidScheme: "https",
   },
   android: {
