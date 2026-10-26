@@ -172,8 +172,17 @@ devices. Historical appointments still use the earlier Casablanca rules.
   **loaded records**; use **Load more** to include older records. Refresh retrieves
   the newest page. Edits use an optimistic timestamp check: if a save fails because
   another admin changed the record, refresh, review the current record and retry.
-- Admin sessions use browser session storage (per tab), not permanent local storage.
-  Always sign out on shared devices. Enquiry data itself is not cached in storage.
+- Admin sessions use browser session storage by default. The optional **Remember
+  me** setting stores Supabase session tokens in persistent local storage on a
+  trusted device, never the password. They can be refreshed after browser/app
+  restart, subject to server expiry/revocation. Sign-out clears both token stores
+  and still revokes the Android device registration first. Always sign out on
+  shared devices. Local storage is not an encrypted OS credential vault.
+  Enquiries and unsaved drafts are not cached persistently.
+- Unsaved follow-up/session edits show a badge, warn before switching client,
+  navigating home or signing out, and request a browser refresh/close warning.
+  Mobile OS termination cannot be reliably intercepted. Ctrl+Enter/Command+Enter
+  saves the focused form; failed saves keep the draft and report an error.
 
 ## Android push notifications
 

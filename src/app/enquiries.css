@@ -57,6 +57,12 @@
 .admin-login { max-width: 470px; padding: 28px; border: 3px double var(--redesign-line); background: var(--redesign-card); display: grid; gap: 22px; }
 .admin-page label { display: grid; gap: 8px; font-size: 13px; }
 .admin-login a { color: var(--redesign-rust); }
+.admin-login .admin-remember { display: flex; align-items: center; gap: 12px; min-height: 44px; cursor: pointer; }
+.admin-login .admin-remember input { flex: 0 0 22px; width: 22px; height: 22px; min-height: 22px; accent-color: var(--redesign-rust); }
+.admin-login-hint, .admin-shortcut { color: var(--redesign-muted); font-size: 14px; line-height: 1.7; }
+.admin-login .admin-password-toggle { justify-self: start; border-radius: 10px; }
+.admin-draft-badge { display: inline-block; padding: 8px 12px; border-radius: 10px; border: 1px solid var(--redesign-rust); color: var(--redesign-rust); margin-bottom: 16px; font-size: 14px; }
+.admin-page .admin-clear-filters { margin-bottom: 16px; border-radius: 10px; }
 .admin-stats { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; margin-block: 30px; }
 .admin-stats > div, .admin-stats > button { display: grid; gap: 8px; text-align: start; padding: 20px; border: 3px double var(--redesign-line); background: var(--redesign-card); }
 .admin-stats strong { font: 400 35px Georgia, serif; color: var(--redesign-rust); }

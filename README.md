@@ -152,6 +152,22 @@ reordering, a brief welcome animation and a transitioning client detail panel.
 Reduced-motion preferences disable these effects. Counts describe loaded records,
 not a real-time feed. The total card clears the status filter.
 
+Admin sign-in offers an unchecked-by-default **Remember me on this device**
+option on the website and Android. Opting in stores Supabase session tokens in
+local storage so a session can resume after restarting; passwords are never
+stored by the dashboard. Unchecked logins use per-tab/session storage as before.
+Use remembered sessions only on trusted, screen-locked devices. Explicit sign-out
+removes tokens from both stores, and existing server-side admin checks still
+apply on every startup. Session expiry, revocation, clearing app/site data or
+uninstalling can require signing in again.
+
+Quality-of-life controls include password visibility, a one-click search/filter
+reset, unsaved-change badges and confirmation before switching client, leaving
+for the homepage or signing out. Browser refresh/close warnings are best-effort
+(mobile OS termination cannot be intercepted); drafts are not stored persistently.
+Ctrl+Enter or Command+Enter saves the focused follow-up/session form, with normal
+validation. Switching to statistics keeps the client's current drafts mounted.
+
 Client details include a manual **Session & welcome message** workflow. Assign a
 teacher, enter the agreed date and time in Morocco, optionally paste an existing
 meeting link, and save. The dashboard prepares a welcoming message in the client's
@@ -190,7 +206,8 @@ The Capacitor Android app (`ma.nexusacademy.dashboard`) bundles the static
 dashboard at its root URL. It uses the same Supabase accounts, permissions,
 enquiries and statistics. There is no hosted website URL embedded as a remote
 WebView source. An internet connection is required for private business data;
-sessions remain in session storage and may require sign-in after an app restart.
+sessions use session storage by default, or persistent local storage when
+**Remember me** is selected. Neither is an encrypted OS credential vault.
 
 `npm run android:sync` sets `NEXT_PUBLIC_NEXUS_ANDROID_APP=1` only for the Android
 build, tests the exported root and admin pages, and updates native assets.

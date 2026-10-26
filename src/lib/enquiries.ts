@@ -1,4 +1,5 @@
 import { createClient } from "@supabase/supabase-js";
+import { createAdminSessionStorage } from "@/lib/admin-session";
 
 export const enquiryStatuses = ["new", "contacted", "callback", "won", "closed"] as const;
 export type EnquiryStatus = typeof enquiryStatuses[number];
@@ -97,7 +98,7 @@ export function getEnquiryClient() {
   if (!client) {
     client = createClient<Database>(url, key, {
       auth: {
-        storage: typeof window === "undefined" ? undefined : window.sessionStorage,
+        storage: typeof window === "undefined" ? undefined : createAdminSessionStorage(window.sessionStorage, window.localStorage),
         persistSession: true,
         detectSessionInUrl: false,
       },
@@ -139,6 +140,12 @@ export const enquiryCopy = {
     package: "Selected package", sessions: "sessions", reference: "Reference",
     admin: "Enquiry desk", login: "Admin sign-in", password: "Password", signIn: "Sign in",
     signOut: "Sign out", forbidden: "This account does not have admin access.",
+    remember: "Remember me on this device", rememberHint: "Trusted devices only. Keeps you signed in after closing the browser or app, until you sign out or your session is revoked. Your password is not stored.",
+    showPassword: "Show password", hidePassword: "Hide password",
+    storageError: "Device storage is unavailable. Allow site storage, or leave private browsing, then try again.",
+    unsaved: "Unsaved changes", discard: "You have unsaved changes. Leave this client and discard them?",
+    savingWait: "A save is in progress. Please wait before leaving this client.",
+    saveShortcut: "Tip: Ctrl+Enter or ⌘+Enter saves this form.", clearFilters: "Clear search & filters",
     loginError: "Sign-in failed. Check your credentials and try again.",
     logoutError: "Sign-out failed. Please retry before leaving this device.",
     loadError: "Unable to load enquiries. Please refresh and try again.",
@@ -181,6 +188,12 @@ export const enquiryCopy = {
     package: "Pack choisi", sessions: "séances", reference: "Référence",
     admin: "Bureau des demandes", login: "Connexion administrateur", password: "Mot de passe", signIn: "Se connecter",
     signOut: "Se déconnecter", forbidden: "Ce compte n’a pas accès à l’administration.",
+    remember: "Se souvenir de moi sur cet appareil", rememberHint: "Appareils de confiance uniquement. La connexion reste active après fermeture du navigateur ou de l'application, jusqu'à déconnexion ou révocation de la session. Votre mot de passe n'est pas enregistré.",
+    showPassword: "Afficher le mot de passe", hidePassword: "Masquer le mot de passe",
+    storageError: "Le stockage de l'appareil est indisponible. Autorisez le stockage du site ou quittez la navigation privée, puis réessayez.",
+    unsaved: "Modifications non enregistrées", discard: "Des modifications ne sont pas enregistrées. Quitter ce client et les abandonner ?",
+    savingWait: "Un enregistrement est en cours. Veuillez patienter avant de quitter ce client.",
+    saveShortcut: "Astuce : Ctrl+Entrée ou ⌘+Entrée enregistre ce formulaire.", clearFilters: "Effacer la recherche et les filtres",
     loginError: "Connexion impossible. Vérifiez vos identifiants et réessayez.",
     logoutError: "Déconnexion impossible. Réessayez avant de quitter cet appareil.",
     loadError: "Impossible de charger les demandes. Actualisez et réessayez.",
@@ -223,6 +236,12 @@ export const enquiryCopy = {
     package: "الباقة المختارة", sessions: "حصص", reference: "المرجع",
     admin: "مكتب الطلبات", login: "دخول المسؤول", password: "كلمة المرور", signIn: "تسجيل الدخول",
     signOut: "تسجيل الخروج", forbidden: "هذا الحساب لا يملك صلاحية الإدارة.",
+    remember: "تذكّرني على هذا الجهاز", rememberHint: "للأجهزة الموثوقة فقط. تبقى مسجّل الدخول بعد إغلاق المتصفح أو التطبيق حتى تسجّل الخروج أو تُلغى الجلسة. لا تُحفظ كلمة مرورك.",
+    showPassword: "إظهار كلمة المرور", hidePassword: "إخفاء كلمة المرور",
+    storageError: "تخزين الجهاز غير متاح. اسمح بتخزين بيانات الموقع أو اخرج من التصفح الخاص ثم أعد المحاولة.",
+    unsaved: "تعديلات غير محفوظة", discard: "لديك تعديلات غير محفوظة. هل تريد مغادرة هذا العميل وتجاهلها؟",
+    savingWait: "جارٍ الحفظ. يرجى الانتظار قبل مغادرة هذا العميل.",
+    saveShortcut: "نصيحة: اضغط Ctrl+Enter أو ⌘+Enter لحفظ هذا النموذج.", clearFilters: "مسح البحث والفلاتر",
     loginError: "تعذر الدخول. تحقق من بياناتك وحاول مجدداً.",
     logoutError: "تعذر تسجيل الخروج. حاول مجدداً قبل مغادرة هذا الجهاز.",
     loadError: "تعذر تحميل الطلبات. حدّث الصفحة وحاول مجدداً.",

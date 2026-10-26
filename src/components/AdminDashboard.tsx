@@ -7,12 +7,14 @@ import NativeNotifications from "@/components/NativeNotifications";
 import AnimatedMetric from "@/components/AnimatedMetric";
 import MeetingWelcome, { TeacherDirectory } from "@/components/MeetingWelcome";
 import { stopNativePush } from "@/lib/native-push";
+import { chooseAdminSessionStorage } from "@/lib/admin-session";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy, enquiryStatuses, getEnquiryClient, type Enquiry, type EnquiryStatus, type Teacher } from "@/lib/enquiries";
 import { languages, type Lang } from "@/lib/i18n";
 
 const PAGE_SIZE = 100;
+type DraftState = { dirty: boolean; saving: boolean };
 
 function localDateTime(value: string | null) {
   if (!value) return "";
@@ -21,7 +23,9 @@ function localDateTime(value: string | null) {
   return shifted.toISOString().slice(0, 16);
 }
 
-function FollowUp({ enquiry, teachers, onSaved }: { enquiry: Enquiry; teachers: Teacher[] | null; onSaved: (row: Enquiry) => void }) {
+function FollowUp({ enquiry, teachers, onSaved, onDraftChange }: {
+  enquiry: Enquiry; teachers: Teacher[] | null; onSaved: (row: Enquiry) => void; onDraftChange: (state: DraftState) => void;
+}) {
   const { lang, t } = useSettings();
   const copy = enquiryCopy[lang];
   const reducedMotion = useReducedMotion();
@@ -32,6 +36,19 @@ function FollowUp({ enquiry, teachers, onSaved }: { enquiry: Enquiry; teachers: 
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const inFlight = useRef(false);
+  const [meetingDraft, setMeetingDraft] = useState<DraftState>({ dirty: false, saving: false });
+  const dirty = status !== enquiry.status || notes !== enquiry.notes || nextCall !== localDateTime(enquiry.next_call_at);
+  const hasDraft = dirty || meetingDraft.dirty;
+  const saving = busy || meetingDraft.saving;
+  useEffect(() => {
+    onDraftChange({ dirty: hasDraft, saving });
+    const warn = (event: BeforeUnloadEvent) => {
+      event.preventDefault();
+      event.returnValue = "";
+    };
+    if (hasDraft || saving) window.addEventListener("beforeunload", warn);
+    return () => { window.removeEventListener("beforeunload", warn); onDraftChange({ dirty: false, saving: false }); };
+  }, [hasDraft, saving, onDraftChange]);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -80,13 +97,16 @@ function FollowUp({ enquiry, teachers, onSaved }: { enquiry: Enquiry; teachers: 
       animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : 0.3 }}>
       <p className="enquiry-kicker">{copy.details}</p>
       <h2>{enquiry.full_name}</h2>
+      {hasDraft && <p className="admin-draft-badge" role="status">{copy.unsaved}</p>}
       <div className="admin-actions">
         <a className="button button-primary" href={`tel:+${enquiry.phone}`}>{t.contact.phone} ↗</a>
         <a className="button button-outline" href={`mailto:${enquiry.email}`}>{t.contact.email} ↗</a>
       </div>
-      {enquiry.request_type !== "application" && <MeetingWelcome enquiry={enquiry} teachers={teachers} onSaved={onSaved} />}
+      {enquiry.request_type !== "application" && <MeetingWelcome enquiry={enquiry} teachers={teachers} onSaved={onSaved} onDraftChange={setMeetingDraft} />}
       <dl className="admin-fields">{details.map(([label, value]) => <div key={label}><dt>{label}</dt><dd dir="auto">{value}</dd></div>)}</dl>
-      <form className="admin-follow-up" onSubmit={save} aria-busy={busy}>
+      <form className="admin-follow-up" onSubmit={save} aria-busy={busy} onKeyDown={event => {
+        if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); if (!busy) event.currentTarget.requestSubmit(); }
+      }}>
         <fieldset disabled={busy}>
           <label>{copy.status}<select value={status} onChange={(event) => {
             const value = event.target.value;
@@ -98,6 +118,7 @@ function FollowUp({ enquiry, teachers, onSaved }: { enquiry: Enquiry; teachers: 
         </fieldset>
         {error && <p className="enquiry-error" role="alert">{error}</p>}
         {message && <p role="status">{message}</p>}
+        <p className="admin-shortcut">{copy.saveShortcut}</p>
       </form>
     </motion.article>
   );
@@ -108,7 +129,10 @@ export default function AdminDashboard() {
   const copy = enquiryCopy[lang];
   const reducedMotion = useReducedMotion();
   const [access, setAccess] = useState<"loading" | "login" | "admin">("loading");
-  const [error, setError] = useState<"loadError" | "forbidden" | "unavailable" | "loginError" | "logoutError" | "">("");
+  const [error, setError] = useState<"loadError" | "forbidden" | "unavailable" | "loginError" | "logoutError" | "storageError" | "savingWait" | "">("");
+  const [remember, setRemember] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [signingOut, setSigningOut] = useState(false);
   const [rows, setRows] = useState<Enquiry[]>([]);
   const [teachers, setTeachers] = useState<Teacher[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
@@ -120,6 +144,13 @@ export default function AdminDashboard() {
   const generation = useRef(0);
   const inFlight = useRef(false);
   const verifiedUser = useRef<string | null>(null);
+  const draft = useRef<DraftState>({ dirty: false, saving: false });
+  const trackDraft = useCallback((state: DraftState) => { draft.current = state; }, []);
+
+  function canLeave() {
+    if (draft.current.saving) { setError("savingWait"); return false; }
+    return !draft.current.dirty || window.confirm(copy.discard);
+  }
 
   const load = useCallback(async (offset = 0) => {
     const attempt = generation.current;
@@ -160,6 +191,9 @@ export default function AdminDashboard() {
         setRows([]);
         setTeachers(null);
         setSelected(null);
+        setShowPassword(false);
+        setRemember(false);
+        draft.current = { dirty: false, saving: false };
         setBusy(false);
         if (!session) { verifiedUser.current = null; setAccess("login"); return; }
         setAccess("loading");
@@ -197,6 +231,7 @@ export default function AdminDashboard() {
     setBusy(true);
     setError("");
     try {
+      chooseAdminSessionStorage(remember);
       const { error: failure } = await getEnquiryClient().auth.signInWithPassword({
         email: String(data.get("email")).trim(), password: String(data.get("password")),
       });
@@ -206,7 +241,8 @@ export default function AdminDashboard() {
       }
     } catch (failure) {
       console.error("NEXUS: Admin sign-in unavailable.", failure instanceof Error ? failure.message : "Unknown error");
-      setError(failure instanceof Error && failure.message === "SUPABASE_NOT_CONFIGURED" ? "unavailable" : "loginError");
+      setError(failure instanceof Error && failure.message === "AUTH_STORAGE_UNAVAILABLE" ? "storageError"
+        : failure instanceof Error && failure.message === "SUPABASE_NOT_CONFIGURED" ? "unavailable" : "loginError");
     } finally {
       setBusy(false);
       inFlight.current = false;
@@ -214,6 +250,9 @@ export default function AdminDashboard() {
   }
 
   async function logout() {
+    if (inFlight.current || !canLeave()) return;
+    inFlight.current = true;
+    setSigningOut(true);
     setError("");
     try {
       await stopNativePush();
@@ -227,6 +266,9 @@ export default function AdminDashboard() {
     } catch (failure) {
       console.error("NEXUS: Sign-out failed.", failure instanceof Error ? failure.message : "Unknown error");
       setError("logoutError");
+    } finally {
+      inFlight.current = false;
+      setSigningOut(false);
     }
   }
 
@@ -238,14 +280,14 @@ export default function AdminDashboard() {
   return (
     <main className="nexus-page admin-page" data-access={access}>
       <header className="admin-header">
-        {dashboardApp ? <div className="wordmark">NEXUS.</div> : <Link className="wordmark" href="/">NEXUS.</Link>}
+        {dashboardApp ? <div className="wordmark">NEXUS.</div> : <Link className="wordmark" href="/" onClick={event => { if (!canLeave()) event.preventDefault(); }}>NEXUS.</Link>}
         <span>{copy.admin}</span>
         <div className="admin-controls">
           <select aria-label={t.a11y.language} value={lang} onChange={(event) => setLang(event.target.value as Lang)}>
             {languages.map((language) => <option key={language.code} value={language.code}>{language.label}</option>)}
           </select>
           <button type="button" onClick={toggleTheme} aria-label={theme === "dark" ? t.a11y.switchToLight : t.a11y.switchToDark}>{theme === "dark" ? "☀" : "☾"}</button>
-          {access === "admin" && <button type="button" onClick={() => void logout()}>{copy.signOut}</button>}
+          {access === "admin" && <button type="button" disabled={signingOut} onClick={() => void logout()}>{signingOut ? copy.loading : copy.signOut}</button>}
         </div>
       </header>
       <motion.div className="admin-shell" initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 12 }}
@@ -258,7 +300,10 @@ export default function AdminDashboard() {
         {access === "login" && (
           <form className="admin-login" onSubmit={login}>
             <label>{t.contact.email}<input name="email" type="email" autoComplete="username" required /></label>
-            <label>{copy.password}<input name="password" type="password" autoComplete="current-password" required /></label>
+            <label>{copy.password}<input id="admin-password" name="password" type={showPassword ? "text" : "password"} autoComplete="current-password" required /></label>
+            <button type="button" className="admin-password-toggle" aria-controls="admin-password" aria-pressed={showPassword} onClick={() => setShowPassword(previous => !previous)}>{showPassword ? copy.hidePassword : copy.showPassword}</button>
+            <label className="admin-remember"><input name="remember" type="checkbox" checked={remember} onChange={event => setRemember(event.target.checked)} disabled={busy} aria-describedby="admin-remember-hint" /><span>{copy.remember}</span></label>
+            <p id="admin-remember-hint" className="admin-login-hint">{copy.rememberHint}</p>
             <button className="button button-primary" disabled={busy}>{busy ? copy.loading : copy.signIn}</button>
             {!dashboardApp && <Link href="/">{copy.back}</Link>}
           </form>
@@ -293,6 +338,7 @@ export default function AdminDashboard() {
               }}><option value="all">{copy.all}</option>{enquiryStatuses.map((item) => <option key={item} value={item}>{copy.statuses[item]}</option>)}</select>
               <button className="admin-refresh" disabled={busy} aria-busy={busy} onClick={() => void load()}><span aria-hidden="true">↻</span>{busy ? copy.loading : copy.refresh}</button>
             </div>
+            {(search || status !== "all") && <button type="button" className="admin-clear-filters" onClick={() => { setSearch(""); setStatus("all"); }}>{copy.clearFilters}</button>}
             <p className="admin-result-count" role="status">{copy.dashboard.results}: {filtered.length.toLocaleString(lang)}</p>
             <div className="admin-workspace">
               <section className="admin-list" aria-label={copy.admin}>
@@ -300,7 +346,9 @@ export default function AdminDashboard() {
                 <AnimatePresence initial={false}>
                 {filtered.map((row) => <motion.button layout={!reducedMotion} initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 8 }}
                   animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.18 }}
-                  key={row.id} className="admin-lead" aria-pressed={selected === row.id} onClick={() => setSelected(row.id)}>
+                  key={row.id} className="admin-lead" aria-pressed={selected === row.id} onClick={() => {
+                    if (selected !== row.id && canLeave()) { setError(""); setSelected(row.id); }
+                  }}>
                   <span className={`admin-status status-${row.status}`}>{copy.statuses[row.status]}</span>
                   <strong>{row.full_name}</strong><span dir="auto">{row.phone} · {row.email}</span>
                   <span>{row.goal}</span><time dateTime={row.created_at}>{new Date(row.created_at).toLocaleString(lang)}</time>
@@ -309,7 +357,7 @@ export default function AdminDashboard() {
                 </AnimatePresence>
                 {hasMore && <button disabled={busy} onClick={() => void load(rows.length)}>{copy.more}</button>}
               </section>
-              {current ? <FollowUp key={current.id} enquiry={current} teachers={teachers} onSaved={(updated) => setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row))} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
+              {current ? <FollowUp key={current.id} enquiry={current} teachers={teachers} onDraftChange={trackDraft} onSaved={(updated) => setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row))} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
             </div>
             </motion.div>
           </>

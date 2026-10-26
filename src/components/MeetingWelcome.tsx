@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
-import { getEnquiryClient, type Enquiry, type Teacher } from "@/lib/enquiries";
+import { enquiryCopy, getEnquiryClient, type Enquiry, type Teacher } from "@/lib/enquiries";
 import { moroccoMeetingInput, parseMoroccoMeeting, validMeetingUrl, welcomeMessage } from "@/lib/meeting-welcome";
 import { useSettings } from "@/components/SettingsProvider";
 
@@ -140,8 +140,9 @@ export function TeacherDirectory({ teachers, onChange }: {
   </details>;
 }
 
-export default function MeetingWelcome({ enquiry, teachers, onSaved }: {
+export default function MeetingWelcome({ enquiry, teachers, onSaved, onDraftChange }: {
   enquiry: Enquiry; teachers: Teacher[] | null; onSaved: (row: Enquiry) => void;
+  onDraftChange: (state: { dirty: boolean; saving: boolean }) => void;
 }) {
   const { lang } = useSettings();
   const t = copy[lang];
@@ -158,6 +159,10 @@ export default function MeetingWelcome({ enquiry, teachers, onSaved }: {
     meetingAt: enquiry.meeting_at, meetingUrl: enquiry.meeting_url, diagnostic: enquiry.request_type === "consultation",
   }) : "";
   const unchanged = teacherId === (enquiry.teacher_id ?? "") && time === moroccoMeetingInput(enquiry.meeting_at) && link.trim() === (enquiry.meeting_url ?? "");
+  useEffect(() => {
+    onDraftChange({ dirty: !unchanged, saving: busy });
+    return () => onDraftChange({ dirty: false, saving: false });
+  }, [unchanged, busy, onDraftChange]);
 
   async function save(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
@@ -201,7 +206,9 @@ export default function MeetingWelcome({ enquiry, teachers, onSaved }: {
 
   return <section className="admin-meeting" aria-labelledby="meeting-welcome-title">
     <h3 id="meeting-welcome-title">{t.title}</h3><p>{t.intro}</p>
-    <form onSubmit={save} aria-busy={busy}>
+    <form onSubmit={save} aria-busy={busy} onKeyDown={event => {
+      if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); if (!busy) event.currentTarget.requestSubmit(); }
+    }}>
       <fieldset disabled={busy || teachers === null}>
         <label>{t.teacher}<select value={teacherId} required onChange={event => { setTeacherId(event.target.value); setFeedback(""); }}>
           <option value="">{t.choose}</option>
@@ -212,6 +219,7 @@ export default function MeetingWelcome({ enquiry, teachers, onSaved }: {
         <button type="submit">{busy ? t.saving : t.save}</button>
       </fieldset>
     </form>
+    <p className="admin-shortcut">{enquiryCopy[lang].saveShortcut}</p>
     <p className="meeting-language">{t.language}: {enquiry.language.toUpperCase()}</p>
     {(!message || !unchanged) && <p>{t.pending}</p>}
     {message && <label>{t.preview}<textarea className="meeting-message" readOnly value={message} rows={12} lang={enquiry.language} dir={enquiry.language === "ar" ? "rtl" : "ltr"} /></label>}
