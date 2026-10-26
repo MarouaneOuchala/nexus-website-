@@ -151,6 +151,52 @@ This does not change Salma's access or any password.
 - Admin sessions use browser session storage (per tab), not permanent local storage.
   Always sign out on shared devices. Enquiry data itself is not cached in storage.
 
+## Android push notifications
+
+Apply `migrations/202610260003_android_push.sql` after the existing migrations.
+It adds private, RLS-protected device registrations and a delivery outbox.
+Registration requires an allowlisted admin and a live owned Supabase session.
+Only the current session's device can be disabled by a signed-in caller.
+The Android sign-out action revokes registration before signing out and reports
+failure rather than pretending logout completed. Expired/deleted sessions and
+revoked admins are excluded when the server claims notifications.
+
+1. Register `ma.nexusacademy.dashboard` in a Firebase Spark project. Download the
+   Android client config for the APK build. Do not add the Analytics SDK.
+2. Provision a Firebase service account with the required FCM send permissions.
+   Store its JSON as the Supabase Edge Function secret `FIREBASE_SERVICE_ACCOUNT`;
+   it must never be placed in the app, GitHub public variables or source control.
+3. Generate a random dispatcher secret and store it as `PUSH_DISPATCH_SECRET`.
+   Deploy `functions/dispatch-enquiry-push`. The function disables Supabase's JWT
+   gateway verification because the scheduler uses a separate bearer secret;
+   the handler validates that secret itself. Anonymous calls are rejected.
+4. In Supabase Vault, store the same dispatcher secret as
+   `nexus_push_dispatch_secret` and the function's full HTTPS URL as
+   `nexus_push_dispatch_url`. Run `push-schedule.sql` once to call it every minute.
+   Check for an existing `nexus-enquiry-push` job before configuring another.
+5. Sign in on a real Android device and choose **Enable notifications**.
+   Verify a test notification while foregrounded and backgrounded before relying
+   on this channel. Also verify disable, logout, revoked access and notification
+   taps. Do not insert synthetic production enquiries without owner approval.
+
+Only new inserts enqueue notifications, not retries or status changes. Each
+device/enquiry delivery has a unique key and leased claims. The dispatcher sends
+up to 10 deliveries per invocation, retries transport failures/429/5xx with
+exponential backoff up to five claims, and removes tokens rejected as unregistered.
+Permanent failures are recorded and logged, not reported as sent. Inspect private
+`push_deliveries` for retries, exhausted attempts and configuration errors.
+Old delivery records are pruned after 30 days when the dispatcher runs.
+
+Delivery is at-least-once: a crash after FCM accepts a message can cause a retry.
+Android notification tags replace duplicates for the same enquiry. Messages have
+a one-hour FCM TTL. A notification already handed to FCM cannot be recalled;
+logout clears delivered alerts on that device, and future claims exclude revoked
+sessions, but an already in-flight generic alert can still arrive. The dashboard
+always checks admin access independently before showing business data.
+The session ID is a server-side registration association, never an auth token.
+Notifications can remain registered after an app restart until explicitly
+disabled, the session expires, the user signs out, or admin access is revoked.
+
 ## Protection and operating limits
 
 Anonymous users have no table read, update or delete permissions. The submission

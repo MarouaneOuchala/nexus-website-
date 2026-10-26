@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">NEXUS Dashboard</string>
+    <string name="title_activity_main">NEXUS Dashboard</string>
+    <string name="package_name">ma.nexusacademy.dashboard</string>
+    <string name="custom_url_scheme">ma.nexusacademy.dashboard</string>
+</resources>

@@ -1,0 +1,2 @@
+[functions.dispatch-enquiry-push]
+verify_jwt = false

@@ -2,6 +2,7 @@
 
 # dependencies
 /node_modules
+supabase/functions/**/node_modules/
 /.pnp
 .pnp.*
 .yarn/*
@@ -39,3 +40,16 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
+
+# Android build outputs and credentials
+android/.gradle/
+android/local.properties
+android/**/build/
+android/app/src/main/assets/public/
+android/app/src/main/assets/capacitor.config.json
+android/app/src/main/assets/capacitor.plugins.json
+android/capacitor-cordova-android-plugins/
+android/app/google-services.json
+*.jks
+*.keystore
+*-firebase-adminsdk-*.json

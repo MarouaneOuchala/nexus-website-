@@ -65,6 +65,9 @@ type Database = {
     Views: { [_ in never]: never };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      register_push_device: { Args: { device_token: string }; Returns: undefined };
+      unregister_push_devices: { Args: Record<string, never>; Returns: undefined };
+      push_device_enabled: { Args: Record<string, never>; Returns: boolean };
       business_stats: { Args: Record<string, never>; Returns: BusinessStats[] };
       record_site_visit: { Args: { visit_id: string }; Returns: string };
       business_trends: { Args: { start_date: string; end_date: string; granularity: string }; Returns: BusinessTrends };

@@ -3,6 +3,8 @@
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
 import BusinessStats, { businessCopy } from "@/components/BusinessStats";
+import NativeNotifications from "@/components/NativeNotifications";
+import { stopNativePush } from "@/lib/native-push";
 import { AnimatePresence, motion, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy, enquiryStatuses, getEnquiryClient, type Enquiry, type EnquiryStatus } from "@/lib/enquiries";
@@ -158,6 +160,11 @@ export default function AdminDashboard() {
     }
   }, []);
 
+  const notificationReceived = useCallback(() => {
+    setView("enquiries");
+    void load();
+  }, [load]);
+
   useEffect(() => {
     let active = true;
     try {
@@ -224,6 +231,7 @@ export default function AdminDashboard() {
   async function logout() {
     setError("");
     try {
+      await stopNativePush();
       const { error: failure } = await getEnquiryClient().auth.signOut();
       if (failure) throw failure;
       generation.current++;
@@ -269,6 +277,7 @@ export default function AdminDashboard() {
         )}
         {access === "admin" && (
           <>
+            <NativeNotifications onEnquiry={notificationReceived} />
             <nav className="admin-tabs" aria-label={copy.admin}>
               <button aria-pressed={view === "enquiries"} onClick={() => setView("enquiries")}>{businessCopy[lang].inbox}</button>
               <button aria-pressed={view === "stats"} onClick={() => setView("stats")}>{businessCopy[lang].tab}</button>

@@ -226,6 +226,9 @@
 .analytics-actions button:last-child { background: var(--redesign-saffron); color: #344d45; }
 .analytics-consent :focus-visible { outline: 3px solid var(--redesign-rust); outline-offset: 3px; }
 .analytics-preferences:focus-visible { outline: 3px solid var(--redesign-saffron); outline-offset: 3px; }
+.admin-notifications { margin-block: 20px; padding: 16px; border: 1px solid var(--redesign-line); border-radius: 12px; }
+.admin-notifications h2 { font-size: 20px; }
+.admin-notifications p { margin-block: 8px; }
 .business-trends { margin-top: 36px; padding-top: 16px; border-top: 1px solid var(--redesign-line); min-width: 0; }
 .trend-controls { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; align-items: end; margin-block: 24px; }
 .trend-controls label, .trend-metric { min-width: 0; }

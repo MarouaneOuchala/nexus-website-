@@ -180,6 +180,38 @@ Run `npm run dev -- --port 3006` to preview this branch independently.
 `design-1` through `design-4` preserve the other directions. No deployment is
 performed when switching between these local branches.
 
+## Android dashboard
+
+The Capacitor Android app (`ma.nexusacademy.dashboard`) bundles the static
+dashboard and opens `/admin/`. It uses the same Supabase accounts, permissions,
+enquiries and statistics. There is no hosted website URL embedded as a remote
+WebView source. An internet connection is required for private business data;
+sessions remain in session storage and may require sign-in after an app restart.
+
+`npm run android:sync` builds the web app and updates native assets. Android
+requires Java 21 and SDK 36. Alternatively run **Android dashboard APK** in
+GitHub Actions after configuring these non-secret repository variables:
+
+- `NEXT_PUBLIC_SUPABASE_URL`
+- `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY`
+- `FIREBASE_ANDROID_CONFIG`: the Firebase Android client `google-services.json`
+  contents for this package (client configuration, not a service account key).
+
+The workflow produces a **debug-signed test APK**, not a Play Store release.
+Download its `nexus-dashboard-test-apk` artifact and sideload only on trusted
+test devices. Debug builds use a temporary development signing key; later builds
+may require uninstalling the old app. Before distribution, configure a stable
+release signing key in protected GitHub secrets and disable debugging.
+Never put Firebase service account credentials or Android signing keys in the
+repository, public variables or APK.
+
+Push notifications are Android-only and opt-in after admin sign-in. They use
+Firebase Cloud Messaging, not Firebase Authentication or Google Analytics.
+Alerts contain generic text and a random enquiry reference, not client details.
+Delivery requires Google Play services, connectivity and Android permission;
+force-stopped apps do not receive alerts until reopened. See the
+[push backend setup](supabase/README.md#android-push-notifications) before testing.
+
 ## Getting Started
 
 First, run the development server:
