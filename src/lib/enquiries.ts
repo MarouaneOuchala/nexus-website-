@@ -3,7 +3,18 @@ import { createAdminSessionStorage } from "@/lib/admin-session";
 
 export const enquiryStatuses = ["new", "contacted", "callback", "won", "closed"] as const;
 export type EnquiryStatus = typeof enquiryStatuses[number];
-export type Teacher = { id: string; name: string; active: boolean; created_at: string };
+export const teachingStatuses = ["pending", "active", "paused", "finished"] as const;
+export type TeachingStatus = typeof teachingStatuses[number];
+export const schedulePreferences = ["not_set", "weekdays", "weekends", "both", "flexible"] as const;
+export type Teacher = {
+  id: string; name: string; active: boolean; created_at: string; updated_at: string;
+  schedule_preference: typeof schedulePreferences[number]; availability_notes: string; notes: string;
+  teaching_languages: string; specialties: string; client_capacity: number | null;
+};
+export type TeacherWorkload = {
+  teacher_id: string; total_clients: number; assigned_clients: number; active_clients: number;
+  paused_clients: number; pending_clients: number; finished_clients: number; measured_at: string;
+};
 export type RequestType = "consultation" | "course-info" | "application";
 export type TrendBucket = {
   key: string;
@@ -55,6 +66,7 @@ export type Enquiry = {
   teacher_id: string | null;
   meeting_at: string | null;
   meeting_url: string;
+  teaching_status: TeachingStatus;
 };
 
 type Database = {
@@ -63,19 +75,20 @@ type Database = {
       enquiries: {
         Row: Enquiry;
         Insert: never;
-        Update: Partial<Pick<Enquiry, "status" | "notes" | "next_call_at" | "teacher_id" | "meeting_at" | "meeting_url">>;
+        Update: Partial<Pick<Enquiry, "status" | "notes" | "next_call_at" | "teacher_id" | "meeting_at" | "meeting_url" | "teaching_status">>;
         Relationships: [];
       };
       teachers: {
         Row: Teacher;
         Insert: Pick<Teacher, "name">;
-        Update: Pick<Teacher, "active">;
+        Update: Partial<Pick<Teacher, "active" | "schedule_preference" | "availability_notes" | "notes" | "teaching_languages" | "specialties" | "client_capacity">>;
         Relationships: [];
       };
     };
     Views: { [_ in never]: never };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      teacher_workload: { Args: Record<string, never>; Returns: TeacherWorkload[] };
       register_push_device: { Args: { device_token: string }; Returns: undefined };
       unregister_push_devices: { Args: Record<string, never>; Returns: undefined };
       push_device_enabled: { Args: Record<string, never>; Returns: boolean };
@@ -143,8 +156,8 @@ export const enquiryCopy = {
     remember: "Remember me on this device", rememberHint: "Trusted devices only. Keeps you signed in after closing the browser or app, until you sign out or your session is revoked. Your password is not stored.",
     showPassword: "Show password", hidePassword: "Hide password",
     storageError: "Device storage is unavailable. Allow site storage, or leave private browsing, then try again.",
-    unsaved: "Unsaved changes", discard: "You have unsaved changes. Leave this client and discard them?",
-    savingWait: "A save is in progress. Please wait before leaving this client.",
+    unsaved: "Unsaved changes", discard: "Discard unsaved changes and continue?",
+    savingWait: "A save is in progress. Please wait before continuing.",
     saveShortcut: "Tip: Ctrl+Enter or ⌘+Enter saves this form.", clearFilters: "Clear search & filters",
     loginError: "Sign-in failed. Check your credentials and try again.",
     logoutError: "Sign-out failed. Please retry before leaving this device.",
@@ -191,8 +204,8 @@ export const enquiryCopy = {
     remember: "Se souvenir de moi sur cet appareil", rememberHint: "Appareils de confiance uniquement. La connexion reste active après fermeture du navigateur ou de l'application, jusqu'à déconnexion ou révocation de la session. Votre mot de passe n'est pas enregistré.",
     showPassword: "Afficher le mot de passe", hidePassword: "Masquer le mot de passe",
     storageError: "Le stockage de l'appareil est indisponible. Autorisez le stockage du site ou quittez la navigation privée, puis réessayez.",
-    unsaved: "Modifications non enregistrées", discard: "Des modifications ne sont pas enregistrées. Quitter ce client et les abandonner ?",
-    savingWait: "Un enregistrement est en cours. Veuillez patienter avant de quitter ce client.",
+    unsaved: "Modifications non enregistrées", discard: "Abandonner les modifications non enregistrées et continuer ?",
+    savingWait: "Un enregistrement est en cours. Veuillez patienter avant de continuer.",
     saveShortcut: "Astuce : Ctrl+Entrée ou ⌘+Entrée enregistre ce formulaire.", clearFilters: "Effacer la recherche et les filtres",
     loginError: "Connexion impossible. Vérifiez vos identifiants et réessayez.",
     logoutError: "Déconnexion impossible. Réessayez avant de quitter cet appareil.",
@@ -239,8 +252,8 @@ export const enquiryCopy = {
     remember: "تذكّرني على هذا الجهاز", rememberHint: "للأجهزة الموثوقة فقط. تبقى مسجّل الدخول بعد إغلاق المتصفح أو التطبيق حتى تسجّل الخروج أو تُلغى الجلسة. لا تُحفظ كلمة مرورك.",
     showPassword: "إظهار كلمة المرور", hidePassword: "إخفاء كلمة المرور",
     storageError: "تخزين الجهاز غير متاح. اسمح بتخزين بيانات الموقع أو اخرج من التصفح الخاص ثم أعد المحاولة.",
-    unsaved: "تعديلات غير محفوظة", discard: "لديك تعديلات غير محفوظة. هل تريد مغادرة هذا العميل وتجاهلها؟",
-    savingWait: "جارٍ الحفظ. يرجى الانتظار قبل مغادرة هذا العميل.",
+    unsaved: "تعديلات غير محفوظة", discard: "هل تريد تجاهل التعديلات غير المحفوظة والمتابعة؟",
+    savingWait: "جارٍ الحفظ. يرجى الانتظار قبل المتابعة.",
     saveShortcut: "نصيحة: اضغط Ctrl+Enter أو ⌘+Enter لحفظ هذا النموذج.", clearFilters: "مسح البحث والفلاتر",
     loginError: "تعذر الدخول. تحقق من بياناتك وحاول مجدداً.",
     logoutError: "تعذر تسجيل الخروج. حاول مجدداً قبل مغادرة هذا الجهاز.",

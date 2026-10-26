@@ -177,6 +177,23 @@ automatic booking or automatic sending. Unsaved appointment edits cannot be copi
 as confirmed details; the original availability text is never treated as a booking.
 **Teachers** manages a shared admin-only list, initially Mohammed. Removing a teacher
 prevents new assignments while retaining names on existing appointments.
+Teacher cards show unique clients by email: overall assignment history, currently
+assigned clients, and Active / Paused / Not started / Finished teaching activity.
+Teaching activity is separate from enquiry conversion. New assignments, including
+teacher changes, start as **Not started**; save an activity change on the client's
+session form once the teaching relationship begins or changes. Overall history
+retains reassignments from this update onward, not unknowable past assignments.
+For multiple enquiries from one email, Active takes precedence over Paused,
+Not started and Finished, so each client counts once per teacher.
+
+Profiles include weekday/weekend/flexible preferences, Morocco-time availability,
+private notes, languages, specialties and an optional active-client capacity target.
+Capacity is advisory, not an assignment limit. Counts query all records, not just
+the loaded inbox, refresh after session saves and can be refreshed manually.
+Removed teachers remain available in **Show removed teachers** for historical review.
+Profile edits have unsaved-change guards and optimistic concurrency checks.
+Apply [the teacher-profile migration](supabase/migrations/202610260005_teacher_profiles.sql)
+after the meeting migration before deploying these features.
 Apply [the meeting migration](supabase/migrations/202610260004_meeting_welcome.sql)
 before deploying this dashboard to the website or Android app. Appointments and
 teachers are shared between devices, not stored only on the phone.

@@ -131,6 +131,28 @@ This does not change Salma's access or any password.
 
 ### Enquiry workflow
 
+Apply [the teacher-profile migration](migrations/202610260005_teacher_profiles.sql)
+after the meeting-welcome migration for shared profile fields and the admin-only
+`teacher_workload` RPC. No profile is public. Teaching schedules, availability
+notes (Morocco time), private admin notes, languages, specialties and optional
+capacity are blank/not specified by default; do not invent Mohammed's preferences.
+Profile updates use `updated_at` to detect concurrent edits. Capacity is an
+advisory count of 1–200 unique active clients, not a scheduling rule.
+
+Teaching activity (`pending`, `active`, `paused`, `finished`) is independent of
+the enquiry pipeline and defaults to pending, including existing assignments.
+Changing teacher resets it to pending. Existing removed-teacher assignments may
+still have their activity updated; removal prevents new assignments.
+Counts deduplicate email case-insensitively per teacher over all enquiries,
+excluding teacher applications. Multiple records for one email use priority
+Active, Paused, Not started, Finished, forming non-overlapping current stages.
+Overall clients include a private assignment-history table seeded with current
+assignments and updated automatically on reassignment; earlier teacher history
+cannot be reconstructed. Counts need not sum to a global unique academy total:
+a client who changes teachers can appear in each teacher's overall total.
+The RPC returns removed teachers too, but checks the private admin allowlist.
+No client names or emails are returned by the workload RPC.
+
 Apply [the meeting-welcome migration](migrations/202610260004_meeting_welcome.sql)
 after the previous migrations, before publishing the updated website or app.
 The admin-only teacher directory starts with Mohammed. Adding/removing teachers

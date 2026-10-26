@@ -5,7 +5,8 @@ import Link from "next/link";
 import BusinessStats, { businessCopy } from "@/components/BusinessStats";
 import NativeNotifications from "@/components/NativeNotifications";
 import AnimatedMetric from "@/components/AnimatedMetric";
-import MeetingWelcome, { TeacherDirectory } from "@/components/MeetingWelcome";
+import MeetingWelcome from "@/components/MeetingWelcome";
+import TeacherDirectory from "@/components/TeacherDirectory";
 import { stopNativePush } from "@/lib/native-push";
 import { chooseAdminSessionStorage } from "@/lib/admin-session";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
@@ -135,6 +136,7 @@ export default function AdminDashboard() {
   const [signingOut, setSigningOut] = useState(false);
   const [rows, setRows] = useState<Enquiry[]>([]);
   const [teachers, setTeachers] = useState<Teacher[] | null>(null);
+  const [teacherRevision, setTeacherRevision] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<EnquiryStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -145,11 +147,13 @@ export default function AdminDashboard() {
   const inFlight = useRef(false);
   const verifiedUser = useRef<string | null>(null);
   const draft = useRef<DraftState>({ dirty: false, saving: false });
+  const teacherDraft = useRef<DraftState>({ dirty: false, saving: false });
+  const trackTeacherDraft = useCallback((state: DraftState) => { teacherDraft.current = state; }, []);
   const trackDraft = useCallback((state: DraftState) => { draft.current = state; }, []);
 
-  function canLeave() {
-    if (draft.current.saving) { setError("savingWait"); return false; }
-    return !draft.current.dirty || window.confirm(copy.discard);
+  function canLeave(includeTeacher = true) {
+    if (draft.current.saving || (includeTeacher && teacherDraft.current.saving)) { setError("savingWait"); return false; }
+    return !(draft.current.dirty || (includeTeacher && teacherDraft.current.dirty)) || window.confirm(copy.discard);
   }
 
   const load = useCallback(async (offset = 0) => {
@@ -166,6 +170,7 @@ export default function AdminDashboard() {
       } else {
         setRows((previous) => offset ? [...previous, ...data.filter((row) => !previous.some((item) => item.id === row.id))] : data);
         setHasMore(data.length === PAGE_SIZE);
+        setTeacherRevision(value => value + 1);
       }
     } catch (failure) {
       console.error("NEXUS: Enquiry loading failed.", failure instanceof Error ? failure.message : "Unknown error");
@@ -194,6 +199,7 @@ export default function AdminDashboard() {
         setShowPassword(false);
         setRemember(false);
         draft.current = { dirty: false, saving: false };
+        teacherDraft.current = { dirty: false, saving: false };
         setBusy(false);
         if (!session) { verifiedUser.current = null; setAccess("login"); return; }
         setAccess("loading");
@@ -311,7 +317,7 @@ export default function AdminDashboard() {
         {access === "admin" && (
           <>
             <NativeNotifications onEnquiry={notificationReceived} />
-            <TeacherDirectory teachers={teachers} onChange={setTeachers} />
+            <TeacherDirectory teachers={teachers} onChange={setTeachers} revision={teacherRevision} onDraftChange={trackTeacherDraft} />
             <nav className="admin-tabs" aria-label={copy.admin}>
               <button aria-pressed={view === "enquiries"} aria-controls="admin-inbox" onClick={() => setView("enquiries")}><span aria-hidden="true">↗</span>{businessCopy[lang].inbox}</button>
               <button aria-pressed={view === "stats"} aria-controls="admin-business" onClick={() => setView("stats")}><span className="admin-tab-chart" aria-hidden="true"><i /><i /><i /></span>{businessCopy[lang].tab}</button>
@@ -347,7 +353,7 @@ export default function AdminDashboard() {
                 {filtered.map((row) => <motion.button layout={!reducedMotion} initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 8 }}
                   animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: reducedMotion ? 0 : 0.18 }}
                   key={row.id} className="admin-lead" aria-pressed={selected === row.id} onClick={() => {
-                    if (selected !== row.id && canLeave()) { setError(""); setSelected(row.id); }
+                    if (selected !== row.id && canLeave(false)) { setError(""); setSelected(row.id); }
                   }}>
                   <span className={`admin-status status-${row.status}`}>{copy.statuses[row.status]}</span>
                   <strong>{row.full_name}</strong><span dir="auto">{row.phone} · {row.email}</span>
@@ -357,7 +363,10 @@ export default function AdminDashboard() {
                 </AnimatePresence>
                 {hasMore && <button disabled={busy} onClick={() => void load(rows.length)}>{copy.more}</button>}
               </section>
-              {current ? <FollowUp key={current.id} enquiry={current} teachers={teachers} onDraftChange={trackDraft} onSaved={(updated) => setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row))} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
+              {current ? <FollowUp key={current.id} enquiry={current} teachers={teachers} onDraftChange={trackDraft} onSaved={(updated) => {
+                setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row));
+                setTeacherRevision(value => value + 1);
+              }} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
             </div>
             </motion.div>
           </>
