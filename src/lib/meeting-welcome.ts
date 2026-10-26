@@ -4,10 +4,21 @@ const moroccoClock = new Intl.DateTimeFormat("en-CA", {
   timeZone: "Africa/Casablanca", year: "numeric", month: "2-digit", day: "2-digit",
   hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
 });
+const gmtClock = new Intl.DateTimeFormat("en-CA", {
+  timeZone: "UTC", year: "numeric", month: "2-digit", day: "2-digit",
+  hour: "2-digit", minute: "2-digit", second: "2-digit", hourCycle: "h23",
+});
+const gmtRestoredAt = Date.parse("2026-09-20T01:00:00Z");
+
+function meetingTimeZone(instant: string): string {
+  // IANA's 2026 update restores GMT; older Android/WebView tzdata still assumes GMT+1.
+  // https://github.com/eggert/tz/blob/main/africa (Decree No. 2.26.530)
+  return Date.parse(instant) >= gmtRestoredAt ? "UTC" : "Africa/Casablanca";
+}
 
 export function moroccoMeetingInput(instant: string | null): string {
   if (!instant) return "";
-  const parts = moroccoClock.formatToParts(new Date(instant));
+  const parts = (meetingTimeZone(instant) === "UTC" ? gmtClock : moroccoClock).formatToParts(new Date(instant));
   const part = (type: Intl.DateTimeFormatPartTypes) => parts.find(p => p.type === type)!.value;
   return `${part("year")}-${part("month")}-${part("day")}T${part("hour")}:${part("minute")}`;
 }
@@ -42,7 +53,7 @@ export function welcomeMessage({ language, client, teacher, meetingAt, meetingUr
   language: Lang; client: string; teacher: string; meetingAt: string; meetingUrl?: string; diagnostic: boolean;
 }): string {
   const time = new Intl.DateTimeFormat(language, {
-    timeZone: "Africa/Casablanca", dateStyle: "full", timeStyle: "short", hourCycle: "h23",
+    timeZone: meetingTimeZone(meetingAt), dateStyle: "full", timeStyle: "short", hourCycle: "h23",
   }).format(new Date(meetingAt));
   if (language === "fr") return [
     `Bonjour ${client}, bienvenue chez NEXUS Academy !`,

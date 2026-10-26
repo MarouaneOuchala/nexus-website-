@@ -7,8 +7,11 @@ test("meeting time is Morocco time, not the admin device's time zone", () => {
     const previous = process.env.TZ;
     try {
       process.env.TZ = zone;
-      assert.equal(parseMoroccoMeeting("2026-10-28T18:30"), "2026-10-28T17:30:00.000Z");
-      assert.equal(moroccoMeetingInput("2026-10-28T17:30:00Z"), "2026-10-28T18:30");
+      assert.equal(parseMoroccoMeeting("2026-10-28T18:30"), "2026-10-28T18:30:00.000Z");
+      assert.equal(moroccoMeetingInput("2026-10-28T18:30:00Z"), "2026-10-28T18:30");
+      assert.equal(parseMoroccoMeeting("2025-10-28T18:30"), "2025-10-28T17:30:00.000Z");
+      assert.equal(moroccoMeetingInput("2026-09-20T00:59:00Z"), "2026-09-20T01:59");
+      assert.equal(moroccoMeetingInput("2026-09-20T01:00:00Z"), "2026-09-20T01:00");
       assert.equal(parseMoroccoMeeting("2026-03-01T18:30"), "2026-03-01T18:30:00.000Z");
     } finally {
       if (previous === undefined) delete process.env.TZ;
@@ -18,14 +21,14 @@ test("meeting time is Morocco time, not the admin device's time zone", () => {
 });
 
 test("invalid, skipped and repeated Morocco times are rejected", () => {
-  for (const value of ["", "nonsense", "2026-02-30T18:00", "2026-13-01T18:00", "2026-10-28T25:00", "2026-02-15T02:30", "2026-03-22T02:30"]) {
+  for (const value of ["", "nonsense", "2026-02-30T18:00", "2026-13-01T18:00", "2026-10-28T25:00", "2026-02-15T02:30", "2026-03-22T02:30", "2026-09-20T01:30"]) {
     assert.throws(() => parseMoroccoMeeting(value), /INVALID_MEETING_TIME/, value);
   }
   assert.equal(moroccoMeetingInput(null), "");
 });
 
 test("welcome messages use the client's language, names and saved Morocco time", () => {
-  const input = { client: "Salma", teacher: "Mohammed", meetingAt: "2026-10-28T17:30:00Z", diagnostic: true };
+  const input = { client: "Salma", teacher: "Mohammed", meetingAt: "2026-10-28T18:30:00Z", diagnostic: true };
   for (const [language, greeting, zone, diagnostic] of [
     ["en", "Hello Salma", "Morocco time", "free 20-minute"],
     ["fr", "Bonjour Salma", "heure du Maroc", "gratuit de 20 minutes"],

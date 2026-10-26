@@ -150,6 +150,10 @@ Missing or unsaved appointment details disable copying. Clipboard errors offer
 manual selection of the read-only message. Clock-change times that are skipped
 or ambiguous are rejected explicitly. Session updates use the enquiry's existing
 optimistic-concurrency check and do not change its status, notes or price.
+Appointment conversion and formatting explicitly account for Morocco's restoration
+of GMT on 20 September 2026 (IANA's Africa/Casablanca rules, Decree No. 2.26.530).
+This keeps older Android/WebView timezone databases consistent with updated
+devices. Historical appointments still use the earlier Casablanca rules.
 
 - Contact, consultation, programme and package buttons open a native accessible
   modal, with keyboard focus containment, Escape/backdrop close, and focus return.
