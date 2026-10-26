@@ -1,7 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useRef, useState, type Dispatch, type FormEvent, type SetStateAction } from "react";
-import { enquiryCopy, getEnquiryClient, schedulePreferences, type Teacher, type TeacherWorkload } from "@/lib/enquiries";
+import { enquiryCopy, getEnquiryClient, schedulePreferences, type Teacher, type TeacherWorkload, type TeacherConversion } from "@/lib/enquiries";
+import { conversionCopy } from "@/lib/conversion-copy";
 import { teacherCopy } from "@/lib/teacher-copy";
 import { useSettings } from "@/components/SettingsProvider";
 
@@ -84,6 +85,8 @@ export default function TeacherDirectory({ teachers, onChange, revision, onDraft
   const [failed, setFailed] = useState(false);
   const [countsFailed, setCountsFailed] = useState(false);
   const [counts, setCounts] = useState<TeacherWorkload[] | null>(null);
+  const [conversions, setConversions] = useState<TeacherConversion[] | null>(null);
+  const [conversionsFailed, setConversionsFailed] = useState(false);
   const [showRemoved, setShowRemoved] = useState(false);
   const [selected, setSelected] = useState<string | null>(null);
   const profileDraft = useRef<DraftState>({ dirty: false, saving: false });
@@ -100,6 +103,14 @@ export default function TeacherDirectory({ teachers, onChange, revision, onDraft
     } catch (error) {
       console.error("NEXUS: Teacher workload loading failed.", error instanceof Error ? error.message : "Unknown error");
       if (mounted.current && generation === countGeneration.current) { setCounts(null); setCountsFailed(true); }
+    }
+    try {
+      const { data, error } = await getEnquiryClient().rpc("teacher_conversion", {});
+      if (error || !data) throw new Error(error?.code ?? "NO_CONVERSIONS");
+      if (mounted.current && generation === countGeneration.current) { setConversions(data); setConversionsFailed(false); }
+    } catch (error) {
+      console.error("NEXUS: Teacher conversion loading failed.", error instanceof Error ? error.message : "Unknown error");
+      if (mounted.current && generation === countGeneration.current) { setConversions(null); setConversionsFailed(true); }
     }
   }, []);
   const load = useCallback(async () => {
@@ -169,12 +180,21 @@ export default function TeacherDirectory({ teachers, onChange, revision, onDraft
       <button type="submit" disabled={busy || teachers === null}>{busy ? t.saving : t.add}</button>
     </form>
     {(failed || countsFailed) && <p className="enquiry-error" role="alert">{t.failed}</p>}
+    <p>{conversionCopy[lang].scope}</p>
+    {conversionsFailed && <p className="enquiry-error" role="alert">{conversionCopy[lang].unavailable}</p>}
     {teachers && !visible.length && <p role="status">{t.empty}</p>}
     <div className="teacher-card-grid">{visible.map(teacher => {
       const count = counts?.find(row => row.teacher_id === teacher.id);
+      const conversion = conversions?.find(row => row.teacher_id === teacher.id);
       const full = count && teacher.client_capacity !== null && count.active_clients >= teacher.client_capacity;
       return <article className="teacher-card" key={teacher.id} data-capacity={full ? "full" : undefined}>
         <header><h3 dir="auto">{teacher.name}</h3>{!teacher.active && <span>{t.removed}</span>}</header>
+        {conversion && <dl className="teacher-metrics">
+          <div><dt>{conversionCopy[lang].completedCount}</dt><dd>{conversion.completed_diagnostics.toLocaleString(lang)}</dd></div>
+          <div><dt>{conversionCopy[lang].paidCount}</dt><dd>{conversion.paying_clients.toLocaleString(lang)}</dd></div>
+          <div><dt>{conversionCopy[lang].rate}</dt><dd>{conversion.conversion_rate === null ? "—"
+            : `${conversion.conversion_rate.toLocaleString(lang, { maximumFractionDigits: 1 })}%`}</dd></div>
+        </dl>}
         {count ? <>
           <dl className="teacher-metrics">{([
             [t.total, count.total_clients], [t.active, count.active_clients], [t.assigned, count.assigned_clients],

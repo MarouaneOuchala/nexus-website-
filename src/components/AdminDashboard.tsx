@@ -13,6 +13,7 @@ import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy, enquiryStatuses, getEnquiryClient, type Enquiry, type EnquiryStatus, type Teacher } from "@/lib/enquiries";
 import { languages, type Lang } from "@/lib/i18n";
+import { conversionCopy } from "@/lib/conversion-copy";
 
 const PAGE_SIZE = 100;
 type DraftState = { dirty: boolean; saving: boolean };
@@ -29,16 +30,20 @@ function FollowUp({ enquiry, teachers, onSaved, onDraftChange }: {
 }) {
   const { lang, t } = useSettings();
   const copy = enquiryCopy[lang];
+  const conversion = conversionCopy[lang];
   const reducedMotion = useReducedMotion();
   const [status, setStatus] = useState<EnquiryStatus>(enquiry.status);
   const [notes, setNotes] = useState(enquiry.notes);
   const [nextCall, setNextCall] = useState(localDateTime(enquiry.next_call_at));
+  const [diagnosticCompleted, setDiagnosticCompleted] = useState(localDateTime(enquiry.diagnostic_completed_at));
+  const [firstPaid, setFirstPaid] = useState(localDateTime(enquiry.first_paid_at));
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const inFlight = useRef(false);
   const [meetingDraft, setMeetingDraft] = useState<DraftState>({ dirty: false, saving: false });
-  const dirty = status !== enquiry.status || notes !== enquiry.notes || nextCall !== localDateTime(enquiry.next_call_at);
+  const dirty = status !== enquiry.status || notes !== enquiry.notes || nextCall !== localDateTime(enquiry.next_call_at)
+    || diagnosticCompleted !== localDateTime(enquiry.diagnostic_completed_at) || firstPaid !== localDateTime(enquiry.first_paid_at);
   const hasDraft = dirty || meetingDraft.dirty;
   const saving = busy || meetingDraft.saving;
   useEffect(() => {
@@ -61,6 +66,10 @@ function FollowUp({ enquiry, teachers, onSaved, onDraftChange }: {
     try {
       const { data, error: failure } = await getEnquiryClient().from("enquiries").update({
         status, notes, next_call_at: nextCall ? new Date(nextCall).toISOString() : null,
+        ...(diagnosticCompleted !== localDateTime(enquiry.diagnostic_completed_at)
+          ? { diagnostic_completed_at: diagnosticCompleted ? new Date(diagnosticCompleted).toISOString() : null } : {}),
+        ...(firstPaid !== localDateTime(enquiry.first_paid_at)
+          ? { first_paid_at: firstPaid ? new Date(firstPaid).toISOString() : null } : {}),
       }).eq("id", enquiry.id).eq("updated_at", enquiry.updated_at).select().single();
       if (failure || !data) {
         console.error("NEXUS: Follow-up save failed.", { code: failure?.code ?? "NO_ROW" });
@@ -114,6 +123,19 @@ function FollowUp({ enquiry, teachers, onSaved, onDraftChange }: {
             if (enquiryStatuses.some((item) => item === value)) setStatus(value as EnquiryStatus);
           }}>{enquiryStatuses.map((item) => <option key={item} value={item}>{copy.statuses[item]}</option>)}</select></label>
           <label>{copy.nextCall}<input type="datetime-local" value={nextCall} onChange={(event) => setNextCall(event.target.value)} /></label>
+          {enquiry.request_type !== "application" && <>
+            <label>{conversion.completed}<input type="datetime-local" value={diagnosticCompleted} required={Boolean(firstPaid)}
+              max={localDateTime(new Date().toISOString())}
+              disabled={!enquiry.teacher_id && !enquiry.diagnostic_completed_at}
+              onChange={event => setDiagnosticCompleted(event.target.value)} /></label>
+            <p>{conversion.teacher}: {enquiry.diagnostic_teacher_id
+              ? teachers?.find(teacher => teacher.id === enquiry.diagnostic_teacher_id)?.name ?? enquiry.diagnostic_teacher_id
+              : conversion.pending}</p>
+            <label>{conversion.paid}<input type="datetime-local" value={firstPaid} disabled={!diagnosticCompleted}
+              min={diagnosticCompleted || undefined} max={localDateTime(new Date().toISOString())}
+              onChange={event => setFirstPaid(event.target.value)} /></label>
+            <p>{conversion.hint}</p>
+          </>}
           <label>{copy.notes}<textarea rows={5} maxLength={10000} value={notes} onChange={(event) => setNotes(event.target.value)} /></label>
           <button className="button button-primary" type="submit">{busy ? copy.saving : copy.save}</button>
         </fieldset>

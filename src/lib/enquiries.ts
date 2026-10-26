@@ -15,6 +15,9 @@ export type TeacherWorkload = {
   teacher_id: string; total_clients: number; assigned_clients: number; active_clients: number;
   paused_clients: number; pending_clients: number; finished_clients: number; measured_at: string;
 };
+export type TeacherConversion = {
+  teacher_id: string; completed_diagnostics: number; paying_clients: number; conversion_rate: number | null;
+};
 export type RequestType = "consultation" | "course-info" | "application";
 export type TrendBucket = {
   key: string;
@@ -67,6 +70,9 @@ export type Enquiry = {
   meeting_at: string | null;
   meeting_url: string;
   teaching_status: TeachingStatus;
+  diagnostic_completed_at: string | null;
+  diagnostic_teacher_id: string | null;
+  first_paid_at: string | null;
 };
 
 type Database = {
@@ -75,7 +81,7 @@ type Database = {
       enquiries: {
         Row: Enquiry;
         Insert: never;
-        Update: Partial<Pick<Enquiry, "status" | "notes" | "next_call_at" | "teacher_id" | "meeting_at" | "meeting_url" | "teaching_status">>;
+        Update: Partial<Pick<Enquiry, "status" | "notes" | "next_call_at" | "teacher_id" | "meeting_at" | "meeting_url" | "teaching_status" | "diagnostic_completed_at" | "first_paid_at">>;
         Relationships: [];
       };
       teachers: {
@@ -89,6 +95,7 @@ type Database = {
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       teacher_workload: { Args: Record<string, never>; Returns: TeacherWorkload[] };
+      teacher_conversion: { Args: Record<string, never>; Returns: TeacherConversion[] };
       register_push_device: { Args: { device_token: string }; Returns: undefined };
       unregister_push_devices: { Args: Record<string, never>; Returns: undefined };
       push_device_enabled: { Args: Record<string, never>; Returns: boolean };

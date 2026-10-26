@@ -1,5 +1,32 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Teacher diagnostic conversion
+
+Apply `supabase/migrations/202610260006_teacher_conversion.sql` before deploying
+the updated web dashboard or building the Android app. No past diagnostic
+completion or payment is inferred from Confirmed status.
+
+Admins record the actual diagnostic completion time and first payment receipt
+time (including a deposit) in the client follow-up form. The diagnostic teacher
+is captured on completion and retained through later teaching reassignments.
+To correct a wrongly attributed diagnostic, clear its payment and completion,
+save, correct the assignment, then record the actual completion/payment again.
+Dates use the admin device's local timezone, as does the existing callback field.
+
+Teacher cards show completed diagnostic sessions, paying clients and
+`paying clients / completed diagnostics × 100`, rounded to one decimal.
+Without completed diagnostics the rate is shown as a dash, not 0%.
+Upcoming appointments and no-shows do not count. Each enquiry can record one
+completed diagnostic; repeat completed sessions count in the denominator.
+Clients are deduplicated by normalized email for payment attribution. Each
+client's earliest recorded payment is credited once to the teacher of their
+earliest completed diagnostic before that payment, even across duplicate
+enquiries. Removed teachers retain their statistics. Counts are lifetime totals,
+not payment verification or revenue reporting; admins must enter actual receipts.
+Refresh the teacher directory after another admin changes records.
+
+Run `node --test tests/teacher-conversion.test.mjs` for database regression tests.
+
 ## Cinematic design (design-5)
 
 A cinematic, symmetrical direction with dusty rose, mint, mustard and cream.
