@@ -2,9 +2,12 @@
 
 import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
+import meetingsLeadership from "@/assets/meetings-leadership.png";
+import presentationsInfluence from "@/assets/presentations-influence.png";
+import negotiationClientRelations from "@/assets/negotiation-client-relations.png";
 import PackageConfigurator from "@/components/PackageConfigurator";
 import InteractiveScene from "@/components/InteractiveScene";
-import MeetingIllustration from "@/components/MeetingIllustration";
 import WebsiteLoader from "@/components/WebsiteLoader";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy } from "@/lib/enquiries";
@@ -20,6 +23,7 @@ const programImages = [
 ];
 
 const PROGRAMS_PER_PAGE = 3;
+const programIllustrations = [meetingsLeadership, presentationsInfluence, negotiationClientRelations];
 
 function Arrow() {
   return (
@@ -223,7 +227,6 @@ export default function Home() {
 
       <section className="obstacle-section section-shell" id="methode">
         <div className="obstacle-visual" role="img" aria-label={a.workspaceVisual}>
-          <span className="obstacle-photo-index">{t.obstacle.photoIndex}</span>
           <span className="obstacle-photo-caption">{t.obstacle.photoCaption}</span>
         </div>
         <div className="obstacle-copy">
@@ -285,8 +288,14 @@ export default function Home() {
         <div className="program-grid" aria-live="polite">
           {visiblePrograms.map((program) => (
             <article className="program-item" key={program.index}>
-              <div className={`program-photo${program.index === 0 ? " program-photo-animated" : ""}`}>
-                {program.index === 0 ? <MeetingIllustration /> : (
+              <div className={`program-photo${program.index < programIllustrations.length ? " program-photo-animated" : ""}`}>
+                {program.index < programIllustrations.length ? <Image
+                  src={programIllustrations[program.index]}
+                  alt=""
+                  unoptimized
+                  className="w-full h-full object-cover object-[50%_35%]"
+                  sizes="(max-width: 700px) 100vw, 33vw"
+                /> : (
                   <>
                     {/* eslint-disable-next-line @next/next/no-img-element */}
                     <img
@@ -422,8 +431,7 @@ export default function Home() {
               {t.careers.cta} <Arrow />
             </a>
           </div>
-          <div className="career-art" role="img" aria-label={a.whyVisual}>
-            <span>{t.footer.location}</span>
+          <div className="career-art" role="img" aria-label={a.careerVisual}>
           </div>
         </div>
       </section>
@@ -468,10 +476,6 @@ export default function Home() {
               <span>{ct.titleHighlight}</span>
             </h2>
             <p>{ct.text}</p>
-            <div className="contact-aside">
-              <span className="contact-aside-mark">N.</span>
-              <span>{ct.aside}</span>
-            </div>
           </div>
           <div className="contact-callback">
             <p>{enquiryCopy[lang].intro}</p>
@@ -500,7 +504,6 @@ export default function Home() {
             <a href="#faq">{t.footer.nav.faq}</a>
             <a href="#contact">{t.footer.nav.contact}</a>
           </nav>
-          <span className="footer-location">{t.footer.location}</span>
         </div>
         <div className="section-shell footer-bottom">
           <span>{t.footer.copyright}</span>

@@ -32,8 +32,9 @@ const en = {
     programSet: (n: number) => `Show program set ${n}`,
     programInfo: (title: string) => `Request information about ${title}`,
     heroVisual: "Casablanca's modern business district with Moroccan flags",
-    whyVisual: "A modern office tower in Casablanca",
-    workspaceVisual: "A contemporary professional workspace",
+    whyVisual: "Illustration of a woman learning online with a laptop in a comfortable armchair",
+    careerVisual: "Illustration of a modern office building seen from below, with palms and warm sunlight",
+    workspaceVisual: "Illustration of two colleagues practising a conversation at their desks",
     footerNav: "Footer links",
   },
   nav: {
@@ -120,7 +121,7 @@ const en = {
     ],
     cta: "Start now",
     photoIndex: "N° 01 — YOUR NEXT ROOM",
-    photoCaption: "REAL-WORLD ENGLISH / CASABLANCA",
+    photoCaption: "REAL-WORLD ENGLISH",
   },
   midCta: {
     tag: "PREPARE FOR THE ROOM THAT MATTERS",
@@ -276,8 +277,9 @@ const fr: Dictionary = {
     programSet: (n: number) => `Afficher la sélection de programmes ${n}`,
     programInfo: (title: string) => `Demander des informations sur ${title}`,
     heroVisual: "Le quartier d’affaires moderne de Casablanca avec des drapeaux marocains",
-    whyVisual: "Une tour de bureaux moderne à Casablanca",
-    workspaceVisual: "Un espace de travail professionnel contemporain",
+    whyVisual: "Illustration d'une femme apprenant en ligne sur son ordinateur dans un fauteuil",
+    careerVisual: "Illustration d'un immeuble de bureaux vu en contre-plongée, avec des palmiers et une lumière chaleureuse",
+    workspaceVisual: "Illustration de deux collègues pratiquant une conversation à leur bureau",
     footerNav: "Liens de pied de page",
   },
   nav: {
@@ -368,7 +370,7 @@ const fr: Dictionary = {
     ],
     cta: "Commencez maintenant",
     photoIndex: "Nº 01 — VOTRE PROCHAIN ESPACE",
-    photoCaption: "ANGLAIS EN SITUATION / CASABLANCA",
+    photoCaption: "ANGLAIS EN SITUATION",
   },
   midCta: {
     tag: "PRÉPAREZ LES ÉCHANGES QUI COMPTENT",
@@ -522,8 +524,9 @@ const ar: Dictionary = {
     programSet: (n: number) => `عرض مجموعة البرامج ${n}`,
     programInfo: (title: string) => `طلب معلومات حول ${title}`,
     heroVisual: "منطقة الأعمال الحديثة في الدار البيضاء مع الأعلام المغربية",
-    whyVisual: "برج مكاتب حديث في الدار البيضاء",
-    workspaceVisual: "مساحة عمل مهنية عصرية",
+    whyVisual: "رسم لامرأة تتعلم عبر الإنترنت بحاسوب محمول في كرسي مريح",
+    careerVisual: "رسم لمبنى مكاتب حديث من زاوية منخفضة مع نخيل وضوء شمس دافئ",
+    workspaceVisual: "رسم لزميلين يتدربان على المحادثة في مكتبيهما",
     footerNav: "روابط التذييل",
   },
   nav: {
@@ -610,7 +613,7 @@ const ar: Dictionary = {
     ],
     cta: "ابدأ الآن",
     photoIndex: "٠١ — مساحتك المهنية القادمة",
-    photoCaption: "الإنجليزية في الواقع / الدار البيضاء",
+    photoCaption: "الإنجليزية في الواقع",
   },
   midCta: {
     tag: "استعدّ للنقاشات المهمة",

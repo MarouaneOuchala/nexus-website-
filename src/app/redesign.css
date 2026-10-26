@@ -187,7 +187,7 @@ body { background: var(--redesign-paper); color: var(--redesign-ink); }
 .nexus-page .package-estimate-note { color: var(--redesign-muted); }
 
 .nexus-page .obstacle-section { grid-template-columns: minmax(0, 1fr) minmax(0, .82fr); gap: clamp(45px, 9vw, 130px); padding-block: 125px; }
-.nexus-page .obstacle-visual { min-height: 470px; display: block; overflow: visible; background-color: #d1c5ac; background-image: linear-gradient(0deg, rgb(20 42 36 / 53%), transparent 42%), url("https://images.pexels.com/photos/19893586/pexels-photo-19893586/free-photo-of-interior-design-in-modern-office.jpeg?auto=compress&cs=tinysrgb&w=1200"); background-position: center; background-size: cover; }
+.nexus-page .obstacle-visual { min-height: 470px; display: block; overflow: visible; background-color: #d1c5ac; background-image: linear-gradient(0deg, rgb(20 42 36 / 53%), transparent 42%), url("../assets/learning-space.png"); background-position: center; background-size: cover; }
 .nexus-page .obstacle-visual::before { position: absolute; top: -20px; left: -20px; width: 100%; height: 100%; border: 1px solid var(--redesign-rust); content: ""; pointer-events: none; }
 .obstacle-photo-index,
 .obstacle-photo-caption { position: absolute; inset-inline-start: 22px; color: #fffaf0; font-size: 9px; letter-spacing: .14em; }
@@ -246,7 +246,7 @@ body { background: var(--redesign-paper); color: var(--redesign-ink); }
 [data-theme="dark"] .nexus-page .why-section { background: #202c25; }
 .nexus-page .why-layout { grid-template-columns: minmax(0, 1fr) minmax(0, .9fr); align-items: center; gap: clamp(55px, 9vw, 130px); }
 .nexus-page .why-visual { min-height: 480px; }
-.nexus-page .why-photo { top: 18px; right: 12%; bottom: 15px; left: 8%; border-radius: 0; background-image: url("https://images.pexels.com/photos/38209616/pexels-photo-38209616/free-photo-of-modern-architecture-in-casablanca-morocco.jpeg?auto=compress&cs=tinysrgb&w=1000"); background-position: center; }
+.nexus-page .why-photo { top: 18px; right: 12%; bottom: 15px; left: 8%; border-radius: 0; background-image: url("../assets/your-voice.png"); background-position: center; }
 .nexus-page .why-visual::before { top: 0; left: 0; width: 165px; height: 165px; border: 1px solid var(--redesign-rust); border-radius: 50%; background: transparent; }
 .nexus-page .why-visual::after { right: 0; bottom: 5px; width: 105px; height: 105px; border-radius: 0; background: var(--redesign-saffron); }
 .nexus-page .why-bubble { top: 44px; right: 0; width: 105px; height: 105px; border-radius: 50%; background: var(--redesign-green); color: #fffaf0; font-family: Georgia, serif; font-size: 14px; font-weight: 400; transform: rotate(7deg); }

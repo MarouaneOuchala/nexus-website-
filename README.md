@@ -139,8 +139,34 @@ The selected bundle follows the request; the team calls to finalize the offer.
 
 ## Client enquiries and private dashboard
 
+The cinematic site uses a responsive readability scale: body copy is at least
+16px, secondary labels at least 14px, form inputs 16px, and primary controls at
+least 44px tall. Program cards stack on mobile, and the compact navigation takes
+over on narrower desktops to accommodate larger labels and translated copy.
+The enquiry dialog and private dashboard follow the same readable sizing.
+
 `/admin/` provides password sign-in, an allowlisted-admin enquiry inbox, search,
 status filters, callback scheduling and private notes, in EN/FR/AR and both themes.
+The dashboard includes animated counts, filterable pipeline cards, animated list
+reordering, a brief welcome animation and a transitioning client detail panel.
+Reduced-motion preferences disable these effects. Counts describe loaded records,
+not a real-time feed. The total card clears the status filter.
+
+Diagnostic automation is **not connected**. Consultation details display setup
+requirements rather than a nonfunctional group-creation button. The planned
+architecture uses Supabase Edge Functions and one academy Google Calendar account:
+create a free 20-minute event with Meet conferencing, invite the client and teacher,
+then prepare a welcome message in the enquiry's stored language.
+Official WhatsApp Groups API requires an Official Business Account (OBA), a
+Cloud API phone number, signed webhooks and approved group invitation templates.
+Participants join by invitation; they cannot be silently added. Group pictures
+must be square JPEGs, at least 192px and at most 5MB. Google OAuth credentials,
+refresh tokens and Meta credentials must remain server-side, never in public
+environment variables. Account eligibility, OAuth authorization, the final logo,
+and deployment of authenticated integration endpoints are prerequisites; no external
+meetings, groups or messages are currently created by this dashboard.
+See the [official Groups prerequisites](https://developers.facebook.com/documentation/business-messaging/whatsapp/groups/get-started)
+and [Calendar event creation](https://developers.google.com/workspace/calendar/api/v3/reference/events/insert).
 The popup requires a callback phone and consent; it confirms submission only after
 Supabase saves the record. Missing configuration and network failures are explicit.
 

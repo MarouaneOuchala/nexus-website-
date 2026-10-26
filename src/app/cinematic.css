@@ -110,6 +110,20 @@ body { font-family: var(--font-cinema), sans-serif; }
 .nexus-page .program-photo-animated { filter: none; background: #e6b8a6; }
 .program-photo-animated::after { display: none; }
 .meeting-illustration { display: block; width: 100%; height: 100%; }
+.nexus-page .career-art,
+[data-theme="dark"] .nexus-page .career-art {
+	background: #c49a73 url("../assets/academy-building.svg") center / cover no-repeat;
+	filter: saturate(1.3) contrast(1.06) brightness(1.03);
+}
+.nexus-page .career-art::before {
+	background: radial-gradient(ellipse at 70% 15%, rgb(255 188 98 / 25%), transparent 70%);
+	mix-blend-mode: soft-light;
+}
+.nexus-page .why-photo {
+	background-image: radial-gradient(ellipse at 75% 10%, rgb(255 188 98 / 52%), rgb(210 121 67 / 18%) 65%, rgb(132 75 49 / 12%)), url("../assets/your-voice.png");
+	background-blend-mode: soft-light, normal;
+	filter: sepia(.24) saturate(1.28) contrast(1.06) brightness(1.02);
+}
 .nexus-page .program-photo > span { background: #b8cdbd; color: #344d45; border-radius: 0; letter-spacing: .12em; }
 .nexus-page .mid-cta { background: #49695c; border-block: 5px double #c1cba9; }
 .nexus-page .mid-cta h2 { font-family: Georgia, serif; }
@@ -403,4 +417,76 @@ body { font-family: var(--font-cinema), sans-serif; }
 	.scene-heading p { font-size: 12px; }
 	.immersive-room .visual-caption { inset-inline: 16px; }
 	.immersive-room .visual-caption span:first-child { font-size: 10px; }
+}
+
+.nexus-page { font-size: 16px; }
+.nexus-page :is(.hero-description, .section-intro, .programs-intro, .faq-aside, .diagnostic-note),
+.nexus-page :is(.program-card-copy, .getting-started-heading, .getting-started-step, .career-copy, .contact-copy, .contact-callback, .footer-main) > p:not(.section-tag, .eyebrow),
+.nexus-page .faq-list details p {
+	font-size: 16px;
+	line-height: 1.75;
+}
+.nexus-page :is(.hero-description, .section-intro) { font-size: clamp(16px, 1.25vw, 18px); }
+.nexus-page :is(.eyebrow, .section-tag, .mid-cta-tag, .package-eyebrow, .brief-kicker, .summary-kicker, .calc-label) { font-size: 14px; line-height: 1.6; letter-spacing: .08em; }
+.nexus-page .hero .eyebrow,
+.nexus-page .section-heading .eyebrow,
+.nexus-page .getting-started-heading .section-tag { font-size: 14px; }
+.nexus-page .hero-benefits li { font-size: 15px; line-height: 1.65; }
+.nexus-page .check-list strong { font-size: 17px; line-height: 1.5; }
+.nexus-page .check-list small { font-size: 15px; line-height: 1.7; }
+.nexus-page .button,
+.nexus-page :is(.hero, .obstacle-copy, .why-copy, .program-item) .button { font-size: 14px; min-height: 48px; line-height: 1.5; letter-spacing: .06em; white-space: normal; text-align: center; }
+.nexus-page .calc-summary .summary-kicker { font-size: 14px; }
+.nexus-page .immersive-room :is(.scene-badge, .visual-caption span) { font-size: 14px; line-height: 1.5; }
+.nexus-page :is(.view-all-link, .text-link, .footer-main nav a, .footer-bottom, .footer-bottom a) { font-size: 15px; line-height: 1.6; }
+.nexus-page :is(.view-all-link, .text-link, .footer-main nav a, .footer-bottom a) { display: inline-flex; align-items: center; min-height: 44px; }
+.nexus-page .desktop-nav { font-size: 14px; gap: 20px; letter-spacing: .03em; }
+.nexus-page .desktop-nav a { display: inline-flex; align-items: center; min-height: 44px; }
+.nexus-page .site-header .lang-switch select { min-height: 44px; font-size: 16px; }
+.nexus-page .site-header :is(.theme-toggle, .mobile-nav summary) { min-width: 44px; min-height: 44px; }
+.nexus-page .program-topline > span,
+.nexus-page .program-photo > span,
+.nexus-page .obstacle-photo-caption { font-size: 14px; line-height: 1.5; letter-spacing: .06em; }
+.nexus-page .program-card-copy { display: flex; flex-direction: column; min-width: 0; }
+.nexus-page .program-card-copy h3 { font-size: clamp(26px, 2.2vw, 32px); line-height: 1.2; overflow-wrap: anywhere; }
+.nexus-page .program-cta { margin-top: auto; }
+.nexus-page .program-card-copy > p { margin-bottom: 24px; }
+.nexus-page .getting-started-step h3 { font-size: 23px; line-height: 1.35; }
+.nexus-page .faq-list summary { font-size: 21px; line-height: 1.45; padding-block: 20px; }
+.nexus-page .carousel-controls button { width: 44px; height: 44px; }
+.nexus-page .carousel-controls > span button { width: 44px; height: 44px; background: transparent; border-block: 20px solid transparent; background-clip: content-box; }
+.nexus-page .carousel-controls > span button.is-current { background-color: var(--redesign-rust); }
+.nexus-page .carousel-controls > span button:not(.is-current) { background-color: var(--redesign-line); }
+.nexus-page :is(a, button, input, select, textarea, summary):focus-visible,
+.enquiry-dialog :is(button, input, select, textarea):focus-visible { outline: 3px solid var(--redesign-rust); outline-offset: 4px; }
+.nexus-page .scene-heading p { font-size: 15px; line-height: 1.65; }
+.nexus-page :is(.scene-interaction-key, .scene-feature-control) { font-size: 14px; line-height: 1.5; }
+.nexus-page .scene-information > p { font-size: 16px; line-height: 1.65; }
+.nexus-page .scene-information :is(.scene-information-kicker, .scene-diagnostic-note) { font-size: 14px; line-height: 1.5; }
+.nexus-page .scene-information-cta { font-size: 15px; line-height: 1.5; }
+.nexus-page .immersive-room .mesh-information { max-height: min(430px, 70dvh); }
+.website-loader-content > p, .website-loader-slow { font-size: 16px; }
+.website-loader-percent { font-size: 14px; }
+[dir="rtl"] .nexus-page :is(h1, h2, h3) { line-height: 1.55; }
+@media (max-width: 1250px) {
+	.nexus-page .desktop-nav { display: none; }
+	.nexus-page .mobile-nav { display: block; position: relative; }
+	.nexus-page .mobile-nav summary { display: grid; align-content: center; justify-items: center; gap: 5px; cursor: pointer; list-style: none; }
+	.nexus-page .mobile-nav nav { position: absolute; inset-inline-end: 0; top: 52px; display: grid; width: min(320px, calc(100vw - 36px)); padding: 12px 18px; }
+	.nexus-page .mobile-nav nav a { font-size: 16px; min-height: 48px; display: flex; align-items: center; }
+}
+@media (max-width: 700px) {
+	.nexus-page .program-item { display: block; }
+	.nexus-page .program-photo,
+	.nexus-page .program-item:first-child .program-photo { height: 240px; min-height: 0; }
+	.nexus-page .program-card-copy { padding: 24px; }
+	.nexus-page .program-card-copy h3 { font-size: 28px; }
+	.nexus-page .faq-list summary { font-size: 19px; }
+	.nexus-page .contact-callback { padding: 24px; }
+	.nexus-page .hero-actions { width: 100%; }
+	.nexus-page .hero-actions .button { width: 100%; }
+	.nexus-page .scene-heading p { max-width: 290px; font-size: 14px; }
+	.nexus-page .scene-interaction-key { margin: 8px 0 0; }
+	.nexus-page .visual-caption span:first-child { font-size: 14px; }
+	.nexus-page .why-bubble { font-size: 16px; }
 }

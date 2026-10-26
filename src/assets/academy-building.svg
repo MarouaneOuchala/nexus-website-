@@ -1,0 +1,105 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="900" viewBox="0 0 1200 900" fill="none">
+  <defs>
+    <clipPath id="facade"><path d="M174 354L805 67L821 749L150 799Z"/></clipPath>
+    <linearGradient id="sky" x1="160" y1="0" x2="1020" y2="900" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#9ebfc1"/><stop offset=".6" stop-color="#e9d4ad"/><stop offset="1" stop-color="#f1b97b"/>
+    </linearGradient>
+    <linearGradient id="glass" x1="280" y1="90" x2="1010" y2="820" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#d7d2b3"/><stop offset=".35" stop-color="#8fa5a0"/><stop offset=".7" stop-color="#657d77"/><stop offset="1" stop-color="#374f4a"/>
+    </linearGradient>
+    <linearGradient id="cream" x1="140" y1="420" x2="980" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#c4a17b"/><stop offset=".45" stop-color="#f6dfae"/><stop offset="1" stop-color="#dbb88a"/>
+    </linearGradient>
+    <linearGradient id="tower" x1="790" y1="100" x2="1120" y2="450" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#8a9d91"/><stop offset=".4" stop-color="#536d65"/><stop offset="1" stop-color="#304944"/>
+    </linearGradient>
+    <linearGradient id="sun" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#fff1c4" stop-opacity=".65"/><stop offset="1" stop-color="#e8b87d" stop-opacity="0"/>
+    </linearGradient>
+    <pattern id="windows" width="78" height="75" patternUnits="userSpaceOnUse">
+      <path d="M0 0H78V75H0Z" fill="url(#glass)"/>
+      <path d="M0 5H78M0 72H78" stroke="#344d48" stroke-width="3"/>
+      <path d="M4 0V75M39 0V75M74 0V75" stroke="#465e55" stroke-width="3"/>
+      <path d="M10 12L34 67M48 12L70 58" stroke="#f5deb0" stroke-opacity=".3" stroke-width="6"/>
+      <path d="M0 0H78" stroke="#f7e3be" stroke-width="13"/>
+      <path d="M0 8H78" stroke="#a88866" stroke-width="3"/>
+    </pattern>
+    <pattern id="tower-windows" width="105" height="75" patternUnits="userSpaceOnUse">
+      <path d="M0 0H105V75H0Z" fill="url(#tower)"/>
+      <path d="M22 0V75M66 0V75M101 0V75" stroke="#263f3b" stroke-width="4"/>
+      <path d="M0 3Q50 16 105 3" stroke="#e6c79a" stroke-width="12"/>
+      <path d="M0 11Q50 24 105 11" stroke="#a88c68" stroke-width="3"/>
+    </pattern>
+    <pattern id="paving" width="95" height="38" patternUnits="userSpaceOnUse" patternTransform="skewX(-28)">
+      <path d="M0 0H95V38H0Z" fill="#c9976c" stroke="#9c7354" stroke-width="2"/>
+      <path d="M0 4H95" stroke="#f4c895" stroke-opacity=".5"/>
+    </pattern>
+    <filter id="paper">
+      <feTurbulence type="fractalNoise" baseFrequency=".6" numOctaves="3" seed="14" result="noise"/>
+      <feColorMatrix in="noise" type="saturate" values="0"/>
+      <feComponentTransfer><feFuncA type="linear" slope=".13"/></feComponentTransfer>
+      <feBlend in="SourceGraphic" mode="soft-light"/>
+    </filter>
+    <g id="palm">
+      <path d="M0 0Q-10-100 5-230" stroke="#654d35" stroke-width="14"/>
+      <path d="M-3-12L6-18M-5-34L4-40M-6-57L3-63M-5-82L4-88M-4-108L5-114M-2-136L7-142M0-162L9-168M2-189L11-195" stroke="#a88757" stroke-width="3"/>
+      <g stroke="#405d3d" stroke-width="3" stroke-linejoin="round">
+        <path d="M5-230Q-65-300-111-221Q-63-254 5-230Z" fill="#6e8248"/>
+        <path d="M5-230Q-47-330-82-277Q-36-289 5-230Z" fill="#8c964e"/>
+        <path d="M5-230Q5-340 29-302Q17-275 5-230Z" fill="#768747"/>
+        <path d="M5-230Q78-310 110-249Q65-273 5-230Z" fill="#87964e"/>
+        <path d="M5-230Q92-265 122-192Q72-237 5-230Z" fill="#566f3e"/>
+        <path d="M5-230Q-54-239-75-170Q-38-210 5-230Z" fill="#526c3f"/>
+        <path d="M5-230Q53-245 61-164Q31-206 5-230Z" fill="#9a9e51"/>
+      </g>
+      <path d="M-102-226Q-54-257 5-230Q66-271 106-251M-77-278Q-38-295 5-230L26-302M-67-180Q-35-218 5-230Q41-225 59-173" stroke="#b1b16b" stroke-width="2"/>
+    </g>
+    <g id="shrub">
+      <path d="M-62 0Q-91-35-62-56Q-75-91-37-92Q-30-130 4-110Q36-131 48-94Q87-96 77-61Q109-37 74-8L-62 0Z" fill="#63784a" stroke="#40583e" stroke-width="3"/>
+      <path d="M-58-24Q-40-59-17-45M-32-76Q-8-99 12-70M22-40Q39-77 61-55M-8-18Q6-45 24-29" stroke="#a3a45d" stroke-width="5" stroke-linecap="round"/>
+    </g>
+  </defs>
+  <g filter="url(#paper)">
+    <path fill="url(#sky)" d="M0 0H1200V900H0Z"/>
+    <circle cx="204" cy="142" r="158" fill="#ffe4ac" opacity=".22"/>
+    <path d="M0 650L136 610V822H0Z" fill="#b4b3a0" stroke="#807b66" stroke-width="3"/>
+    <path d="M15 677L116 647M15 710L116 680M15 743L116 713" stroke="#657c74" stroke-width="17"/>
+    <path d="M155 347L808 45Q963 16 1030 105L1090 784L135 827Z" fill="url(#cream)" stroke="#685d49" stroke-width="5"/>
+    <path d="M174 354L805 67L821 749L150 799Z" fill="url(#glass)"/>
+    <g clip-path="url(#facade)">
+    <g transform="matrix(.93 -.425 -.035 .95 179 354)">
+      <path d="M0 0H674V696H0Z" fill="url(#windows)" stroke="#6b6852" stroke-width="3"/>
+      <path d="M12 0V696M166 0V696M329 0V696M493 0V696M657 0V696" stroke="url(#cream)" stroke-width="12"/>
+      <path d="M24 23L388 23L30 626Z" fill="url(#sun)" opacity=".55"/>
+    </g>
+    </g>
+    <path d="M805 67Q964 32 1020 118L1080 775Q952 809 821 749Z" fill="url(#tower)" stroke="#514e3d" stroke-width="4"/>
+    <g stroke="#dfc397" stroke-width="13">
+      <path d="M807 87Q964 53 1022 137M809 156Q968 123 1029 206M811 226Q973 197 1035 277M813 297Q979 269 1041 347M815 368Q984 342 1048 417M817 438Q989 414 1054 488M818 509Q994 486 1061 559M819 579Q1000 559 1067 629M820 650Q1006 633 1073 700M821 721Q1011 706 1079 772"/>
+    </g>
+    <g stroke="#263f3a" stroke-width="4" opacity=".85">
+      <path d="M850 62L870 771M911 62L936 789M969 81L1001 790M1004 111L1048 785"/>
+    </g>
+    <path d="M152 741L822 679L829 796L140 832Z" fill="#536e63" stroke="#4b5140" stroke-width="4"/>
+    <path d="M163 748L809 690" stroke="#e9d2a2" stroke-width="9"/>
+    <g stroke="#c5b48b" stroke-width="5">
+      <path d="M207 744V826M288 735V820M369 728V815M450 720V811M531 712V805M612 705V801M693 698V798M774 690V794"/>
+    </g>
+    <path d="M573 713L652 706V805L573 809Z" fill="#2f4942" stroke="#c6b58b" stroke-width="5"/>
+    <path d="M612 710V805" stroke="#bba47c" stroke-width="3"/>
+    <path d="M604 755V777M621 754V776" stroke="#e8c67f" stroke-width="3"/>
+    <path d="M0 839L1200 781V900H0Z" fill="url(#paving)"/>
+    <path d="M0 872L1200 819" stroke="#ead0a1" stroke-width="10"/>
+    <path d="M0 897L1200 846V900H0Z" fill="#8b8977"/>
+    <use href="#palm" transform="translate(1016 820) scale(.95)"/>
+    <use href="#palm" transform="translate(264 822) scale(.65)"/>
+    <use href="#palm" transform="translate(362 816) scale(.55)"/>
+    <use href="#shrub" transform="translate(81 849) scale(1.3)"/>
+    <use href="#shrub" transform="translate(173 846) scale(.85)"/>
+    <use href="#shrub" transform="translate(748 818) scale(.65)"/>
+    <use href="#shrub" transform="translate(1136 821) scale(1.2)"/>
+    <path d="M462 825L509 822L503 792L466 794Z" fill="#aa7854" stroke="#785b40" stroke-width="3"/>
+    <path d="M484 794V755M484 782Q454 762 462 747Q485 751 484 782M485 774Q513 750 510 736Q485 740 485 774" fill="#7a8b4d" stroke="#506942" stroke-width="3"/>
+    <path d="M0 0H1200V900H0Z" fill="url(#sun)" opacity=".12"/>
+  </g>
+</svg>
