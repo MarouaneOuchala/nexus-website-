@@ -152,21 +152,18 @@ reordering, a brief welcome animation and a transitioning client detail panel.
 Reduced-motion preferences disable these effects. Counts describe loaded records,
 not a real-time feed. The total card clears the status filter.
 
-Diagnostic automation is **not connected**. Consultation details display setup
-requirements rather than a nonfunctional group-creation button. The planned
-architecture uses Supabase Edge Functions and one academy Google Calendar account:
-create a free 20-minute event with Meet conferencing, invite the client and teacher,
-then prepare a welcome message in the enquiry's stored language.
-Official WhatsApp Groups API requires an Official Business Account (OBA), a
-Cloud API phone number, signed webhooks and approved group invitation templates.
-Participants join by invitation; they cannot be silently added. Group pictures
-must be square JPEGs, at least 192px and at most 5MB. Google OAuth credentials,
-refresh tokens and Meta credentials must remain server-side, never in public
-environment variables. Account eligibility, OAuth authorization, the final logo,
-and deployment of authenticated integration endpoints are prerequisites; no external
-meetings, groups or messages are currently created by this dashboard.
-See the [official Groups prerequisites](https://developers.facebook.com/documentation/business-messaging/whatsapp/groups/get-started)
-and [Calendar event creation](https://developers.google.com/workspace/calendar/api/v3/reference/events/insert).
+Client details include a manual **Session & welcome message** workflow. Assign a
+teacher, enter the agreed date and time in Morocco, optionally paste an existing
+meeting link, and save. The dashboard prepares a welcoming message in the client's
+stored EN/FR/AR language, including their name, teacher and appointment time.
+Copy it and send it to the group you create yourself. There is no group API,
+automatic booking or automatic sending. Unsaved appointment edits cannot be copied
+as confirmed details; the original availability text is never treated as a booking.
+**Teachers** manages a shared admin-only list, initially Mohammed. Removing a teacher
+prevents new assignments while retaining names on existing appointments.
+Apply [the meeting migration](supabase/migrations/202610260004_meeting_welcome.sql)
+before deploying this dashboard to the website or Android app. Appointments and
+teachers are shared between devices, not stored only on the phone.
 The popup requires a callback phone and consent; it confirms submission only after
 Supabase saves the record. Missing configuration and network failures are explicit.
 
@@ -181,6 +178,13 @@ Run `npm run dev -- --port 3006` to preview this branch independently.
 performed when switching between these local branches.
 
 ## Android dashboard
+
+The shared web and Android dashboard uses short entrance transitions, animated
+metrics and charts, status-colored cards, and loading feedback. Trend points can
+be explored by touch/pointer or with Left/Right, Home and End while the graph is
+focused. All values retain the existing conversion definitions and accessible
+data table. Reduced-motion preferences disable decorative movement and counters;
+inbox drafts remain mounted when switching between enquiries and statistics.
 
 The Capacitor Android app (`ma.nexusacademy.dashboard`) bundles the static
 dashboard at its root URL. It uses the same Supabase accounts, permissions,

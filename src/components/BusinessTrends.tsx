@@ -3,6 +3,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useSettings } from "@/components/SettingsProvider";
 import { getEnquiryClient, type BusinessTrends as Trends, type TrendBucket } from "@/lib/enquiries";
+import { motion, useReducedMotion } from "framer-motion";
+import AnimatedMetric from "@/components/AnimatedMetric";
 
 const copy = {
   en: {
@@ -21,6 +23,7 @@ const copy = {
     noHistory: "Earlier visits and confirmation times cannot be reconstructed.",
     monthPicker: "Choose month", yearPicker: "Choose year", attributed: "Enquiries linked to a tracked visit",
     totalVisits: "Visits starting in this range", empty: "No positive values for this metric in this selection. See the table for counts and unavailable rates.",
+    explore: "Touch a point or use the left and right arrow keys to explore the graph.",
   },
   fr: {
     title: "Tendances des visites et conversions", start: "Du", end: "Au", group: "Regrouper par",
@@ -38,6 +41,7 @@ const copy = {
     noHistory: "Les anciennes visites et heures de confirmation ne peuvent pas être reconstituées.",
     monthPicker: "Choisir un mois", yearPicker: "Choisir une année", attributed: "Demandes liées à une visite suivie",
     totalVisits: "Visites commencées sur cette période", empty: "Aucune valeur positive pour cet indicateur. Consultez les effectifs et taux indisponibles dans le tableau.",
+    explore: "Touchez un point ou utilisez les flèches gauche et droite pour explorer le graphique.",
   },
   ar: {
     title: "اتجاهات الزيارات والتحويلات", start: "من", end: "إلى", group: "التجميع حسب",
@@ -55,6 +59,7 @@ const copy = {
     noHistory: "لا يمكن استعادة الزيارات وأوقات التأكيد السابقة.",
     monthPicker: "اختيار الشهر", yearPicker: "اختيار السنة", attributed: "طلبات مرتبطة بزيارة متتبعة",
     totalVisits: "زيارات بدأت خلال الفترة", empty: "لا توجد قيم موجبة لهذا المؤشر. يعرض الجدول الأعداد والمعدلات غير المتاحة.",
+    explore: "المس نقطة أو استخدم سهمي اليمين واليسار لاستكشاف الرسم.",
   },
 };
 type Metric = "visits" | "enquiries" | "converted" | "confirmations" | "leadRate" | "visitRate";
@@ -72,6 +77,8 @@ function valueFor(bucket: TrendBucket, metric: Metric): number | null {
 export default function BusinessTrends() {
   const { lang } = useSettings();
   const t = copy[lang];
+  const reducedMotion = useReducedMotion();
+  const [activeBucket, setActiveBucket] = useState<string | null>(null);
   const [start, setStart] = useState(() => `${moroccoToday().slice(0, 7)}-01`);
   const [end, setEnd] = useState(moroccoToday);
   const [group, setGroup] = useState<Group>("day");
@@ -120,6 +127,8 @@ export default function BusinessTrends() {
     ? new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 1 }).format(value / 100) : value.toLocaleString(lang);
   const buckets = data?.buckets ?? [];
   const values = buckets.map(b => valueFor(b, metric));
+  const activeIndex = Math.max(0, buckets.findIndex(bucket => bucket.key === activeBucket));
+  const highlighted = buckets[activeIndex];
   const max = rate ? 100 : Math.max(2, Math.ceil(Math.max(0, ...values.map(v => v ?? 0)) / 2) * 2);
   const width = Math.max(640, buckets.length * 24);
   const x = (index: number) => 55 + index * (width - 85) / Math.max(1, buckets.length - 1);
@@ -139,17 +148,17 @@ export default function BusinessTrends() {
       </select></label>
       <label>{t.monthPicker}<input type="month" onChange={e => chooseMonth(e.target.value)} /></label>
       <label>{t.yearPicker}<input type="number" min="2000" max="2100" placeholder="2026" onChange={e => chooseYear(e.target.value)} /></label>
-      <button disabled={busy}>{t.apply}</button>
+      <button className="admin-refresh" disabled={busy} aria-busy={busy}><span aria-hidden="true">↻</span>{t.apply}</button>
     </form>
-    {busy && <p role="status">{t.loading}</p>}
+    {busy && <p className="admin-loading" role="status"><span className="admin-loading-dot" aria-hidden="true" />{t.loading}</p>}
     {error && <p className="enquiry-error" role="alert">{t[error]}</p>}
     {data && !busy && !error && <>
       <p>{t.started}: <time dateTime={data.tracking_started_at}>{new Date(data.tracking_started_at).toLocaleString(lang, { timeZone: "Africa/Casablanca" })}</time>. {t.noHistory}</p>
       <p>{t.legacy}: {data.legacy_confirmed.toLocaleString(lang)}</p>
       <dl className="business-cards trend-summary">
-        <div><dt>{t.totalVisits}</dt><dd>{totals.visits.toLocaleString(lang)}</dd></div>
+        <div><dt>{t.totalVisits}</dt><dd><AnimatedMetric value={totals.visits} lang={lang} /></dd></div>
         <div><dt>{t.attributed}</dt><dd>{totals.attributed.toLocaleString(lang)} / {totals.enquiries.toLocaleString(lang)}</dd></div>
-        <div><dt>{t.visitRate}</dt><dd>{totals.visits ? new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 1 }).format(totals.converted_visits / totals.visits) : "—"}</dd></div>
+        <div><dt>{t.visitRate}</dt><dd>{totals.visits ? <AnimatedMetric value={totals.converted_visits / totals.visits} lang={lang} percent /> : "—"}</dd></div>
       </dl>
       <label className="trend-metric">{t.metric}<select value={metric} onChange={e => { const v = metrics.find(m => m === e.target.value); if (v) setMetric(v); }}>
         {metrics.map(m => <option key={m} value={m}>{t[m]}</option>)}
@@ -157,13 +166,29 @@ export default function BusinessTrends() {
       <figure className="business-chart trend-figure" aria-labelledby="trend-chart-title">
         <figcaption id="trend-chart-title">{t[metric]} · {selection.start} — {selection.end} · {t[selection.group]}</figcaption>
         {!values.some(v => v !== null && v > 0) && <p>{t.empty}</p>}
-        <div className="trend-scroll" dir="ltr" tabIndex={0} aria-label={t[metric]}>
+        <p id="trend-explore-hint" className="trend-explore-hint">{t.explore}</p>
+        {highlighted && <div className="trend-readout" role="status" aria-atomic="true"><span>{highlighted.key}</span><strong>{format(valueFor(highlighted, metric))}</strong><span>{t[metric]}</span></div>}
+        <div className="trend-scroll" dir="ltr" tabIndex={0} aria-label={t[metric]} aria-describedby="trend-explore-hint"
+          onKeyDown={event => {
+            if (!buckets.length || !["ArrowLeft", "ArrowRight", "Home", "End"].includes(event.key)) return;
+            event.preventDefault();
+            const index = event.key === "Home" ? 0 : event.key === "End" ? buckets.length - 1
+              : Math.max(0, Math.min(buckets.length - 1, activeIndex + (event.key === "ArrowRight" ? 1 : -1)));
+            setActiveBucket(buckets[index].key);
+            event.currentTarget.scrollTo({ left: Math.max(0, x(index) - event.currentTarget.clientWidth / 2), behavior: "instant" });
+          }}>
           <svg viewBox={`0 0 ${width} 265`} style={{ minWidth: width }} role="img" aria-labelledby="trend-svg-title">
             <title id="trend-svg-title">{t[metric]} — {t.details}</title>
             {[0, .5, 1].map(tick => <g key={tick}><line x1="55" x2={width - 30} y1={y(max * tick)} y2={y(max * tick)} className="trend-grid" />
               <text x="48" y={y(max * tick) + 5} textAnchor="end">{format(max * tick)}</text></g>)}
-            <path d={path} className="trend-line" />
-            {values.map((v, i) => v !== null && <circle key={buckets[i].key} cx={x(i)} cy={y(v)} r="4" className="trend-point"><title>{buckets[i].key}: {format(v)}</title></circle>)}
+            <motion.path key={`${metric}-${selection.revision}`} d={path} className="trend-line"
+              initial={{ pathLength: reducedMotion ? 1 : 0 }} animate={{ pathLength: 1 }} transition={{ duration: reducedMotion ? 0 : .7 }} />
+            {highlighted && <line x1={x(activeIndex)} x2={x(activeIndex)} y1="30" y2="210" className="trend-crosshair" />}
+            {values.map((v, i) => v !== null && <g key={buckets[i].key} onPointerEnter={() => setActiveBucket(buckets[i].key)}
+              onClick={() => setActiveBucket(buckets[i].key)}>
+              <circle cx={x(i)} cy={y(v)} r="12" fill="transparent" />
+              <circle cx={x(i)} cy={y(v)} r={i === activeIndex ? 6 : 4} className="trend-point"><title>{buckets[i].key}: {format(v)}</title></circle>
+            </g>)}
             {buckets.map((b, i) => (i % Math.max(1, Math.ceil(buckets.length / 12)) === 0 || i === buckets.length - 1) && <text key={b.key} x={x(i)} y="240" textAnchor="middle">{selection.group === "day" ? b.key.slice(5) : b.key}</text>)}
           </svg>
         </div>

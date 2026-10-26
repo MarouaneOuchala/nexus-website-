@@ -1,0 +1,222 @@
+"use client";
+
+import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
+import { getEnquiryClient, type Enquiry, type Teacher } from "@/lib/enquiries";
+import { moroccoMeetingInput, parseMoroccoMeeting, validMeetingUrl, welcomeMessage } from "@/lib/meeting-welcome";
+import { useSettings } from "@/components/SettingsProvider";
+
+const copy = {
+  en: {
+    directory: "Teachers", name: "Teacher name", add: "Add teacher", remove: "Remove",
+    archive: "Removing a teacher stops new assignments. Existing appointments keep their teacher's name.",
+    directoryError: "Unable to load or update teachers. Please retry. Names must be unique and 2–80 characters long.",
+    retry: "Reload teachers", empty: "No active teachers. Add a teacher to assign a session.",
+    title: "Session & welcome message", intro: "Agree on a time with the client, then save it here. Create the group yourself and paste the message below. Nothing is booked or sent automatically.",
+    teacher: "Assigned teacher", choose: "Choose a teacher", removed: "removed",
+    time: "Agreed meeting date & time (Morocco)", zone: "Always Morocco time, even if your device is in another time zone.",
+    link: "Meeting link (optional)", linkHint: "Paste an HTTPS link if you have already created the meeting.",
+    save: "Save session", saving: "Saving…", saved: "Session saved.",
+    saveError: "Session not saved. Your edits are still here. Refresh the enquiries and teachers, review any changes and retry.",
+    timeError: "Choose a valid, unambiguous Morocco date and time. Times skipped or repeated during a clock change cannot be used.",
+    linkError: "Use a valid HTTPS meeting link without a username or password.",
+    teacherError: "Choose an active teacher and enter the agreed meeting time.",
+    preview: "Welcome message", language: "Client language", pending: "Save the teacher and agreed time to enable copying. Availability in the enquiry is not a confirmed appointment.",
+    copy: "Copy welcome message", copied: "Message copied. Paste it into the group and send it yourself.",
+    copyError: "Copy failed. Select the message below and copy it manually.",
+  },
+  fr: {
+    directory: "Enseignants", name: "Nom de l'enseignant", add: "Ajouter un enseignant", remove: "Retirer",
+    archive: "Retirer un enseignant empêche les nouvelles affectations. Son nom reste associé aux rendez-vous existants.",
+    directoryError: "Impossible de charger ou modifier les enseignants. Réessayez. Les noms doivent être uniques et contenir 2 à 80 caractères.",
+    retry: "Recharger les enseignants", empty: "Aucun enseignant actif. Ajoutez-en un pour attribuer une séance.",
+    title: "Séance et message d'accueil", intro: "Convenez d'un créneau avec le client, puis enregistrez-le ici. Créez vous-même le groupe et collez le message ci-dessous. Aucune réservation ni aucun envoi automatique.",
+    teacher: "Enseignant attribué", choose: "Choisir un enseignant", removed: "retiré",
+    time: "Date et heure convenues (heure du Maroc)", zone: "Toujours à l'heure du Maroc, même si votre appareil est dans un autre fuseau horaire.",
+    link: "Lien de la réunion (facultatif)", linkHint: "Collez un lien HTTPS si vous avez déjà créé la réunion.",
+    save: "Enregistrer la séance", saving: "Enregistrement…", saved: "Séance enregistrée.",
+    saveError: "Séance non enregistrée. Vos saisies sont conservées. Actualisez les demandes et les enseignants, vérifiez les changements et réessayez.",
+    timeError: "Choisissez une date et une heure valides et non ambiguës au Maroc. Les heures supprimées ou répétées lors d'un changement d'heure ne sont pas acceptées.",
+    linkError: "Utilisez un lien HTTPS valide, sans identifiant ni mot de passe.",
+    teacherError: "Choisissez un enseignant actif et indiquez le créneau convenu.",
+    preview: "Message d'accueil", language: "Langue du client", pending: "Enregistrez l'enseignant et le créneau convenu pour copier le message. Les disponibilités indiquées ne sont pas un rendez-vous confirmé.",
+    copy: "Copier le message d'accueil", copied: "Message copié. Collez-le dans le groupe et envoyez-le vous-même.",
+    copyError: "Copie impossible. Sélectionnez le message ci-dessous et copiez-le manuellement.",
+  },
+  ar: {
+    directory: "المدرّسون", name: "اسم المدرّس", add: "إضافة مدرّس", remove: "إزالة",
+    archive: "تمنع إزالة المدرّس إسناد جلسات جديدة إليه. يظل اسمه محفوظًا في المواعيد السابقة.",
+    directoryError: "تعذر تحميل المدرّسين أو تعديلهم. أعد المحاولة. يجب أن تكون الأسماء غير مكررة ومن حرفين إلى 80 حرفًا.",
+    retry: "إعادة تحميل المدرّسين", empty: "لا يوجد مدرّسون نشطون. أضف مدرّسًا لإسناد جلسة.",
+    title: "الجلسة ورسالة الترحيب", intro: "اتفق مع العميل على موعد ثم احفظه هنا. أنشئ المجموعة بنفسك والصق الرسالة أدناه. لا يتم حجز أي موعد أو إرسال أي رسالة تلقائيًا.",
+    teacher: "المدرّس المكلّف", choose: "اختر مدرّسًا", removed: "تمت إزالته",
+    time: "تاريخ ووقت اللقاء المتفق عليهما (بتوقيت المغرب)", zone: "دائمًا بتوقيت المغرب، حتى لو كان جهازك في منطقة زمنية أخرى.",
+    link: "رابط اللقاء (اختياري)", linkHint: "ألصق رابط HTTPS إذا كنت قد أنشأت اللقاء بالفعل.",
+    save: "حفظ الجلسة", saving: "جارٍ الحفظ…", saved: "تم حفظ الجلسة.",
+    saveError: "لم تُحفظ الجلسة. بقيت تعديلاتك. حدّث الطلبات والمدرّسين وراجع التغييرات ثم أعد المحاولة.",
+    timeError: "اختر تاريخًا ووقتًا صالحين وغير ملتبسين بتوقيت المغرب. لا يمكن استخدام الأوقات المحذوفة أو المكررة عند تغيير الساعة.",
+    linkError: "استخدم رابط HTTPS صالحًا دون اسم مستخدم أو كلمة مرور.",
+    teacherError: "اختر مدرّسًا نشطًا وأدخل الموعد المتفق عليه.",
+    preview: "رسالة الترحيب", language: "لغة العميل", pending: "احفظ المدرّس والموعد المتفق عليه لنسخ الرسالة. أوقات التفرّغ المذكورة في الطلب ليست موعدًا مؤكدًا.",
+    copy: "نسخ رسالة الترحيب", copied: "تم نسخ الرسالة. ألصقها في المجموعة وأرسلها بنفسك.",
+    copyError: "تعذر النسخ. حدّد الرسالة أدناه وانسخها يدويًا.",
+  },
+};
+
+export function TeacherDirectory({ teachers, onChange }: {
+  teachers: Teacher[] | null; onChange: (teachers: Teacher[]) => void;
+}) {
+  const { lang } = useSettings();
+  const t = copy[lang];
+  const [name, setName] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [failed, setFailed] = useState(false);
+  const inFlight = useRef(false);
+  const mounted = useRef(false);
+  const load = useCallback(async () => {
+    if (inFlight.current) return;
+    inFlight.current = true;
+    setBusy(true);
+    setFailed(false);
+    try {
+      const { data, error } = await getEnquiryClient().from("teachers").select().order("created_at");
+      if (error || !data) throw new Error(error?.code ?? "NO_TEACHERS");
+      if (mounted.current) onChange(data);
+    } catch (error) {
+      console.error("NEXUS: Teacher loading failed.", error instanceof Error ? error.message : "Unknown error");
+      if (mounted.current) setFailed(true);
+    } finally {
+      inFlight.current = false;
+      if (mounted.current) setBusy(false);
+    }
+  }, [onChange]);
+  useEffect(() => {
+    mounted.current = true;
+    void load();
+    return () => { mounted.current = false; };
+  }, [load]);
+
+  async function change(teacher?: Teacher) {
+    if (inFlight.current) return;
+    if (!teacher && (name.trim().length < 2 || name.trim().length > 80)) {
+      setFailed(true);
+      return;
+    }
+    inFlight.current = true;
+    setBusy(true);
+    setFailed(false);
+    try {
+      const query = getEnquiryClient().from("teachers");
+      const { data, error } = teacher
+        ? await query.update({ active: false }).eq("id", teacher.id).eq("active", true).select().single()
+        : await query.insert({ name: name.trim() }).select().single();
+      if (error || !data) throw new Error(error?.code ?? "NO_TEACHER");
+      if (mounted.current) {
+        onChange(teacher ? (teachers ?? []).map(row => row.id === data.id ? data : row) : [...(teachers ?? []), data]);
+        if (!teacher) setName("");
+      }
+    } catch (error) {
+      console.error("NEXUS: Teacher update failed.", error instanceof Error ? error.message : "Unknown error");
+      if (mounted.current) setFailed(true);
+    } finally {
+      inFlight.current = false;
+      if (mounted.current) setBusy(false);
+    }
+  }
+  return <details className="admin-teachers" open={failed ? true : undefined}>
+    <summary>{t.directory} · {teachers?.filter(row => row.active).length ?? "—"}</summary>
+    <div aria-busy={busy}>
+      <p>{t.archive}</p>
+      <form onSubmit={event => { event.preventDefault(); void change(); }}>
+        <label>{t.name}<input value={name} onChange={event => setName(event.target.value)} required minLength={2} maxLength={80} disabled={busy || teachers === null} /></label>
+        <button type="submit" disabled={busy || teachers === null}>{busy ? t.saving : t.add}</button>
+      </form>
+      {teachers?.filter(row => row.active).map(teacher => <div className="admin-teacher-row" key={teacher.id}>
+        <span dir="auto">{teacher.name}</span><button type="button" disabled={busy} onClick={() => void change(teacher)} aria-label={`${t.remove}: ${teacher.name}`}>{t.remove}</button>
+      </div>)}
+      {teachers && !teachers.some(row => row.active) && <p role="status">{t.empty}</p>}
+      {failed && <p className="enquiry-error" role="alert">{t.directoryError}</p>}
+      <button type="button" disabled={busy} onClick={() => void load()}>{t.retry}</button>
+    </div>
+  </details>;
+}
+
+export default function MeetingWelcome({ enquiry, teachers, onSaved }: {
+  enquiry: Enquiry; teachers: Teacher[] | null; onSaved: (row: Enquiry) => void;
+}) {
+  const { lang } = useSettings();
+  const t = copy[lang];
+  const [teacherId, setTeacherId] = useState(enquiry.teacher_id ?? "");
+  const [time, setTime] = useState(moroccoMeetingInput(enquiry.meeting_at));
+  const [link, setLink] = useState(enquiry.meeting_url ?? "");
+  const [busy, setBusy] = useState(false);
+  const [error, setError] = useState("");
+  const [feedback, setFeedback] = useState("");
+  const inFlight = useRef(false);
+  const teacher = teachers?.find(row => row.id === enquiry.teacher_id);
+  const message = enquiry.meeting_at && teacher ? welcomeMessage({
+    language: enquiry.language, client: enquiry.full_name, teacher: teacher.name,
+    meetingAt: enquiry.meeting_at, meetingUrl: enquiry.meeting_url, diagnostic: enquiry.request_type === "consultation",
+  }) : "";
+  const unchanged = teacherId === (enquiry.teacher_id ?? "") && time === moroccoMeetingInput(enquiry.meeting_at) && link.trim() === (enquiry.meeting_url ?? "");
+
+  async function save(event: FormEvent<HTMLFormElement>) {
+    event.preventDefault();
+    if (inFlight.current) return;
+    setError("");
+    setFeedback("");
+    if (!teachers?.some(row => row.id === teacherId && row.active) || !time) { setError(t.teacherError); return; }
+    let meetingAt: string;
+    try { meetingAt = parseMoroccoMeeting(time); }
+    catch { setError(t.timeError); return; }
+    if (!validMeetingUrl(link.trim())) { setError(t.linkError); return; }
+    inFlight.current = true;
+    setBusy(true);
+    try {
+      const { data, error: failure } = await getEnquiryClient().from("enquiries").update({
+        teacher_id: teacherId, meeting_at: meetingAt, meeting_url: link.trim(),
+      }).eq("id", enquiry.id).eq("updated_at", enquiry.updated_at).select().single();
+      if (failure || !data) throw new Error(failure?.code ?? "NO_ROW");
+      onSaved(data);
+      setFeedback(t.saved);
+    } catch (failure) {
+      console.error("NEXUS: Session save failed.", failure instanceof Error ? failure.message : "Unknown error");
+      setError(t.saveError);
+    } finally {
+      inFlight.current = false;
+      setBusy(false);
+    }
+  }
+
+  async function copyMessage() {
+    setError("");
+    setFeedback("");
+    try {
+      await navigator.clipboard.writeText(message);
+      setFeedback(t.copied);
+    } catch (failure) {
+      console.error("NEXUS: Welcome message copy failed.", failure instanceof Error ? failure.message : "Clipboard unavailable");
+      setError(t.copyError);
+    }
+  }
+
+  return <section className="admin-meeting" aria-labelledby="meeting-welcome-title">
+    <h3 id="meeting-welcome-title">{t.title}</h3><p>{t.intro}</p>
+    <form onSubmit={save} aria-busy={busy}>
+      <fieldset disabled={busy || teachers === null}>
+        <label>{t.teacher}<select value={teacherId} required onChange={event => { setTeacherId(event.target.value); setFeedback(""); }}>
+          <option value="">{t.choose}</option>
+          {teachers?.filter(row => row.active || row.id === teacherId).map(row => <option key={row.id} value={row.id} disabled={!row.active}>{row.name}{!row.active ? ` (${t.removed})` : ""}</option>)}
+        </select></label>
+        <label>{t.time}<input type="datetime-local" value={time} min="2000-01-01T00:00" max="2100-12-31T23:59" required onChange={event => { setTime(event.target.value); setFeedback(""); }} /><small>{t.zone}</small></label>
+        <label>{t.link}<input type="url" inputMode="url" maxLength={2000} value={link} onChange={event => { setLink(event.target.value); setFeedback(""); }} /><small>{t.linkHint}</small></label>
+        <button type="submit">{busy ? t.saving : t.save}</button>
+      </fieldset>
+    </form>
+    <p className="meeting-language">{t.language}: {enquiry.language.toUpperCase()}</p>
+    {(!message || !unchanged) && <p>{t.pending}</p>}
+    {message && <label>{t.preview}<textarea className="meeting-message" readOnly value={message} rows={12} lang={enquiry.language} dir={enquiry.language === "ar" ? "rtl" : "ltr"} /></label>}
+    <button type="button" disabled={busy || !message || !unchanged} onClick={() => void copyMessage()}>{t.copy}</button>
+    {error && <p className="enquiry-error" role="alert">{error}</p>}
+    {feedback && <p role="status">{feedback}</p>}
+  </section>;
+}

@@ -131,6 +131,26 @@ This does not change Salma's access or any password.
 
 ### Enquiry workflow
 
+Apply [the meeting-welcome migration](migrations/202610260004_meeting_welcome.sql)
+after the previous migrations, before publishing the updated website or app.
+The admin-only teacher directory starts with Mohammed. Adding/removing teachers
+is shared across devices. Removal deactivates a teacher rather than deleting
+historical assignments; inactive teachers cannot receive new assignments.
+Names are unique among active teachers, ignoring case.
+
+For any client enquiry (not a teacher application), choose an active teacher and
+enter the agreed meeting time in **Morocco time**, independently of the admin's
+device time zone. An optional HTTPS meeting link can be pasted after manually
+creating the meeting. Save the session, then copy the welcome message in the
+client's stored EN/FR/AR language. It includes their name, teacher and localized
+Morocco appointment time; consultations retain the free 20-minute diagnostic
+wording. Create the group and send the message yourself. No external account
+connection, group API, automatic booking or automatic messaging is involved.
+Missing or unsaved appointment details disable copying. Clipboard errors offer
+manual selection of the read-only message. Clock-change times that are skipped
+or ambiguous are rejected explicitly. Session updates use the enquiry's existing
+optimistic-concurrency check and do not change its status, notes or price.
+
 - Contact, consultation, programme and package buttons open a native accessible
   modal, with keyboard focus containment, Escape/backdrop close, and focus return.
 - Package selection is retained; the database derives the authoritative price:

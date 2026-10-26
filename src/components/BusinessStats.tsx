@@ -4,6 +4,8 @@ import { useEffect, useState } from "react";
 import { useSettings } from "@/components/SettingsProvider";
 import { getEnquiryClient, type BusinessStats as Stats } from "@/lib/enquiries";
 import BusinessTrends from "@/components/BusinessTrends";
+import AnimatedMetric from "@/components/AnimatedMetric";
+import { motion, useReducedMotion } from "framer-motion";
 
 export const businessCopy = {
   en: {
@@ -56,6 +58,7 @@ export const businessCopy = {
 export default function BusinessStats() {
   const { lang } = useSettings();
   const copy = businessCopy[lang];
+  const reducedMotion = useReducedMotion();
   const [stats, setStats] = useState<Stats | null>(null);
   const [busy, setBusy] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -84,14 +87,14 @@ export default function BusinessStats() {
   const percent = (value: number) => new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 1 }).format(value);
   const conversion = stats ? ratio(stats.converted) : 0;
   const cards = stats ? [
-    [copy.leads, number(stats.client_enquiries)],
-    [copy.converted, number(stats.converted)],
-    [copy.rate, percent(conversion)],
-    [copy.open, number(stats.open_enquiries)],
-    [copy.overdue, number(stats.overdue_callbacks)],
-    [copy.value, `${number(stats.confirmed_value_mad)} MAD`],
-    [copy.missing, number(stats.confirmed_without_package)],
-    [copy.applications, number(stats.applications)],
+    { label: copy.leads, value: stats.client_enquiries },
+    { label: copy.converted, value: stats.converted },
+    { label: copy.rate, value: conversion, percent: true },
+    { label: copy.open, value: stats.open_enquiries },
+    { label: copy.overdue, value: stats.overdue_callbacks, alert: stats.overdue_callbacks > 0 },
+    { label: copy.value, value: stats.confirmed_value_mad, currency: true },
+    { label: copy.missing, value: stats.confirmed_without_package },
+    { label: copy.applications, value: stats.applications },
   ] : [];
   const funnel = stats ? [
     [copy.new, stats.new_enquiries], [copy.contacted, stats.contacted],
@@ -99,13 +102,18 @@ export default function BusinessStats() {
   ] as const : [];
   return <section className="business-stats" aria-labelledby="business-title" aria-busy={busy}>
     <div className="business-heading"><h2 id="business-title">{copy.title}</h2>
-      <button disabled={busy} onClick={() => setRevision((value) => value + 1)}>{copy.refresh}</button></div>
+      <button className="admin-refresh" disabled={busy} aria-busy={busy} onClick={() => setRevision((value) => value + 1)}><span aria-hidden="true">↻</span>{copy.refresh}</button></div>
     <p>{copy.scope}</p>
-    {busy && <p role="status">{copy.loading}</p>}
+    {busy && <><p className="admin-loading" role="status"><span className="admin-loading-dot" aria-hidden="true" />{copy.loading}</p>
+      <div className="business-skeleton" aria-hidden="true">{Array.from({ length: 4 }, (_, index) => <span key={index} />)}</div></>}
     {failed && <p className="enquiry-error" role="alert">{copy.error}</p>}
     {stats && !busy && <>
       <p className="business-timestamp">{copy.updated}: <time dateTime={stats.measured_at}>{new Date(stats.measured_at).toLocaleString(lang)}</time></p>
-      <dl className="business-cards">{cards.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
+      <dl className="business-cards">{cards.map((card, index) => <motion.div key={card.label} data-alert={card.alert || undefined}
+        initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 12 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ duration: reducedMotion ? 0 : .3, delay: reducedMotion ? 0 : index * .035 }}>
+        <dt>{card.label}</dt><dd><AnimatedMetric value={card.value} lang={lang} percent={card.percent} />{card.currency && <small> MAD</small>}</dd>
+      </motion.div>)}</dl>
       {!stats.client_enquiries && <p role="status">{copy.empty}</p>}
       <div className="business-charts">
         <figure className="business-chart" aria-labelledby="conversion-chart-title">
@@ -113,10 +121,12 @@ export default function BusinessStats() {
           <div className="business-donut">
             <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
               <circle className="business-donut-track" cx="100" cy="100" r="80" />
-              <circle className="business-donut-value" cx="100" cy="100" r="80" pathLength="100"
-                strokeDasharray={`${conversion * 100} 100`} transform="rotate(-90 100 100)" />
+              <motion.circle className="business-donut-value" cx="100" cy="100" r="80" pathLength="100"
+                initial={{ strokeDasharray: reducedMotion ? `${conversion * 100} 100` : "0 100" }}
+                animate={{ strokeDasharray: `${conversion * 100} 100` }} transition={{ duration: reducedMotion ? 0 : .8 }}
+                transform="rotate(-90 100 100)" />
             </svg>
-            <strong>{percent(conversion)}</strong>
+            <strong><AnimatedMetric value={conversion} lang={lang} percent /></strong>
           </div>
           <ul className="business-chart-legend">
             <li><span><i className="business-key-confirmed" aria-hidden="true" />{copy.converted}</span><strong>{number(stats.converted)}</strong></li>
@@ -128,7 +138,8 @@ export default function BusinessStats() {
           <p className="business-chart-unit">{copy.share}</p>
           <ul className="business-breakdown">{funnel.map(([label, count]) => <li key={label}>
             <span>{label}</span><strong>{number(count)} <small>({percent(ratio(count))})</small></strong>
-            <span className="business-bar" aria-hidden="true"><span style={{ width: `${ratio(count) * 100}%` }} /></span>
+            <span className="business-bar" aria-hidden="true"><motion.span initial={{ width: reducedMotion ? `${ratio(count) * 100}%` : "0%" }}
+              animate={{ width: `${ratio(count) * 100}%` }} transition={{ duration: reducedMotion ? 0 : .65 }} /></span>
           </li>)}</ul>
           <div className="business-chart-axis" aria-hidden="true"><span>{percent(0)}</span><span>{percent(.5)}</span><span>{percent(1)}</span></div>
         </figure>

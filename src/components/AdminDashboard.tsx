@@ -4,24 +4,15 @@ import { useCallback, useEffect, useRef, useState, type FormEvent } from "react"
 import Link from "next/link";
 import BusinessStats, { businessCopy } from "@/components/BusinessStats";
 import NativeNotifications from "@/components/NativeNotifications";
+import AnimatedMetric from "@/components/AnimatedMetric";
+import MeetingWelcome, { TeacherDirectory } from "@/components/MeetingWelcome";
 import { stopNativePush } from "@/lib/native-push";
-import { AnimatePresence, motion, useReducedMotion, useSpring, useTransform } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
 import { useSettings } from "@/components/SettingsProvider";
-import { enquiryCopy, enquiryStatuses, getEnquiryClient, type Enquiry, type EnquiryStatus } from "@/lib/enquiries";
+import { enquiryCopy, enquiryStatuses, getEnquiryClient, type Enquiry, type EnquiryStatus, type Teacher } from "@/lib/enquiries";
 import { languages, type Lang } from "@/lib/i18n";
 
 const PAGE_SIZE = 100;
-
-function AnimatedCount({ value, lang }: { value: number; lang: Lang }) {
-  const reducedMotion = useReducedMotion();
-  const count = useSpring(0, { stiffness: 100, damping: 25 });
-  const formatted = useTransform(count, (current) => Math.round(current).toLocaleString(lang));
-  useEffect(() => {
-    if (reducedMotion) count.jump(value);
-    else count.set(value);
-  }, [count, reducedMotion, value]);
-  return <strong aria-label={value.toLocaleString(lang)}><motion.span aria-hidden="true">{formatted}</motion.span></strong>;
-}
 
 function localDateTime(value: string | null) {
   if (!value) return "";
@@ -30,7 +21,7 @@ function localDateTime(value: string | null) {
   return shifted.toISOString().slice(0, 16);
 }
 
-function FollowUp({ enquiry, onSaved }: { enquiry: Enquiry; onSaved: (row: Enquiry) => void }) {
+function FollowUp({ enquiry, teachers, onSaved }: { enquiry: Enquiry; teachers: Teacher[] | null; onSaved: (row: Enquiry) => void }) {
   const { lang, t } = useSettings();
   const copy = enquiryCopy[lang];
   const reducedMotion = useReducedMotion();
@@ -93,15 +84,7 @@ function FollowUp({ enquiry, onSaved }: { enquiry: Enquiry; onSaved: (row: Enqui
         <a className="button button-primary" href={`tel:+${enquiry.phone}`}>{t.contact.phone} ↗</a>
         <a className="button button-outline" href={`mailto:${enquiry.email}`}>{t.contact.email} ↗</a>
       </div>
-      {enquiry.request_type === "consultation" && (
-        <section className="admin-integration" aria-labelledby="diagnostic-integration-title">
-          <span className="admin-setup-badge">{copy.dashboard.setup}</span>
-          <h3 id="diagnostic-integration-title">{copy.dashboard.integrations}</h3>
-          <p>{copy.dashboard.setupIntro}</p>
-          <ul><li>{copy.dashboard.google}</li><li>{copy.dashboard.whatsapp}</li></ul>
-          <p>{copy.dashboard.welcome}</p>
-        </section>
-      )}
+      {enquiry.request_type !== "application" && <MeetingWelcome enquiry={enquiry} teachers={teachers} onSaved={onSaved} />}
       <dl className="admin-fields">{details.map(([label, value]) => <div key={label}><dt>{label}</dt><dd dir="auto">{value}</dd></div>)}</dl>
       <form className="admin-follow-up" onSubmit={save} aria-busy={busy}>
         <fieldset disabled={busy}>
@@ -127,6 +110,7 @@ export default function AdminDashboard() {
   const [access, setAccess] = useState<"loading" | "login" | "admin">("loading");
   const [error, setError] = useState<"loadError" | "forbidden" | "unavailable" | "loginError" | "logoutError" | "">("");
   const [rows, setRows] = useState<Enquiry[]>([]);
+  const [teachers, setTeachers] = useState<Teacher[] | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const [status, setStatus] = useState<EnquiryStatus | "all">("all");
   const [search, setSearch] = useState("");
@@ -174,6 +158,7 @@ export default function AdminDashboard() {
         if (event === "SIGNED_IN" && session?.user.id === verifiedUser.current) return;
         const attempt = ++generation.current;
         setRows([]);
+        setTeachers(null);
         setSelected(null);
         setBusy(false);
         if (!session) { verifiedUser.current = null; setAccess("login"); return; }
@@ -236,6 +221,7 @@ export default function AdminDashboard() {
       if (failure) throw failure;
       generation.current++;
       setRows([]);
+      setTeachers(null);
       setSelected(null);
       setAccess("login");
     } catch (failure) {
@@ -250,7 +236,7 @@ export default function AdminDashboard() {
     [row.full_name, row.email, row.phone, row.goal].some((value) => value.toLocaleLowerCase().includes(query)));
   const current = rows.find((row) => row.id === selected);
   return (
-    <main className="nexus-page admin-page">
+    <main className="nexus-page admin-page" data-access={access}>
       <header className="admin-header">
         {dashboardApp ? <div className="wordmark">NEXUS.</div> : <Link className="wordmark" href="/">NEXUS.</Link>}
         <span>{copy.admin}</span>
@@ -262,12 +248,13 @@ export default function AdminDashboard() {
           {access === "admin" && <button type="button" onClick={() => void logout()}>{copy.signOut}</button>}
         </div>
       </header>
-      <div className="admin-shell">
+      <motion.div className="admin-shell" initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 12 }}
+        animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : .4 }}>
         <p className="enquiry-kicker">NEXUS / PRIVATE</p>
         <h1>{access === "admin" ? copy.admin : copy.login}</h1>
         <p>{copy.access}</p>
         {error && <p className="enquiry-error" role="alert">{copy[error]}</p>}
-        {access === "loading" && <p role="status">{copy.loading}</p>}
+        {access === "loading" && <p className="admin-loading" role="status"><span className="admin-loading-dot" aria-hidden="true" />{copy.loading}</p>}
         {access === "login" && (
           <form className="admin-login" onSubmit={login}>
             <label>{t.contact.email}<input name="email" type="email" autoComplete="username" required /></label>
@@ -279,18 +266,21 @@ export default function AdminDashboard() {
         {access === "admin" && (
           <>
             <NativeNotifications onEnquiry={notificationReceived} />
+            <TeacherDirectory teachers={teachers} onChange={setTeachers} />
             <nav className="admin-tabs" aria-label={copy.admin}>
-              <button aria-pressed={view === "enquiries"} onClick={() => setView("enquiries")}>{businessCopy[lang].inbox}</button>
-              <button aria-pressed={view === "stats"} onClick={() => setView("stats")}>{businessCopy[lang].tab}</button>
+              <button aria-pressed={view === "enquiries"} aria-controls="admin-inbox" onClick={() => setView("enquiries")}><span aria-hidden="true">↗</span>{businessCopy[lang].inbox}</button>
+              <button aria-pressed={view === "stats"} aria-controls="admin-business" onClick={() => setView("stats")}><span className="admin-tab-chart" aria-hidden="true"><i /><i /><i /></span>{businessCopy[lang].tab}</button>
             </nav>
-            {view === "stats" && <BusinessStats />}
-            <div hidden={view !== "enquiries"}>
+            {view === "stats" && <motion.div id="admin-business" initial={{ opacity: reducedMotion ? 1 : 0, y: reducedMotion ? 0 : 10 }}
+              animate={{ opacity: 1, y: 0 }} transition={{ duration: reducedMotion ? 0 : .25 }}><BusinessStats /></motion.div>}
+            <motion.div id="admin-inbox" hidden={view !== "enquiries"} animate={{ opacity: view === "enquiries" ? 1 : 0, y: view === "enquiries" || reducedMotion ? 0 : 10 }}
+              transition={{ duration: reducedMotion ? 0 : .25 }}>
             <div className="admin-stats" aria-busy={busy}>
-              <button onClick={() => setStatus("all")} aria-pressed={status === "all"}><AnimatedCount value={rows.length} lang={lang} /><span>{copy.total}</span><span className="admin-stat-track" aria-hidden="true"><span style={{ width: rows.length ? "100%" : "0%" }} /></span></button>
+              <button onClick={() => setStatus("all")} aria-pressed={status === "all"}><strong><AnimatedMetric value={rows.length} lang={lang} /></strong><span>{copy.total}</span><span className="admin-stat-track" aria-hidden="true"><span style={{ width: rows.length ? "100%" : "0%" }} /></span></button>
               {enquiryStatuses.map((item) => {
                 const count = rows.filter((row) => row.status === item).length;
                 return <button className={`admin-stat stat-${item}`} key={item} onClick={() => setStatus(item)} aria-pressed={status === item}>
-                  <AnimatedCount value={count} lang={lang} /><span>{copy.statuses[item]}</span>
+                  <strong><AnimatedMetric value={count} lang={lang} /></strong><span>{copy.statuses[item]}</span>
                   <span className="admin-stat-track" aria-hidden="true"><span style={{ width: `${rows.length ? count / rows.length * 100 : 0}%` }} /></span>
                 </button>;
               })}
@@ -301,7 +291,7 @@ export default function AdminDashboard() {
                 const value = event.target.value;
                 if (value === "all" || enquiryStatuses.some((item) => item === value)) setStatus(value as EnquiryStatus | "all");
               }}><option value="all">{copy.all}</option>{enquiryStatuses.map((item) => <option key={item} value={item}>{copy.statuses[item]}</option>)}</select>
-              <button disabled={busy} onClick={() => void load()}>{busy ? copy.loading : copy.refresh}</button>
+              <button className="admin-refresh" disabled={busy} aria-busy={busy} onClick={() => void load()}><span aria-hidden="true">↻</span>{busy ? copy.loading : copy.refresh}</button>
             </div>
             <p className="admin-result-count" role="status">{copy.dashboard.results}: {filtered.length.toLocaleString(lang)}</p>
             <div className="admin-workspace">
@@ -319,12 +309,12 @@ export default function AdminDashboard() {
                 </AnimatePresence>
                 {hasMore && <button disabled={busy} onClick={() => void load(rows.length)}>{copy.more}</button>}
               </section>
-              {current ? <FollowUp key={current.id} enquiry={current} onSaved={(updated) => setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row))} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
+              {current ? <FollowUp key={current.id} enquiry={current} teachers={teachers} onSaved={(updated) => setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row))} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
             </div>
-            </div>
+            </motion.div>
           </>
         )}
-      </div>
+      </motion.div>
     </main>
   );
 }

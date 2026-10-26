@@ -23,6 +23,7 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
     await db.exec(await readFile(new URL("../supabase/migrations/202610250001_enquiries.sql", import.meta.url), "utf8"));
     await db.exec(await readFile(new URL("../supabase/migrations/202610260001_business_stats.sql", import.meta.url), "utf8"));
     await db.exec(await readFile(new URL("../supabase/migrations/202610260002_visit_trends.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/migrations/202610260004_meeting_welcome.sql", import.meta.url), "utf8"));
     await db.query("insert into auth.users (id) values ($1), ($2)", [admin, outsider]);
     await db.query("insert into private.admin_users (user_id) values ($1)", [admin]);
     const base = {
@@ -113,6 +114,45 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
       assert.equal(updated.status, "callback");
       await assert.rejects(db.query("update public.enquiries set email='tampered@example.invalid' where id=$1", [base.id]), /permission denied/);
       await assert.rejects(db.query("delete from public.enquiries where id=$1", [base.id]), /permission denied/);
+    });
+    await t.test("teachers and appointments are admin-only and preserve removed-teacher history", async () => {
+      await db.exec("set role anon");
+      await assert.rejects(db.query("select * from public.teachers"), /permission denied/);
+      await identity(outsider);
+      assert.deepEqual((await db.query("select * from public.teachers")).rows, []);
+      await assert.rejects(db.query("insert into public.teachers (name) values ('Unauthorised')"), /row-level security/);
+      assert.deepEqual((await db.query("update public.teachers set active=false returning id")).rows, []);
+      assert.deepEqual((await db.query("update public.enquiries set meeting_at=now() returning id")).rows, []);
+      await identity(admin);
+      const teacher = (await db.query("select * from public.teachers where active")).rows[0];
+      assert.equal(teacher.name, "Mohammed");
+      for (const name of ["mohammed", "", " A ", "a".repeat(81)]) {
+        await assert.rejects(db.query("insert into public.teachers (name) values ($1)", [name]));
+      }
+      const added = (await db.query("insert into public.teachers (name) values ('Test Teacher') returning *")).rows[0];
+      assert.equal(added.active, true);
+      await assert.rejects(db.query("update public.enquiries set teacher_id=$1 where id=$2", [teacher.id, base.id]), /meeting_assignment_pair/);
+      await assert.rejects(db.query("update public.enquiries set meeting_at=now() where id=$1", [base.id]), /meeting_assignment_pair/);
+      const saved = (await db.query(`update public.enquiries set teacher_id=$1,
+        meeting_at='2026-10-28T17:30:00Z', meeting_url='https://meet.google.com/test-meeting'
+        where id=$2 returning *`, [added.id, base.id])).rows[0];
+      assert.equal(saved.teacher_id, added.id);
+      assert.equal(saved.meeting_url, "https://meet.google.com/test-meeting");
+      assert.equal(saved.notes, "Call after work");
+      assert.equal(saved.status, "callback");
+      assert.equal(saved.total_mad, 2699);
+      await assert.rejects(db.query("update public.enquiries set meeting_url='javascript:alert(1)' where id=$1", [base.id]));
+      await db.query("update public.teachers set active=false where id=$1", [added.id]);
+      assert.equal((await db.query("select teacher_id from public.enquiries where id=$1", [base.id])).rows[0].teacher_id, added.id);
+      await db.query("update public.enquiries set notes='History retained' where id=$1", [base.id]);
+      const other = (await db.query("select id from public.enquiries where id<>$1 and request_type<>'application' limit 1", [base.id])).rows[0];
+      await assert.rejects(db.query("update public.enquiries set teacher_id=$1, meeting_at=now() where id=$2", [added.id, other.id]), /TEACHER_UNAVAILABLE/);
+      await assert.rejects(db.query("update public.enquiries set teacher_id=$1, meeting_at=now() where request_type='application'", [teacher.id]), /client_meetings_only/);
+      await assert.rejects(db.query("delete from public.teachers where id=$1", [added.id]), /permission denied/);
+      await assert.rejects(db.query("update public.teachers set name='Changed' where id=$1", [teacher.id]), /permission denied/);
+      await assert.rejects(db.query("insert into public.teachers (name, active) values ('Bypass', false)"), /permission denied/);
+      const stale = (await db.query("update public.enquiries set meeting_at=now() where id=$1 and updated_at=$2 returning id", [base.id, saved.updated_at])).rows;
+      assert.equal(stale.length, 0, "stale edits must not overwrite a later follow-up");
     });
     await t.test("business stats cover all records, exclude applications, and distinguish package value", async () => {
       await db.exec("reset role");

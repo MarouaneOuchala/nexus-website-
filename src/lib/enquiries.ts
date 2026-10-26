@@ -2,6 +2,7 @@ import { createClient } from "@supabase/supabase-js";
 
 export const enquiryStatuses = ["new", "contacted", "callback", "won", "closed"] as const;
 export type EnquiryStatus = typeof enquiryStatuses[number];
+export type Teacher = { id: string; name: string; active: boolean; created_at: string };
 export type RequestType = "consultation" | "course-info" | "application";
 export type TrendBucket = {
   key: string;
@@ -50,6 +51,9 @@ export type Enquiry = {
   status: EnquiryStatus;
   notes: string;
   next_call_at: string | null;
+  teacher_id: string | null;
+  meeting_at: string | null;
+  meeting_url: string;
 };
 
 type Database = {
@@ -58,7 +62,13 @@ type Database = {
       enquiries: {
         Row: Enquiry;
         Insert: never;
-        Update: Pick<Enquiry, "status" | "notes" | "next_call_at">;
+        Update: Partial<Pick<Enquiry, "status" | "notes" | "next_call_at" | "teacher_id" | "meeting_at" | "meeting_url">>;
+        Relationships: [];
+      };
+      teachers: {
+        Row: Teacher;
+        Insert: Pick<Teacher, "name">;
+        Update: Pick<Teacher, "active">;
         Relationships: [];
       };
     };
@@ -110,12 +120,6 @@ export const enquiryCopy = {
       results: "Matching enquiries",
       emptyTitle: "A fresh start.",
       emptyHint: "Choose a client on the left to plan their next step.",
-      integrations: "Diagnostic session automation",
-      setup: "Setup required · not connected",
-      setupIntro: "Automatic scheduling and WhatsApp group creation are not enabled yet. No meeting or group has been created.",
-      google: "Google Calendar: authorize the academy account to create a free 20-minute Meet session and invite the client and teacher.",
-      whatsapp: "WhatsApp: confirm Official Business Account eligibility and a Cloud API number. The client and teacher must accept group invitations.",
-      welcome: "Once connected, the welcome message will use the client's language, their name, the teacher's name, the appointment time in Morocco and the Meet link. The group will use the academy logo.",
     },
     diagnosticTitle: "Book your free 20-minute diagnostic",
     diagnosticIntro: "Tell us your goals and availability. Our team will contact you to confirm a time for your free 20-minute English diagnostic. No payment required.",
@@ -158,12 +162,6 @@ export const enquiryCopy = {
       results: "Demandes correspondantes",
       emptyTitle: "Une nouvelle conversation.",
       emptyHint: "Choisissez un client à gauche pour préparer la prochaine étape.",
-      integrations: "Automatisation du diagnostic",
-      setup: "Configuration requise · non connecté",
-      setupIntro: "La planification automatique et la création de groupes WhatsApp ne sont pas encore activées. Aucun rendez-vous ni groupe n'a été créé.",
-      google: "Google Agenda : autoriser le compte de l'académie à créer un diagnostic gratuit de 20 minutes sur Meet et à inviter le client et l'enseignant.",
-      whatsapp: "WhatsApp : confirmer l'éligibilité Official Business Account et un numéro Cloud API. Le client et l'enseignant doivent accepter les invitations au groupe.",
-      welcome: "Une fois connecté, le message d'accueil utilisera la langue du client, son nom, le nom de l'enseignant, le créneau à l'heure du Maroc et le lien Meet. Le groupe utilisera le logo de l'académie.",
     },
     diagnosticTitle: "Réservez votre diagnostic gratuit de 20 minutes",
     diagnosticIntro: "Indiquez vos objectifs et vos disponibilités. Notre équipe vous contactera pour confirmer le créneau de votre diagnostic d'anglais gratuit de 20 minutes. Aucun paiement requis.",
@@ -206,12 +204,6 @@ export const enquiryCopy = {
       results: "الطلبات المطابقة",
       emptyTitle: "محادثة جديدة.",
       emptyHint: "اختر عميلاً من القائمة لتجهيز الخطوة المقبلة.",
-      integrations: "أتمتة الجلسة التشخيصية",
-      setup: "يلزم الإعداد · غير متصل",
-      setupIntro: "الجدولة التلقائية وإنشاء مجموعات واتساب غير مفعّلين بعد. لم يُنشأ أي موعد أو مجموعة.",
-      google: "تقويم Google: منح حساب الأكاديمية صلاحية إنشاء جلسة تشخيصية مجانية لمدة 20 دقيقة على Meet ودعوة العميل والمدرّس.",
-      whatsapp: "واتساب: تأكيد أهلية Official Business Account ورقم Cloud API. يجب على العميل والمدرّس قبول دعوات المجموعة.",
-      welcome: "بعد الاتصال، ستكون رسالة الترحيب بلغة العميل وستتضمن اسمه واسم المدرّس ووقت الموعد بتوقيت المغرب ورابط Meet. ستستخدم المجموعة شعار الأكاديمية.",
     },
     diagnosticTitle: "احجز جلستك التشخيصية المجانية لمدة 20 دقيقة",
     diagnosticIntro: "أخبرنا بأهدافك وأوقات تفرّغك. سيتواصل معك فريقنا لتأكيد موعد جلستك التشخيصية المجانية في الإنجليزية لمدة 20 دقيقة. لا يلزم أي دفع.",
