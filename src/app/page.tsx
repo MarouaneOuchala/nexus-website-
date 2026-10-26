@@ -4,6 +4,8 @@ import { Fragment, useEffect, useState } from "react";
 import Link from "next/link";
 import PackageConfigurator from "@/components/PackageConfigurator";
 import InteractiveScene from "@/components/InteractiveScene";
+import MeetingIllustration from "@/components/MeetingIllustration";
+import WebsiteLoader from "@/components/WebsiteLoader";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy } from "@/lib/enquiries";
 import { languages, type Lang } from "@/lib/i18n";
@@ -121,8 +123,7 @@ export default function Home() {
   ];
 
   return (
-    <main className="nexus-page">
-      <InteractiveScene />
+    <WebsiteLoader><main className="nexus-page">
       <header className="sticky-header">
         <div className="editorial-progress" aria-hidden="true" />
         <div className="site-header">
@@ -202,48 +203,10 @@ export default function Home() {
                 {h.programs}
               </a>
             </div>
-            <p className="hero-price-note">{h.priceNote}</p>
           </div>
         </div>
         <div className="executive-stage">
-          <div className="hero-visual">
-            <div className="scene-mount" aria-hidden="true">
-              <svg className="scene-fallback" viewBox="0 0 600 360" fill="none">
-                <rect x="36" y="10" width="528" height="310" fill="#e9bea9" stroke="#b6636c" strokeWidth="8" />
-                <path d="M80 50h55v135H80Zm385 0h55v135h-55Z" fill="#aecabc" stroke="#fff0d0" strokeWidth="6" />
-                <circle cx="300" cy="32" r="15" fill="#fff0d0" stroke="#934e55" strokeWidth="2" />
-                <path d="M300 21v11h9" stroke="#49695c" strokeWidth="2" />
-                <rect x="170" y="60" width="260" height="135" fill="#30564e" stroke="#e4b653" strokeWidth="4" />
-                <path d="M195 85h100M195 103h65" stroke="#fff0d0" strokeWidth="5" />
-                <path d="M210 170v-30m45 30v-45m45 45v-60m45 60V100" stroke="#e4b653" strokeWidth="18" />
-                <path d="M105 250 290 185 510 260 325 335Z" fill="#c98288" stroke="#934e55" strokeWidth="3" />
-                <path d="M125 260v40m360-30v35m-160 10v30" stroke="#49695c" strokeWidth="9" />
-                <path d="m160 235 55-17 40 18-55 17Z" fill="#fff0d0" />
-                <path d="m160 235-6-48 58-17 3 48Z" fill="#30564e" stroke="#c98288" strokeWidth="3" />
-                <path d="m340 250 55-17 40 18-55 17Z" fill="#fff0d0" />
-                <path d="m340 250-6-48 58-17 3 48Z" fill="#30564e" stroke="#c98288" strokeWidth="3" />
-                <path d="m263 263 26-9 30 11-26 10Z" fill="#fff0d0" />
-              </svg>
-            </div>
-            <div className="visual-label">
-              <i></i> NEXUS / LIVE ENGLISH
-            </div>
-            <div className="visual-caption">
-              <span>{h.caption1}</span>
-              <span>{h.caption2}</span>
-            </div>
-          </div>
-          <aside className="executive-brief">
-            <p className="brief-kicker">{h.agendaLabel}</p>
-            <h2>{h.agendaTitle}</h2>
-            <ol>
-              {h.agendaItems.map((item, index) => (
-                <li key={item}><span aria-hidden="true">0{index + 1}</span>{item}<Arrow /></li>
-              ))}
-            </ol>
-            <div className="brief-format"><strong>1:1</strong><span>{h.formatLabel}</span></div>
-            <a href="#contact">{h.consultation}<Arrow /></a>
-          </aside>
+          <InteractiveScene />
         </div>
         <ul className="hero-benefits">
           {h.benefits.map((benefit) => (
@@ -322,14 +285,18 @@ export default function Home() {
         <div className="program-grid" aria-live="polite">
           {visiblePrograms.map((program) => (
             <article className="program-item" key={program.index}>
-              <div className="program-photo">
-                {/* eslint-disable-next-line @next/next/no-img-element */}
-                <img
-                  className="w-full h-full object-cover object-[50%_25%] transition-transform duration-500 hover:scale-105"
-                  src={programImages[program.index]}
-                  alt=""
-                  loading="lazy"
-                />
+              <div className={`program-photo${program.index === 0 ? " program-photo-animated" : ""}`}>
+                {program.index === 0 ? <MeetingIllustration /> : (
+                  <>
+                    {/* eslint-disable-next-line @next/next/no-img-element */}
+                    <img
+                      className="w-full h-full object-cover object-[50%_25%] transition-transform duration-500 hover:scale-105"
+                      src={programImages[program.index]}
+                      alt=""
+                      loading="lazy"
+                    />
+                  </>
+                )}
                 <span>{program.tag}</span>
               </div>
               <div className="program-card-copy">
@@ -414,6 +381,7 @@ export default function Home() {
             <a className="button button-primary" href="#contact">
               {t.why.cta} <Arrow />
             </a>
+            <p className="diagnostic-note">{h.diagnosticLabel}</p>
           </div>
         </div>
       </section>
@@ -541,6 +509,6 @@ export default function Home() {
           <a href="#accueil">{t.footer.top}</a>
         </div>
       </footer>
-    </main>
+    </main></WebsiteLoader>
   );
 }

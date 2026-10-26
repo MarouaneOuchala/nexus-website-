@@ -30,7 +30,6 @@ export default function PackageConfigurator() {
             {c.title}
             <span>.</span>
           </h2>
-          <p>{c.intro}</p>
         </div>
 
         <div className="calc-card">
@@ -79,10 +78,12 @@ export default function PackageConfigurator() {
               <span className="sr-only">{c.regularPriceLabel}: </span>
               <del>{regularTotalText} {c.currency}</del>
             </p>
-            <p className="calc-total" key={total}>
-              {totalText} <span>{c.currency}</span>
-            </p>
-            <button className="button button-warm calc-cta" type="button" onClick={() => openEnquiry({ sessions })}>
+            <div className="calc-price-display" aria-live="polite" aria-atomic="true">
+              <p className="calc-total" key={total}>
+                {totalText} <span>{c.currency}</span>
+              </p>
+            </div>
+            <button className="button button-warm calc-cta" type="button" onClick={() => openEnquiry({ type: "course-info", sessions })}>
               {enquiryCopy[lang].open} <span className="arrow" aria-hidden="true">↗</span>
             </button>
             <p className="summary-disclaimer">{enquiryCopy[lang].disclaimer}</p>

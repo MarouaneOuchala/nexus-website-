@@ -26,6 +26,7 @@ function EnquiryDialog({ request, close }: { request: EnquiryRequest; close: () 
   const [reference, setReference] = useState("");
   const contact = t.contact;
   const sessions = requestType === "application" ? undefined : request.sessions;
+  const diagnostic = requestType === "consultation" && !sessions;
 
   useEffect(() => {
     const previousFocus = document.activeElement;
@@ -107,11 +108,11 @@ function EnquiryDialog({ request, close }: { request: EnquiryRequest; close: () 
       <div className="enquiry-dialog-inner">
         <button className="enquiry-close" type="button" onClick={close} disabled={busy} aria-label={copy.close}>×</button>
         <p className="enquiry-kicker">NEXUS / 1:1</p>
-        <h2 id="enquiry-title">{copy.title}</h2>
-        <p id="enquiry-intro">{copy.intro}</p>
+        <h2 id="enquiry-title">{diagnostic ? copy.diagnosticTitle : copy.title}</h2>
+        <p id="enquiry-intro">{diagnostic ? copy.diagnosticIntro : copy.intro}</p>
         {reference ? (
           <div className="enquiry-success" role="status">
-            <p>{copy.success}</p>
+            <p>{diagnostic ? copy.diagnosticSuccess : copy.success}</p>
             <p>{copy.reference}: <code>{reference}</code></p>
             <button className="button button-primary" onClick={close}>{copy.close}</button>
           </div>
@@ -133,11 +134,11 @@ function EnquiryDialog({ request, close }: { request: EnquiryRequest; close: () 
                 <label><span>{contact.phone}</span><input name="phone" type="tel" autoComplete="tel" required maxLength={30} placeholder="+212 6…" aria-describedby="phone-hint" onInput={(event) => event.currentTarget.setCustomValidity("")} /><small id="phone-hint">{copy.phoneHint}</small></label>
                 <label><span>{requestType === "application" ? contact.background : contact.goal}</span><input name="goal" defaultValue={request.goal ?? ""} required minLength={2} maxLength={1000} placeholder={requestType === "application" ? contact.backgroundPh : contact.goalPh} /></label>
               </div>
-              <label className="enquiry-block"><span>{copy.preferred}</span><input name="preferred_time" maxLength={200} placeholder={copy.preferredPh} /></label>
+              <label className="enquiry-block"><span>{diagnostic ? copy.diagnosticPreferred : copy.preferred}</span><input name="preferred_time" maxLength={200} placeholder={copy.preferredPh} /></label>
               {requestType === "application" && <label className="enquiry-block"><span>{contact.about}</span><textarea name="background" rows={3} maxLength={3000} required placeholder={contact.aboutPh} /></label>}
               <label className="enquiry-honeypot" aria-hidden="true">Website<input name="website" tabIndex={-1} autoComplete="off" /></label>
               <label className="consent"><input type="checkbox" name="consent" required /><span>{contact.consent}</span></label>
-              <button className="button button-primary submit-button" type="submit">{busy ? copy.sending : copy.send}<span aria-hidden="true">↗</span></button>
+              <button className="button button-primary submit-button" type="submit">{busy ? copy.sending : diagnostic ? copy.diagnosticSend : copy.send}<span aria-hidden="true">↗</span></button>
             </fieldset>
             {error && <p className="enquiry-error" role="alert">{error}</p>}
             <p className="form-disclaimer">{copy.disclaimer}</p>

@@ -9,10 +9,10 @@ classroom, matching windows, curtains, a ticking wall clock and warm matte props
 Stepped study-note motion evokes handcrafted stop-motion; no film artwork is used.
 Curtains open on arrival, flashcards bob in the air, notebook pages turn and the
 camera gently drifts even without pointer input. A floating set label, rotating
-ribbon arrows and sequential agenda highlights carry motion beyond the canvas.
+ribbon arrows carry motion beyond the canvas.
 These additional effects only run when reduced motion is not requested.
 Dark mode uses a distinct burgundy-and-forest evening palette across the header,
-hero, coaching brief and lower sections. The room switches materials, blue window
+hero and lower sections. The room switches materials, blue window
 light and warm key lighting live; the static SVG shares the evening colors.
 English, French and Arabic content centres on meetings, presentations,
 negotiations and leadership rather than university learning.
@@ -26,8 +26,111 @@ pauses when the hero is offscreen or the tab is hidden. Pixel ratio is capped at
 1.5; GPU resources, observers and event listeners are disposed on unmount.
 Reduced-motion preferences disable animation and use a static SVG workspace.
 WebGL2 initialization failure or context loss also uses that fallback with a
-console warning. All decorative effects are hidden from assistive technology.
+console warning. Decorative canvas effects are hidden from assistive technology.
 The header retains scroll progress, without a pause button or scroll hijacking.
+
+The hero room spans the full container, replacing the separate coaching brief.
+React Three Fiber raycasts the laptops, whiteboard, wall clock, both floating
+papers and the coral-trimmed book on each of the three shelf levels directly;
+there are no numbered circles. Each interactive group uses React Spring to scale
+smoothly to 115%. A custom postprocessing Kawase blur pass softens the room before
+the selected object's layer is rendered sharply, including objects sharing its
+depth. Drei Html cards stay attached to their object and are clamped inside the
+canvas. Click or tap to pin, use Escape or close to dismiss, and request a callback
+with the feature prefilled. Plus Jakarta Sans, Royal Purple/Sunset Coral accents,
+Tailwind glass utilities and theme-aware surfaces style the cards.
+The named controls below the canvas provide keyboard, touch and static
+fallback access without covering the model. Content remains localized in EN/FR/AR.
+Reduced-motion users see the static room and cards, without spring or blur motion.
+Flexible Scheduling belongs to the clock. The left paper introduces meeting
+confidence and the right paper presentation skills. The three interactive shelf books
+cover professional vocabulary, negotiation and career preparation. Every card is
+localized in English, French and Arabic and can prefill an enquiry topic.
+Nested book targets retain their shelf parent so they follow the room correctly.
+The papers pause their local drift while active for stable hover interaction.
+Interactive books use three distinct, randomly shuffled pastel cover colors.
+They slide forward and open their hinged covers over 850ms when active,
+turning their inner page surfaces (not their spines) toward the current camera,
+then close and return on dismissal. Their original shelf slots remain hittable
+during travel. Books clear the shelf before rotating toward the camera and opening;
+closing reverses those phases before returning to the slot. Decorative page text
+does not raycast, avoiding oversized line hit areas that selected adjacent books.
+The desk notebook turns its page upward, keeping the full page above the tabletop.
+Its ambient page turn lasts 2.5 seconds once every 45 seconds of scene time,
+with an initial 30-second pause; interactive shelf books still respond immediately.
+Shelf-book covers and spines enclose the full curved page thickness, preventing
+the first pages from protruding through the opposite cover when closed or turning.
+Other objects scale over 500ms, with a 650ms card entrance and
+a gently delayed 700ms message fade. Hover cards remain mounted for a matching
+650ms fade-out, with exiting controls inert and scene captions hidden until the
+card disappears. Returning to an object during its exit reverses the fade.
+The hover dismissal timer keeps a card open while its content is hovered or
+focused, including when canvas pointer-out arrives after the card pointer-enter.
+Reduced-motion fallbacks skip these effects.
+The Meetings & Leadership program card uses an original static 2D boardroom
+illustration with three expressive colleagues, a presenter and chart, knitted and
+tweed clothing patterns, detailed hair, round glasses, notebooks and coffee.
+Golden window light, soft background detail and subtle grain give it a warm
+handcrafted look. It is an inline SVG with no animation, WebGL or external image
+request. Other program images and enquiry actions are unchanged.
+“Book your free diagnostic session” opens a free 20-minute diagnostic request, including preferred
+availability. The team confirms the appointment; no instant calendar booking is
+implied. It uses the existing `consultation` request type, also labelled as a free
+diagnostic in the admin dashboard. Package enquiries remain separate, with their
+original paid bundle prices and `course-info` request type.
+The entire selected object's mesh hierarchy is excluded from the blur input and
+redrawn sharply, avoiding blurred edge duplicates. Cards use projected object
+bounds to minimize overlap and keep their glass blur away from the focal object.
+Interactive objects carry fine coral edge trims with a slow, low-amplitude
+shimmer and a localized visual key. Trims follow the actual meshes (including
+opening book covers), brighten for dark mode, and recede on unselected objects
+while a card is open. They do not receive raycasts or introduce numbered markers.
+Static/reduced-motion visitors retain the named feature buttons without shimmer.
+While any information card is open, the scene heading, interaction key and
+bottom caption are hidden so their separate overlay layers cannot cover its text.
+They return immediately when the card closes, including in the static fallback.
+The package summary emphasizes its total with larger type, a separated price
+area and a taller callback button. Price changes reveal over 650ms and the CTA
+has an occasional soft sheen; both stop under reduced-motion preferences.
+Price updates are announced politely and all four bundle prices are unchanged.
+Pricing labels, inclusions and disclaimers use larger, readable type; the
+redundant “No subscription / choose a pack” intro is removed in all languages.
+Enquiry and admin native selects explicitly match the active color scheme;
+option text and backgrounds are paired to preserve dropdown contrast.
+The room sits on a Moroccan/Turkish-inspired woven carpet with a deep burgundy
+field, indigo borders, antique-gold stepped medallions, dense diamond motifs, fine weave lines and
+individual tassels. It receives room shadows, follows workspace movement and
+adapts to evening lighting. The static fallback includes the same carpet motif.
+The planter holds a detailed olive-inspired indoor tree: a tapered curved trunk,
+eighteen branching stems and 324 instanced, curved leaves with varied tones and
+subtle central veins. The terracotta pot includes a rolled rim, decorative rings,
+visible soil and small stones. Shared leaf geometry keeps the canopy lightweight.
+Open books use two page
+stacks attached to the cover hinges, without a detached central page block or
+wire outlines across their reading surfaces.
+The page stacks taper into a shared binding with coincident hinge origins,
+curved reading surfaces, curved printed lines and fine fore-edge details.
+The wall clock displays device-synchronized `Africa/Casablanca` time with hour,
+minute and second hands, including Morocco's seasonal time changes. Its static
+fallback also updates hour/minute hands; hidden 3D scenes catch up on resume.
+The focus renderer tone-maps highlights before blurring, avoiding HDR sun/moon
+brightness spreading into glowing halos during interaction.
+The initial full-page loading bar measures three readiness milestones: page load,
+fonts and the first rendered 3D frame (or confirmed static fallback). Content stays
+hidden and inert until ready, avoiding partial-layout flashes. After 12 seconds,
+an explicit slow-loading message offers manual access rather than trapping users.
+The hero pricing teaser is removed in all languages; package prices are unchanged.
+The enlarged room sits between softly inset Moroccan-inspired arches, with a
+bookcase, potted plant, floor lamp and an extended shadow-receiving stage on wide
+screens. Peripheral furnishings recede on narrow screens to preserve hotspot
+spacing. Daylight includes a rotating, softly shining sun and warm floor-light
+patterns; night reveals a cratered full moon, cooler shadows and a lit floor lamp.
+The sun and moon are solid Three.js objects parented to the room, so perspective,
+pointer rotation and idle drift move them with the scene rather than the page
+background. The sun's rays rotate; the full moon gently bobs and rocks its cratered
+surface, with a softly breathing glow for both. Celestial motion uses the same
+render loop and pauses offscreen. Static SVG versions appear only for reduced
+motion or WebGL fallback, without duplicating the canvas orbs.
 
 Pricing, the four session bundles, individual-only lessons, EN/FR/AR and theme
 switching remain unchanged. In design 5, consultation/contact and package booking

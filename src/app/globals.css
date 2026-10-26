@@ -7,6 +7,10 @@
 	--color-nexus-border: #ede9fe;
 }
 
+@theme static {
+	--color-nexus-coral: #ff7f6e;
+}
+
 :root { --paper: #f8f7fc; --white: #fff; --ink: #181126; --muted: #64748b; --blue: var(--color-nexus-blue); --blue-dark: #1b0b3b; --yellow: var(--color-nexus-orange); --line: var(--color-nexus-border); --green: #10b981; }
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; scroll-padding-top: 96px; }

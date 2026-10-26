@@ -23,6 +23,9 @@
 .enquiry-dialog .inquiry-form :is(label, .field-label, .consent, .form-disclaimer) { color: var(--redesign-ink); }
 .enquiry-dialog .form-grid label > span { color: var(--redesign-ink); }
 .enquiry-dialog .inquiry-form select { width: 100%; }
+:is(.enquiry-dialog, .admin-page) select { color-scheme: light; }
+[data-theme="dark"] :is(.enquiry-dialog, .admin-page) select { color-scheme: dark; }
+:is(.enquiry-dialog, .admin-page) select option { background-color: var(--redesign-card); color: var(--redesign-ink); }
 .enquiry-dialog .form-grid { gap: 18px; }
 .enquiry-dialog .inquiry-form small { display: block; margin-top: 5px; color: var(--redesign-muted); font-size: 10px; }
 .enquiry-block { display: grid; gap: 8px; margin-top: 18px; font-size: 11px; font-weight: 600; }

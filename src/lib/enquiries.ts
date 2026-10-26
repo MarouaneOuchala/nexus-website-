@@ -68,6 +68,11 @@ export function isRequestType(value: string): value is RequestType {
 
 export const enquiryCopy = {
   en: {
+    diagnosticTitle: "Book your free 20-minute diagnostic",
+    diagnosticIntro: "Tell us your goals and availability. Our team will contact you to confirm a time for your free 20-minute English diagnostic. No payment required.",
+    diagnosticPreferred: "Your availability for the diagnostic (Morocco time)",
+    diagnosticSend: "Request my free diagnostic",
+    diagnosticSuccess: "Your free 20-minute diagnostic request has been received. Our team will contact you to confirm your appointment.",
     title: "Your next conversation starts here.",
     intro: "Leave your details. Our team will call you to discuss your goals and confirm the right offer.",
     open: "Request a callback", close: "Close", phoneHint: "Required so our team can call you",
@@ -96,6 +101,11 @@ export const enquiryCopy = {
     access: "Invite-only access. Public visitors cannot read enquiry records.",
   },
   fr: {
+    diagnosticTitle: "Réservez votre diagnostic gratuit de 20 minutes",
+    diagnosticIntro: "Indiquez vos objectifs et vos disponibilités. Notre équipe vous contactera pour confirmer le créneau de votre diagnostic d'anglais gratuit de 20 minutes. Aucun paiement requis.",
+    diagnosticPreferred: "Vos disponibilités pour le diagnostic (heure du Maroc)",
+    diagnosticSend: "Demander mon diagnostic gratuit",
+    diagnosticSuccess: "Votre demande de diagnostic gratuit de 20 minutes a bien été reçue. Notre équipe vous contactera pour confirmer votre rendez-vous.",
     title: "Votre prochaine conversation commence ici.",
     intro: "Laissez vos coordonnées. Notre équipe vous appellera pour comprendre vos objectifs et confirmer l’offre adaptée.",
     open: "Demander un rappel", close: "Fermer", phoneHint: "Obligatoire pour vous rappeler",
@@ -124,6 +134,11 @@ export const enquiryCopy = {
     access: "Accès sur invitation. Les visiteurs ne peuvent pas consulter les demandes.",
   },
   ar: {
+    diagnosticTitle: "احجز جلستك التشخيصية المجانية لمدة 20 دقيقة",
+    diagnosticIntro: "أخبرنا بأهدافك وأوقات تفرّغك. سيتواصل معك فريقنا لتأكيد موعد جلستك التشخيصية المجانية في الإنجليزية لمدة 20 دقيقة. لا يلزم أي دفع.",
+    diagnosticPreferred: "أوقات تفرّغك للجلسة التشخيصية (بتوقيت المغرب)",
+    diagnosticSend: "اطلب جلستي التشخيصية المجانية",
+    diagnosticSuccess: "تم استلام طلب جلستك التشخيصية المجانية لمدة 20 دقيقة. سيتواصل معك فريقنا لتأكيد الموعد.",
     title: "محادثتك القادمة تبدأ هنا.",
     intro: "اترك بياناتك. سيتصل بك فريقنا لمناقشة أهدافك وتأكيد العرض المناسب.",
     open: "اطلب اتصالاً", close: "إغلاق", phoneHint: "مطلوب حتى نتمكن من الاتصال بك",
