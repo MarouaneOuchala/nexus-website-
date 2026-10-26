@@ -122,7 +122,11 @@ export default function MeetingWelcome({ enquiry, teachers, onSaved, onDraftChan
       if (event.key === "Enter" && (event.ctrlKey || event.metaKey)) { event.preventDefault(); if (!busy) event.currentTarget.requestSubmit(); }
     }}>
       <fieldset disabled={busy || teachers === null}>
-        <label>{t.teacher}<select value={teacherId} required onChange={event => { setTeacherId(event.target.value); setActivity("pending"); setFeedback(""); }}>
+        <label>{t.teacher}<select value={teacherId} required onChange={event => {
+          setTeacherId(event.target.value);
+          setActivity(event.target.value === enquiry.teacher_id ? enquiry.teaching_status : "pending");
+          setFeedback("");
+        }}>
           <option value="">{t.choose}</option>
           {teachers?.filter(row => row.active || row.id === teacherId).map(row => <option key={row.id} value={row.id} disabled={!row.active}>{row.name}{!row.active ? ` (${t.removed})` : ""}</option>)}
         </select></label>
