@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { Inter, Jost, Noto_Sans_Arabic, Plus_Jakarta_Sans } from "next/font/google";
 import { SettingsProvider } from "@/components/SettingsProvider";
 import { EnquiryProvider } from "@/components/EnquiryProvider";
+import AnalyticsConsent from "@/components/AnalyticsConsent";
 import "./globals.css";
 import "./theme.css";
 import "./redesign.css";
@@ -30,7 +31,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
         <script dangerouslySetInnerHTML={{ __html: initScript }} />
       </head>
       <body className={`${dmSans.variable} ${spaceGrotesk.variable} ${arabic.variable} ${cinema.variable}`}>
-        <SettingsProvider><EnquiryProvider>{children}</EnquiryProvider></SettingsProvider>
+        <SettingsProvider><EnquiryProvider>{children}<AnalyticsConsent /></EnquiryProvider></SettingsProvider>
       </body>
     </html>
   );

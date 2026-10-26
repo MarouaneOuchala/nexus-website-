@@ -4,6 +4,7 @@ import { createContext, useCallback, useContext, useEffect, useRef, useState, ty
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy, getEnquiryClient, isRequestType, type RequestType } from "@/lib/enquiries";
 import { getTotal } from "@/lib/pricing";
+import { recordAnalyticsActivity } from "@/lib/analytics";
 
 type EnquiryRequest = { type?: RequestType; sessions?: number; goal?: string };
 const EnquiryContext = createContext<((request?: EnquiryRequest) => void) | null>(null);
@@ -62,6 +63,7 @@ function EnquiryDialog({ request, close }: { request: EnquiryRequest; close: () 
     try {
       submissionId.current ??= crypto.randomUUID();
       const client = getEnquiryClient();
+      const visitId = await recordAnalyticsActivity(true);
       const { data: id, error: failure } = await client.rpc("submit_enquiry", {
         payload: {
           id: submissionId.current,
@@ -76,6 +78,7 @@ function EnquiryDialog({ request, close }: { request: EnquiryRequest; close: () 
           language: lang,
           consent: data.get("consent") === "on",
           website: String(data.get("website") ?? ""),
+          analytics_visit_id: visitId,
         },
       });
       if (failure) {

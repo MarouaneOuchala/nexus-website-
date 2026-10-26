@@ -22,6 +22,7 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
     `);
     await db.exec(await readFile(new URL("../supabase/migrations/202610250001_enquiries.sql", import.meta.url), "utf8"));
     await db.exec(await readFile(new URL("../supabase/migrations/202610260001_business_stats.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/migrations/202610260002_visit_trends.sql", import.meta.url), "utf8"));
     await db.query("insert into auth.users (id) values ($1), ($2)", [admin, outsider]);
     await db.query("insert into private.admin_users (user_id) values ($1)", [admin]);
     const base = {
@@ -150,12 +151,119 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
         await db.exec("rollback");
       }
     });
+    await t.test("visits are idempotent, expire after inactivity, and remain private", async () => {
+      await db.exec("reset role");
+      const id = randomUUID();
+      await db.exec("set role anon");
+      assert.equal((await db.query("select public.record_site_visit($1) as id", [id])).rows[0].id, id);
+      assert.equal((await db.query("select public.record_site_visit($1) as id", [id])).rows[0].id, id);
+      await assert.rejects(db.query("select public.record_site_visit(null)"), /INVALID_VISIT/);
+      await assert.rejects(db.query("select * from private.site_visits"), /permission denied/);
+      await assert.rejects(db.query("select * from private.enquiry_confirmations"), /permission denied/);
+      await assert.rejects(db.query("select private.submit_enquiry_core('{}')"), /permission denied/);
+      await assert.rejects(db.query("select public.business_trends('2026-01-01', '2026-01-31', 'hour')"), /permission denied/);
+      await db.exec("reset role");
+      assert.equal(Number((await db.query("select count(*) as n from private.site_visits where id=$1", [id])).rows[0].n), 1);
+      await db.query("update private.site_visits set last_seen_at=now()-interval '31 minutes' where id=$1", [id]);
+      await db.exec("set role anon");
+      assert.notEqual((await db.query("select public.record_site_visit($1) as id", [id])).rows[0].id, id);
+      await identity(outsider);
+      await assert.rejects(db.query("select public.business_trends('2026-01-01', '2026-01-31', 'day')"), /ADMIN_REQUIRED/);
+    });
+    await t.test("visit attribution is optional, atomic, and deduplicated on retries", async () => {
+      await db.exec("reset role");
+      const visit = randomUUID();
+      await db.exec("set role anon");
+      await db.query("select public.record_site_visit($1)", [visit]);
+      const payload = { ...base, id: randomUUID(), email: "visit@example.invalid", phone: "212600000088", analytics_visit_id: visit };
+      await submit(payload); await submit(payload);
+      await db.exec("reset role");
+      assert.equal((await db.query("select analytics_visit_id from public.enquiries where id=$1", [payload.id])).rows[0].analytics_visit_id, visit);
+      const untracked = { ...payload, id: randomUUID(), analytics_visit_id: randomUUID() };
+      await db.exec("set role anon");
+      await submit(untracked);
+      await db.exec("reset role");
+      assert.equal((await db.query("select analytics_visit_id from public.enquiries where id=$1", [untracked.id])).rows[0].analytics_visit_id, null);
+      const invalid = { ...payload, id: randomUUID(), analytics_visit_id: "invalid" };
+      await db.exec("set role anon");
+      await assert.rejects(submit(invalid));
+      await db.exec("reset role");
+      assert.equal(Number((await db.query("select count(*) as n from public.enquiries where id=$1", [invalid.id])).rows[0].n), 0);
+      await identity(admin);
+      await assert.rejects(db.query("update public.enquiries set analytics_visit_id=$1 where id=$2", [visit, payload.id]), /permission denied/);
+    });
+    await t.test("confirmation history records only the first transition and excludes applications", async () => {
+      await db.exec("reset role");
+      await db.exec("begin");
+      try {
+        await identity(admin);
+        await db.query("update public.enquiries set status='won' where id=$1", [base.id]);
+        await db.query("update public.enquiries set notes='Still confirmed' where id=$1", [base.id]);
+        await db.query("update public.enquiries set status='new' where id=$1", [base.id]);
+        await db.query("update public.enquiries set status='won' where id=$1", [base.id]);
+        await db.exec("update public.enquiries set status='won' where request_type='application'");
+        await db.exec("reset role");
+        assert.equal(Number((await db.query("select count(*) as n from private.enquiry_confirmations where enquiry_id=$1", [base.id])).rows[0].n), 1);
+        assert.equal(Number((await db.query("select count(*) as n from private.enquiry_confirmations c join public.enquiries e on e.id=c.enquiry_id where e.request_type='application'")).rows[0].n), 0);
+      } finally { await db.exec("rollback"); }
+    });
+    await t.test("trends zero-fill buckets, use Morocco time and distinguish cohorts from confirmations", async () => {
+      await db.exec("reset role");
+      await db.exec("begin");
+      try {
+        await db.exec("delete from public.enquiries; delete from private.site_visits");
+        const visit = randomUUID();
+        await db.query("insert into private.site_visits (id,started_at,last_seen_at) values ($1,'2025-12-31T23:30:00Z','2026-01-01T00:00:00Z')", [visit]);
+        for (let i = 0; i < 3; i++) {
+          await db.query(`insert into public.enquiries
+            (id,full_name,email,phone,goal,request_type,language,consent,created_at,analytics_visit_id,background)
+            values ($1,'Trend Test','trend@example.invalid','212600000000','Testing',$2,'en',true,'2026-01-01T00:30:00Z',$3,'Teacher')`,
+          [randomUUID(), i === 2 ? "application" : "consultation", visit]);
+        }
+        await db.exec("update public.enquiries set status='won'");
+        await db.exec("update private.enquiry_confirmations set confirmed_at='2026-02-02T12:00:00Z'");
+        await identity(admin);
+        const trend = async (start, end, mode) => (await db.query("select public.business_trends($1,$2,$3) as data", [start, end, mode])).rows[0].data;
+        const hours = await trend("2026-01-01", "2026-01-01", "hour");
+        assert.equal(hours.buckets.length, 24);
+        assert.equal(hours.buckets[0].visits, 1);
+        assert.equal(hours.buckets[0].converted_visits, 1);
+        assert.equal(hours.buckets[1].enquiries, 2);
+        assert.equal(hours.buckets[1].converted, 2);
+        assert.equal(hours.buckets[1].attributed, 2);
+        assert.equal(hours.buckets.reduce((n, b) => n + b.confirmations, 0), 0);
+        const days = await trend("2026-02-01", "2026-02-28", "day");
+        assert.equal(days.buckets.length, 28);
+        assert.equal(days.buckets[1].key, "2026-02-02");
+        assert.equal(days.buckets[1].confirmations, 2);
+        const months = await trend("2026-01-01", "2026-12-31", "month");
+        assert.equal(months.buckets.length, 12);
+        assert.equal(months.buckets[0].visits, 1);
+        assert.equal(months.buckets[1].confirmations, 2);
+        await db.exec("reset role");
+        await db.query("update private.site_visits set started_at='2026-03-01T00:30:00Z' where id=$1", [visit]);
+        await identity(admin);
+        const ramadan = await trend("2026-03-01", "2026-03-01", "hour");
+        assert.equal(ramadan.buckets[0].visits, 1, "Ramadan uses UTC+0 rather than a fixed UTC+1");
+        assert.equal(ramadan.buckets[1].visits, 0);
+        const leap = await trend("2024-02-01", "2024-02-29", "day");
+        assert.equal(leap.buckets.length, 29);
+        const leapYear = await trend("2024-01-01", "2024-12-31", "month");
+        assert.equal(leapYear.buckets.length, 12);
+        await assert.rejects(trend("2026-02-01", "2026-01-01", "day"), /INVALID_TREND_RANGE/);
+      } finally { await db.exec("rollback"); }
+      await identity(admin);
+      for (const args of [["2026-01-01","2028-01-01","day"],["2026-01-01","2026-01-02","invalid"],[null,"2026-01-02","day"]]) {
+        await assert.rejects(db.query("select public.business_trends($1,$2,$3)", args), /INVALID_TREND_RANGE/);
+      }
+    });
     await t.test("revoking admin immediately revokes database read access", async () => {
       await db.exec("reset role");
       await db.query("delete from private.admin_users where user_id=$1", [admin]);
       await identity(admin);
       assert.deepEqual((await db.query("select * from public.enquiries")).rows, []);
       await assert.rejects(db.query("select * from public.business_stats()"), /ADMIN_REQUIRED/);
+      await assert.rejects(db.query("select public.business_trends('2026-01-01','2026-01-31','hour')"), /ADMIN_REQUIRED/);
     });
   } finally {
     await db.close();

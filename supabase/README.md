@@ -52,6 +52,8 @@ Run [the business-stats migration](migrations/202610260001_business_stats.sql)
 after the initial enquiries migration. The **Business stats** dashboard tab reads
 an admin-only aggregate over all records, independent of inbox pagination and
 filters. Refresh or reopen the tab to obtain a new snapshot.
+The conversion doughnut and status bar chart show the same snapshot, with visible
+counts and percentages. They do not imply historical trends or visitor tracking.
 
 Conversion means a client enquiry currently marked **Confirmed**, divided by all
 client enquiries. Teacher applications are counted separately. These are enquiry
@@ -59,6 +61,47 @@ records, not unique customers or site visitors. Confirmed package value is the
 sum of selected packages on confirmed client enquiries, not collected revenue;
 confirmed enquiries without a package are shown separately. Overdue callbacks
 include only open client enquiries whose callback time has passed.
+
+### Consented visits and time trends
+
+Run [the visit-trends migration](migrations/202610260002_visit_trends.sql) after
+the previous migrations, before deploying the frontend. It preserves the original
+submission validation and adds optional visit attribution atomically.
+
+- The public site asks for analytics consent. Declining does not block enquiries.
+  No visit RPC or visit ID is created before opt-in. The preference can be changed
+  with **Analytics preferences**. Withdrawal stops future tracking and clears the
+  local visit ID; earlier database totals are not deleted.
+- A random browser ID is shared across tabs using local storage. Activity renews
+  the visit, at most once per minute on the server. After 30 minutes of inactivity,
+  a new visit is counted. A visit is not a unique person. Admin pages are excluded.
+  Consenting enquiries can be linked to that visit, so this is pseudonymous
+  measurement, not a promise of irreversible anonymity.
+- Visit events store only a random UUID, server start time, and server activity
+  time. No URL, IP address, user-agent, advertising ID, or fingerprint is stored in
+  the analytics tables. Hosting/provider access logs are separate.
+- Visit ingestion is public and cannot prove that a caller is a real consenting
+  human. Bots, forged requests, blockers, storage restrictions, declined consent,
+  and simultaneous-tab races can affect counts. This is directional first-party
+  analytics, not audited traffic or billing data. Add an edge rate limit/CAPTCHA
+  before relying on it under hostile traffic; UUID deduplication is not anti-bot.
+- The database records the first transition to Confirmed from migration time
+  onward. Reconfirmation is not counted again. Existing confirmation times and
+  visits are not invented or backfilled. The dashboard shows the tracking start
+  and the number of currently confirmed records without a known event time.
+- All bucketing uses **Africa/Casablanca**, including its Ramadan offset changes.
+  Inclusive ranges cover at most 366 days. Hourly charts pool hour-of-day across
+  the selected dates; daily and monthly charts are chronological. Month/year
+  shortcuts set a range; press **Update trends** to apply it.
+- Enquiry cohort conversion uses enquiry creation time and current Confirmed
+  status. First-confirmation activity uses the first recorded admin action time.
+  Visit conversion counts distinct visits producing a currently Confirmed client
+  enquiry, bucketed by visit start, even if the enquiry arrived later. Multiple
+  enquiries cannot inflate a visit's conversion. Applications never contribute.
+  Missing denominators show a dash. Recent cohorts are not yet mature.
+- Only allowlisted admins can query the aggregate trend RPC; raw visits and
+  confirmation history remain in the private schema. Define retention and backup
+  policies for these tables according to your business and privacy obligations.
 
 ### Additional admins
 

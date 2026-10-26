@@ -3,6 +3,20 @@ import { createClient } from "@supabase/supabase-js";
 export const enquiryStatuses = ["new", "contacted", "callback", "won", "closed"] as const;
 export type EnquiryStatus = typeof enquiryStatuses[number];
 export type RequestType = "consultation" | "course-info" | "application";
+export type TrendBucket = {
+  key: string;
+  visits: number;
+  enquiries: number;
+  converted: number;
+  confirmations: number;
+  attributed: number;
+  converted_visits: number;
+};
+export type BusinessTrends = {
+  tracking_started_at: string;
+  legacy_confirmed: number;
+  buckets: TrendBucket[];
+};
 export type BusinessStats = {
   client_enquiries: number;
   converted: number;
@@ -52,6 +66,8 @@ type Database = {
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
       business_stats: { Args: Record<string, never>; Returns: BusinessStats[] };
+      record_site_visit: { Args: { visit_id: string }; Returns: string };
+      business_trends: { Args: { start_date: string; end_date: string; granularity: string }; Returns: BusinessTrends };
       submit_enquiry: { Args: { payload: Record<string, string | number | boolean | null> }; Returns: string };
     };
     Enums: { [_ in never]: never };

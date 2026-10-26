@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { useSettings } from "@/components/SettingsProvider";
 import { getEnquiryClient, type BusinessStats as Stats } from "@/lib/enquiries";
+import BusinessTrends from "@/components/BusinessTrends";
 
 export const businessCopy = {
   en: {
@@ -17,6 +18,8 @@ export const businessCopy = {
     error: "Business stats could not be loaded. Check the business_stats database migration and your admin access, then retry.",
     updated: "Snapshot taken", funnel: "Client enquiry breakdown",
     new: "New", contacted: "Contacted", callback: "Callback", closed: "Closed",
+    other: "Not confirmed", empty: "No client enquiries yet. Graphs will appear as enquiries arrive.",
+    share: "Share of client enquiries",
   },
   fr: {
     tab: "Statistiques", inbox: "Demandes", title: "Votre activité en un coup d'œil",
@@ -30,6 +33,8 @@ export const businessCopy = {
     error: "Impossible de charger les statistiques. Vérifiez la migration business_stats et votre accès administrateur, puis réessayez.",
     updated: "Instantané du", funnel: "Répartition des demandes clients",
     new: "Nouveau", contacted: "Contacté", callback: "À rappeler", closed: "Clôturé",
+    other: "Non confirmées", empty: "Aucune demande client pour le moment. Les graphiques se rempliront avec les demandes.",
+    share: "Part des demandes clients",
   },
   ar: {
     tab: "إحصائيات النشاط", inbox: "الطلبات", title: "نشاطك في لمحة",
@@ -43,6 +48,8 @@ export const businessCopy = {
     error: "تعذر تحميل الإحصائيات. تحقق من ترحيل business_stats وصلاحية المسؤول ثم أعد المحاولة.",
     updated: "وقت اللقطة", funnel: "توزيع طلبات العملاء",
     new: "جديد", contacted: "تم التواصل", callback: "إعادة اتصال", closed: "مغلق",
+    other: "غير مؤكدة", empty: "لا توجد طلبات عملاء بعد. ستظهر البيانات في الرسوم مع وصول الطلبات.",
+    share: "حصة طلبات العملاء",
   },
 } as const;
 
@@ -73,10 +80,13 @@ export default function BusinessStats() {
     return () => { active = false; };
   }, [revision]);
   const number = (value: number) => value.toLocaleString(lang);
+  const ratio = (count: number) => stats?.client_enquiries ? count / stats.client_enquiries : 0;
+  const percent = (value: number) => new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 1 }).format(value);
+  const conversion = stats ? ratio(stats.converted) : 0;
   const cards = stats ? [
     [copy.leads, number(stats.client_enquiries)],
     [copy.converted, number(stats.converted)],
-    [copy.rate, new Intl.NumberFormat(lang, { style: "percent", maximumFractionDigits: 1 }).format(stats.client_enquiries ? stats.converted / stats.client_enquiries : 0)],
+    [copy.rate, percent(conversion)],
     [copy.open, number(stats.open_enquiries)],
     [copy.overdue, number(stats.overdue_callbacks)],
     [copy.value, `${number(stats.confirmed_value_mad)} MAD`],
@@ -96,12 +106,35 @@ export default function BusinessStats() {
     {stats && !busy && <>
       <p className="business-timestamp">{copy.updated}: <time dateTime={stats.measured_at}>{new Date(stats.measured_at).toLocaleString(lang)}</time></p>
       <dl className="business-cards">{cards.map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value}</dd></div>)}</dl>
-      <h3>{copy.funnel}</h3>
-      <ul className="business-breakdown">{funnel.map(([label, count]) => <li key={label}>
-        <span>{label}</span><strong>{number(count)}</strong>
-        <span className="business-bar" aria-hidden="true"><span style={{ width: `${stats.client_enquiries ? count / stats.client_enquiries * 100 : 0}%` }} /></span>
-      </li>)}</ul>
+      {!stats.client_enquiries && <p role="status">{copy.empty}</p>}
+      <div className="business-charts">
+        <figure className="business-chart" aria-labelledby="conversion-chart-title">
+          <figcaption id="conversion-chart-title">{copy.rate}</figcaption>
+          <div className="business-donut">
+            <svg viewBox="0 0 200 200" aria-hidden="true" focusable="false">
+              <circle className="business-donut-track" cx="100" cy="100" r="80" />
+              <circle className="business-donut-value" cx="100" cy="100" r="80" pathLength="100"
+                strokeDasharray={`${conversion * 100} 100`} transform="rotate(-90 100 100)" />
+            </svg>
+            <strong>{percent(conversion)}</strong>
+          </div>
+          <ul className="business-chart-legend">
+            <li><span><i className="business-key-confirmed" aria-hidden="true" />{copy.converted}</span><strong>{number(stats.converted)}</strong></li>
+            <li><span><i className="business-key-other" aria-hidden="true" />{copy.other}</span><strong>{number(stats.client_enquiries - stats.converted)}</strong></li>
+          </ul>
+        </figure>
+        <figure className="business-chart" aria-labelledby="status-chart-title">
+          <figcaption id="status-chart-title">{copy.funnel}</figcaption>
+          <p className="business-chart-unit">{copy.share}</p>
+          <ul className="business-breakdown">{funnel.map(([label, count]) => <li key={label}>
+            <span>{label}</span><strong>{number(count)} <small>({percent(ratio(count))})</small></strong>
+            <span className="business-bar" aria-hidden="true"><span style={{ width: `${ratio(count) * 100}%` }} /></span>
+          </li>)}</ul>
+          <div className="business-chart-axis" aria-hidden="true"><span>{percent(0)}</span><span>{percent(.5)}</span><span>{percent(1)}</span></div>
+        </figure>
+      </div>
       <p>{copy.definition}</p><p>{copy.valueNote}</p>
     </>}
+    <BusinessTrends />
   </section>;
 }

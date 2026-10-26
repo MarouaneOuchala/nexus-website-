@@ -275,11 +275,6 @@ export default function AdminDashboard() {
             </nav>
             {view === "stats" && <BusinessStats />}
             <div hidden={view !== "enquiries"}>
-            <section className="admin-welcome">
-              <div><p className="enquiry-kicker">NEXUS</p><h2>{copy.dashboard.heading}</h2><p>{copy.dashboard.intro}</p></div>
-              <span className="admin-welcome-art" aria-hidden="true"><span /><span /><span /></span>
-            </section>
-            <div className="admin-pipeline-heading"><h2>{copy.dashboard.pipeline}</h2><p>{copy.dashboard.snapshot}</p></div>
             <div className="admin-stats" aria-busy={busy}>
               <button onClick={() => setStatus("all")} aria-pressed={status === "all"}><AnimatedCount value={rows.length} lang={lang} /><span>{copy.total}</span><span className="admin-stat-track" aria-hidden="true"><span style={{ width: rows.length ? "100%" : "0%" }} /></span></button>
               {enquiryStatuses.map((item) => {
