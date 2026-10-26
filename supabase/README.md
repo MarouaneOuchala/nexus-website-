@@ -70,7 +70,9 @@ submission validation and adds optional visit attribution atomically.
 
 - The public site asks for analytics consent. Declining does not block enquiries.
   No visit RPC or visit ID is created before opt-in. The preference can be changed
-  with **Analytics preferences**. Withdrawal stops future tracking and clears the
+  with **Analytics preferences** in the footer. The compact consent prompt fades
+  away completely after either choice; additional details expand on request and
+  animations respect reduced-motion preferences. Withdrawal stops future tracking and clears the
   local visit ID; earlier database totals are not deleted.
 - A random browser ID is shared across tabs using local storage. Activity renews
   the visit, at most once per minute on the server. After 30 minutes of inactivity,

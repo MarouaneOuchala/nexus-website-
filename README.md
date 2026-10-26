@@ -207,8 +207,30 @@ To learn more about Next.js, take a look at the following resources:
 
 You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
 
-## Deploy on Vercel
+## Deploy on Cloudflare Pages
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+The website uses Next.js static export; Supabase remains its separate backend.
+Deploy it as a Pages site, not a server-rendered Next.js Worker:
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- Connect `MarouaneOuchala/nexus-website-`, production branch `main`.
+- Build command: `npm run build`; output directory: `out`; root: repository root.
+- Set `NODE_VERSION=24`, `NEXT_PUBLIC_SUPABASE_URL`, and
+  `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` in the build environment. Use only the
+  public Supabase key, never a service-role key. Configure preview environments
+  too if needed. Leave `NEXT_PUBLIC_BASE_PATH` unset.
+- No Pages Functions, paid hosting plan, or Next.js adapter is required.
+- Test the generated `pages.dev` URL, `/admin/`, enquiry dialogs, analytics
+  consent, assets and 404 responses before connecting a custom domain.
+- Add the domain through Pages **Custom domains** and follow the displayed DNS
+  instructions. Preserve existing email DNS records and leave previous hosting
+  unchanged until the new domain is verified.
+
+The Pages Free plan currently allows 500 builds/month, 20,000 files and 25 MiB
+per asset; static asset requests are free. Domain registration, email and
+Supabase are separate services with separate limits and potential costs.
+See [Cloudflare's static Next.js guide](https://developers.cloudflare.com/pages/framework-guides/nextjs/deploy-a-static-nextjs-site/)
+and [Pages limits](https://developers.cloudflare.com/pages/platform/limits/).
+
+Vercel remains an alternative deployment target, but its Hobby plan is restricted
+to non-commercial personal use; a business deployment needs an appropriate paid
+plan. Do not remove the old deployment until the replacement has been tested.

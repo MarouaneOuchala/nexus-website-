@@ -9,6 +9,7 @@ import negotiationClientRelations from "@/assets/negotiation-client-relations.pn
 import PackageConfigurator from "@/components/PackageConfigurator";
 import InteractiveScene from "@/components/InteractiveScene";
 import WebsiteLoader from "@/components/WebsiteLoader";
+import { AnalyticsPreferencesButton } from "@/components/AnalyticsConsent";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy } from "@/lib/enquiries";
 import { languages, type Lang } from "@/lib/i18n";
@@ -508,6 +509,7 @@ export default function Home() {
         <div className="section-shell footer-bottom">
           <span>{t.footer.copyright}</span>
           <span>{t.footer.legal}</span>
+          <AnalyticsPreferencesButton />
           <Link href="/admin/">{enquiryCopy[lang].admin}</Link>
           <a href="#accueil">{t.footer.top}</a>
         </div>
