@@ -204,6 +204,10 @@ body { font-family: var(--font-cinema), sans-serif; }
 }
 @media (hover: hover) and (pointer: fine) and (prefers-reduced-motion: no-preference) {
 	.nexus-page :is(.program-item,.executive-brief,.getting-started-step)::after { background: radial-gradient(350px circle at var(--pointer-x,50%) var(--pointer-y,50%), rgb(255 233 175 / 24%), transparent 65%); }
+	.nexus-page .getting-started-step::after {
+		inset: -160px;
+		background: radial-gradient(160px circle at calc(var(--pointer-x, 0px) + 160px) calc(var(--pointer-y, 0px) + 160px), rgb(255 233 175 / 24%), transparent);
+	}
 	.nexus-page .program-item:hover { border-color: #a87076; box-shadow: 7px 7px 0 rgb(169 112 118 / 18%); }
 }
 [dir="rtl"] .nexus-page .hero h1 { font-family: var(--font-arabic), sans-serif; font-size: clamp(42px, 5vw, 72px); line-height: 1.55; }
@@ -476,6 +480,7 @@ body { font-family: var(--font-cinema), sans-serif; }
 	.nexus-page .mobile-nav nav a { font-size: 16px; min-height: 48px; display: flex; align-items: center; }
 }
 @media (max-width: 700px) {
+	.scene-feature-controls { display: none; }
 	.nexus-page .program-item { display: block; }
 	.nexus-page .program-photo,
 	.nexus-page .program-item:first-child .program-photo { height: 240px; min-height: 0; }

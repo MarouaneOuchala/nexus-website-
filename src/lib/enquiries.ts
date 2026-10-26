@@ -3,6 +3,20 @@ import { createClient } from "@supabase/supabase-js";
 export const enquiryStatuses = ["new", "contacted", "callback", "won", "closed"] as const;
 export type EnquiryStatus = typeof enquiryStatuses[number];
 export type RequestType = "consultation" | "course-info" | "application";
+export type BusinessStats = {
+  client_enquiries: number;
+  converted: number;
+  open_enquiries: number;
+  overdue_callbacks: number;
+  confirmed_value_mad: number;
+  confirmed_without_package: number;
+  applications: number;
+  new_enquiries: number;
+  contacted: number;
+  callbacks: number;
+  closed: number;
+  measured_at: string;
+};
 export type Enquiry = {
   id: string;
   created_at: string;
@@ -37,6 +51,7 @@ type Database = {
     Views: { [_ in never]: never };
     Functions: {
       is_admin: { Args: Record<string, never>; Returns: boolean };
+      business_stats: { Args: Record<string, never>; Returns: BusinessStats[] };
       submit_enquiry: { Args: { payload: Record<string, string | number | boolean | null> }; Returns: string };
     };
     Enums: { [_ in never]: never };

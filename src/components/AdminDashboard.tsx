@@ -2,6 +2,7 @@
 
 import { useCallback, useEffect, useRef, useState, type FormEvent } from "react";
 import Link from "next/link";
+import BusinessStats, { businessCopy } from "@/components/BusinessStats";
 import { AnimatePresence, motion, useReducedMotion, useSpring, useTransform } from "framer-motion";
 import { useSettings } from "@/components/SettingsProvider";
 import { enquiryCopy, enquiryStatuses, getEnquiryClient, type Enquiry, type EnquiryStatus } from "@/lib/enquiries";
@@ -129,6 +130,7 @@ export default function AdminDashboard() {
   const [search, setSearch] = useState("");
   const [busy, setBusy] = useState(false);
   const [hasMore, setHasMore] = useState(false);
+  const [view, setView] = useState<"enquiries" | "stats">("enquiries");
   const generation = useRef(0);
   const inFlight = useRef(false);
   const verifiedUser = useRef<string | null>(null);
@@ -267,6 +269,12 @@ export default function AdminDashboard() {
         )}
         {access === "admin" && (
           <>
+            <nav className="admin-tabs" aria-label={copy.admin}>
+              <button aria-pressed={view === "enquiries"} onClick={() => setView("enquiries")}>{businessCopy[lang].inbox}</button>
+              <button aria-pressed={view === "stats"} onClick={() => setView("stats")}>{businessCopy[lang].tab}</button>
+            </nav>
+            {view === "stats" && <BusinessStats />}
+            <div hidden={view !== "enquiries"}>
             <section className="admin-welcome">
               <div><p className="enquiry-kicker">NEXUS</p><h2>{copy.dashboard.heading}</h2><p>{copy.dashboard.intro}</p></div>
               <span className="admin-welcome-art" aria-hidden="true"><span /><span /><span /></span>
@@ -307,6 +315,7 @@ export default function AdminDashboard() {
                 {hasMore && <button disabled={busy} onClick={() => void load(rows.length)}>{copy.more}</button>}
               </section>
               {current ? <FollowUp key={current.id} enquiry={current} onSaved={(updated) => setRows((previous) => previous.map((row) => row.id === updated.id ? updated : row))} /> : <div className="admin-detail admin-empty-detail"><span aria-hidden="true">↗</span><h2>{copy.dashboard.emptyTitle}</h2><p>{copy.dashboard.emptyHint}</p></div>}
+            </div>
             </div>
           </>
         )}

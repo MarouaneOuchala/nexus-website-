@@ -177,8 +177,8 @@ export default function InteractiveScene() {
       const bounds = target.getBoundingClientRect();
       const x = (event.clientX - bounds.left) / bounds.width;
       const y = (event.clientY - bounds.top) / bounds.height;
-      target.style.setProperty("--pointer-x", `${x * 100}%`);
-      target.style.setProperty("--pointer-y", `${y * 100}%`);
+      target.style.setProperty("--pointer-x", `${event.clientX - bounds.left}px`);
+      target.style.setProperty("--pointer-y", `${event.clientY - bounds.top}px`);
       target.style.setProperty("--tilt-x", `${(0.5 - y) * 6}deg`);
       target.style.setProperty("--tilt-y", `${(x - 0.5) * 6}deg`);
       target.dataset.pointer = "true";
@@ -1100,11 +1100,7 @@ export default function InteractiveScene() {
             <path d="m263 263 26-9 30 11-26 10Z" fill="#fff0d0" />
           </svg>
         </div>
-        <div className="scene-heading">
-          <span className="scene-badge">NEXUS / 1:1</span>
-          {webgl && <span className="scene-interaction-key"><span aria-hidden="true" />{h.interactionHint}</span>}
-          <p id="scene-instruction">{h.sceneInstruction}</p>
-        </div>
+        <p id="scene-instruction" className="sr-only">{h.sceneInstruction}</p>
         {!webgl && activeIndex >= 0 && (
           <div
             ref={panelRef}
@@ -1131,10 +1127,6 @@ export default function InteractiveScene() {
             }}>{h.consultation}<span aria-hidden="true">↗</span></button>
           </div>
         )}
-        <div className="visual-caption">
-          <span>{h.caption1}</span>
-          <span>{h.caption2}</span>
-        </div>
       </div>
       <div className="scene-feature-controls" role="group" aria-label={h.agendaLabel}
         onKeyDown={(event) => { if (event.key === "Escape") dismiss(); }}>

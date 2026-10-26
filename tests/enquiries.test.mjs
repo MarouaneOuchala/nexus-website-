@@ -21,6 +21,7 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
       grant execute on function auth.uid() to authenticated;
     `);
     await db.exec(await readFile(new URL("../supabase/migrations/202610250001_enquiries.sql", import.meta.url), "utf8"));
+    await db.exec(await readFile(new URL("../supabase/migrations/202610260001_business_stats.sql", import.meta.url), "utf8"));
     await db.query("insert into auth.users (id) values ($1), ($2)", [admin, outsider]);
     await db.query("insert into private.admin_users (user_id) values ($1)", [admin]);
     const base = {
@@ -40,6 +41,7 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
       await assert.rejects(db.query("select * from public.enquiries"), /permission denied/);
       await assert.rejects(db.query("select * from private.admin_users"), /permission denied/);
       await assert.rejects(db.query("select public.is_admin()"), /permission denied/);
+      await assert.rejects(db.query("select * from public.business_stats()"), /permission denied/);
       await assert.rejects(db.query("insert into public.enquiries (id) values ($1)", [randomUUID()]), /permission denied/);
     });
     await t.test("retrying the same submission is idempotent", async () => {
@@ -93,6 +95,7 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
     await t.test("ordinary signed-in users cannot read or change leads or grant themselves admin", async () => {
       await identity(outsider);
       assert.equal((await db.query("select public.is_admin() as allowed")).rows[0].allowed, false);
+      await assert.rejects(db.query("select * from public.business_stats()"), /ADMIN_REQUIRED/);
       assert.deepEqual((await db.query("select * from public.enquiries")).rows, []);
       assert.deepEqual((await db.query("update public.enquiries set status='won' returning id")).rows, []);
       await assert.rejects(db.query("insert into private.admin_users values ($1)", [outsider]), /permission denied/);
@@ -110,11 +113,49 @@ test("enquiry database: validation, pricing, retries, and admin-only access", as
       await assert.rejects(db.query("update public.enquiries set email='tampered@example.invalid' where id=$1", [base.id]), /permission denied/);
       await assert.rejects(db.query("delete from public.enquiries where id=$1", [base.id]), /permission denied/);
     });
+    await t.test("business stats cover all records, exclude applications, and distinguish package value", async () => {
+      await db.exec("reset role");
+      await db.exec("begin");
+      try {
+        await db.exec("delete from public.enquiries");
+        const before = (await db.query("select * from public.business_stats()")).rows[0];
+        for (const [field, value] of Object.entries(before)) {
+          if (field !== "measured_at") assert.equal(Number(value), 0, field);
+        }
+        for (let index = 0; index < 105; index++) {
+          await db.query(`insert into public.enquiries
+            (id, full_name, email, phone, goal, request_type, language, consent, status, sessions, total_mad, next_call_at, background)
+            values ($1, 'Stats Test', 'stats@example.invalid', '212600000000', 'Testing',
+              $2, 'en', true, $3, $4, $5, $6, 'Test teaching background')`,
+          [randomUUID(), index === 104 ? "application" : "consultation",
+            index < 3 || index === 104 ? "won" : index === 3 ? "closed" : index === 6 ? "new" : index === 7 ? "contacted" : "callback",
+            index < 2 ? 8 : null, index < 2 ? 1399 : null,
+            index === 0 || index === 3 || index === 4 || index === 104 ? "2000-01-01T00:00:00Z" : index === 5 ? "2100-01-01T00:00:00Z" : null]);
+        }
+        await identity(admin);
+        const stats = (await db.query("select * from public.business_stats()")).rows[0];
+        assert.equal(Number(stats.client_enquiries), 104);
+        assert.equal(Number(stats.converted), 3);
+        assert.equal(Number(stats.confirmed_value_mad), 2798);
+        assert.equal(Number(stats.confirmed_without_package), 1);
+        assert.equal(Number(stats.applications), 1);
+        assert.equal(Number(stats.open_enquiries), 100);
+        assert.equal(Number(stats.callbacks), 98);
+        assert.equal(Number(stats.new_enquiries), 1);
+        assert.equal(Number(stats.contacted), 1);
+        assert.equal(Number(stats.closed), 1);
+        assert.equal(Number(stats.overdue_callbacks), 1);
+        assert.ok(Number.isFinite(new Date(stats.measured_at).getTime()));
+      } finally {
+        await db.exec("rollback");
+      }
+    });
     await t.test("revoking admin immediately revokes database read access", async () => {
       await db.exec("reset role");
       await db.query("delete from private.admin_users where user_id=$1", [admin]);
       await identity(admin);
       assert.deepEqual((await db.query("select * from public.enquiries")).rows, []);
+      await assert.rejects(db.query("select * from public.business_stats()"), /ADMIN_REQUIRED/);
     });
   } finally {
     await db.close();

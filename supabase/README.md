@@ -46,6 +46,46 @@ row-level security (RLS). No client data is embedded in the exported admin page.
 
 ## Workflow
 
+### Business statistics
+
+Run [the business-stats migration](migrations/202610260001_business_stats.sql)
+after the initial enquiries migration. The **Business stats** dashboard tab reads
+an admin-only aggregate over all records, independent of inbox pagination and
+filters. Refresh or reopen the tab to obtain a new snapshot.
+
+Conversion means a client enquiry currently marked **Confirmed**, divided by all
+client enquiries. Teacher applications are counted separately. These are enquiry
+records, not unique customers or site visitors. Confirmed package value is the
+sum of selected packages on confirmed client enquiries, not collected revenue;
+confirmed enquiries without a package are shown separately. Overdue callbacks
+include only open client enquiries whose callback time has passed.
+
+### Additional admins
+
+The project owner must create Mohammed (`Mohammedboulahouajeb@gmail.com`) and
+Marouane (`marouaneouchalla@gmail.com`) in **Authentication > Users**, setting
+passwords securely there. Existing passwords cannot be retrieved. Once both
+accounts exist, run the following in the SQL Editor to grant admin access:
+
+```sql
+do $$
+begin
+  if (select count(*) from auth.users
+      where lower(email) in ('mohammedboulahouajeb@gmail.com', 'marouaneouchalla@gmail.com')) <> 2 then
+    raise exception 'Create both Auth users before granting admin access';
+  end if;
+  insert into private.admin_users (user_id)
+  select id from auth.users
+  where lower(email) in ('mohammedboulahouajeb@gmail.com', 'marouaneouchalla@gmail.com')
+  on conflict (user_id) do nothing;
+end;
+$$;
+```
+
+This does not change Salma's access or any password.
+
+### Enquiry workflow
+
 - Contact, consultation, programme and package buttons open a native accessible
   modal, with keyboard focus containment, Escape/backdrop close, and focus return.
 - Package selection is retained; the database derives the authoritative price:
