@@ -6,6 +6,12 @@ The production domain is `https://nexusacademy.ma`, hosted on the existing free
 Cloudflare Pages project, with both apex and www attached as custom domains.
 No paid web-hosting plan is required. Domain-level redirects must be configured
 in Cloudflare Rules; Pages `_redirects` does not support hostname matching.
+The zone's Single Redirect sends HTTP/HTTPS www requests to the HTTPS apex,
+preserving paths and queries. HTTP apex requests also redirect to HTTPS.
+The account-level Bulk Redirect list `nexus_pages_to_domain` and its enabled
+rule permanently redirect `nexus-academy-yxm.pages.dev` to the production domain.
+Preserve query string, subpath matching and preserve path suffix are enabled;
+include subdomains is disabled so deployment preview hostnames remain available.
 
 Marketing pages are statically rendered at `/fr/`, `/en/` and `/ar/`, each with
 localized metadata, a self-referencing canonical and reciprocal language
@@ -19,9 +25,13 @@ controls: dashboard data still requires authentication and database permissions.
 
 After `npm run build`, run `node --test tests/seo-export.test.mjs` to verify raw
 localized HTML, canonical/alternate links, sitemap and dashboard noindex.
-Once the domain is live, verify a Domain property in Google Search Console
-and submit `https://nexusacademy.ma/sitemap.xml`. This requires the owner's
-Google account; it is not automatically provisioned by deployment.
+The `nexusacademy.ma` Domain property was verified in Google Search Console on
+2026-10-27 using an apex TXT record. Keep the Google verification TXT record in
+Cloudflare DNS to retain ownership verification.
+`https://nexusacademy.ma/sitemap.xml` was submitted and processed successfully,
+with all three public language pages discovered. Discovery does not guarantee
+indexing or rankings; monitor Search Console's page indexing and performance
+reports as Google crawls the site.
 
 ## Teacher diagnostic conversion
 
