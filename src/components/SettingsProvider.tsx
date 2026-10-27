@@ -2,6 +2,7 @@
 
 import { createContext, useCallback, useContext, useEffect, useMemo, useSyncExternalStore, type ReactNode } from "react";
 import { dictionaries, isLang, type Dictionary, type Lang, type Theme } from "@/lib/i18n";
+import { useParams, usePathname, useRouter } from "next/navigation";
 
 const THEME_KEY = "nexus-theme";
 const LANG_KEY = "nexus-lang";
@@ -65,13 +66,20 @@ function getThemeSnapshot(): Theme {
 }
 
 export function SettingsProvider({ children }: { children: ReactNode }) {
-  const lang = useSyncExternalStore(subscribe, getLangSnapshot, () => DEFAULT_LANG);
+  const params = useParams<{ lang?: string }>();
+  const pathname = usePathname();
+  const router = useRouter();
+  const preference = useSyncExternalStore(subscribe, getLangSnapshot, () => DEFAULT_LANG);
+  const routeLang = process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP !== "1" && isLang(params.lang) ? params.lang : null;
+  const isMarketing = process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP !== "1" && (routeLang !== null || pathname === "/");
+  const lang = routeLang ?? (isMarketing ? DEFAULT_LANG : preference);
   const theme = useSyncExternalStore(subscribe, getThemeSnapshot, () => "light" as Theme);
 
   const setLang = useCallback((next: Lang) => {
     writeStored(LANG_KEY, next);
+    if (isMarketing) router.push(`/${next}/${window.location.search}${window.location.hash}`);
     notify();
-  }, []);
+  }, [isMarketing, router]);
 
   const toggleTheme = useCallback(() => {
     const root = document.documentElement;
@@ -88,7 +96,7 @@ export function SettingsProvider({ children }: { children: ReactNode }) {
     const root = document.documentElement;
     root.lang = lang;
     root.dir = isRtl ? "rtl" : "ltr";
-    document.title = process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP === "1" ? "NEXUS — Admin" : t.meta.title;
+    if (process.env.NEXT_PUBLIC_NEXUS_ANDROID_APP === "1") document.title = "NEXUS — Admin";
   }, [lang, isRtl, t]);
 
   useEffect(() => {

@@ -128,7 +128,7 @@ export default function MarketingPage() {
   ];
 
   return (
-    <WebsiteLoader><main className="nexus-page">
+    <WebsiteLoader><main className="nexus-page" lang={lang} dir={isRtl ? "rtl" : "ltr"}>
       <header className="sticky-header">
         <div className="editorial-progress" aria-hidden="true" />
         <div className="site-header">
@@ -504,6 +504,10 @@ export default function MarketingPage() {
             <a href="#forfaits">{t.footer.nav.packs}</a>
             <a href="#faq">{t.footer.nav.faq}</a>
             <a href="#contact">{t.footer.nav.contact}</a>
+            {languages.map(language => <Link key={language.code} href={`/${language.code}/`}
+              hrefLang={language.code} lang={language.code} aria-current={lang === language.code ? "page" : undefined}>
+              {language.name}
+            </Link>)}
           </nav>
         </div>
         <div className="section-shell footer-bottom">

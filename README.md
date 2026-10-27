@@ -1,5 +1,28 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Custom domain and search discovery
+
+The production domain is `https://nexusacademy.ma`, hosted on the existing free
+Cloudflare Pages project, with both apex and www attached as custom domains.
+No paid web-hosting plan is required. Domain-level redirects must be configured
+in Cloudflare Rules; Pages `_redirects` does not support hostname matching.
+
+Marketing pages are statically rendered at `/fr/`, `/en/` and `/ar/`, each with
+localized metadata, a self-referencing canonical and reciprocal language
+alternatives. The unprefixed homepage redirects permanently to `/fr/` through `public/_redirects`
+on Cloudflare; its exported fallback also uses French and canonicalizes to `/fr/`.
+Language navigation preserves campaign query parameters and the section hash.
+Dashboard language preferences remain independent of the public URL.
+`/sitemap.xml` lists only public language pages; `/robots.txt` excludes `/admin/`,
+which also retains its noindex metadata. These are crawl controls, not access
+controls: dashboard data still requires authentication and database permissions.
+
+After `npm run build`, run `node --test tests/seo-export.test.mjs` to verify raw
+localized HTML, canonical/alternate links, sitemap and dashboard noindex.
+Once the domain is live, verify a Domain property in Google Search Console
+and submit `https://nexusacademy.ma/sitemap.xml`. This requires the owner's
+Google account; it is not automatically provisioned by deployment.
+
 ## Teacher diagnostic conversion
 
 Apply `supabase/migrations/202610260006_teacher_conversion.sql` before deploying
